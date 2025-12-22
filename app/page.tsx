@@ -5,6 +5,9 @@ export default function HomePage() {
       <p>
         Welcome to your new Next.js app! This is the starting point for your Canadian Premier League contracts tracker.
       </p>
+      <p>
+  <a href="/players">Go to Players →</a>
+</p>
     </main>
   );
 }
