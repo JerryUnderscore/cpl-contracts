@@ -1,4 +1,4 @@
-// app/data/players.ts
+export type ContractType = "Guaranteed" | "Option" | "Loan" | "Unknown";
 
 export type Player = {
   id: string;
@@ -6,24 +6,21 @@ export type Player = {
   club: string;
   position?: string;
   contractEnd?: string;
-  status?: string;
+  contractType: ContractType; // required
+  source?: string;
+  notes?: string;
 };
 
 export const players: Player[] = [
   {
-    id: "hfx-1",
-    name: "Example Player",
+    id: "hfx-thomas-meilleur-giguere",
+    name: "Thomas Meilleur-Giguère",
     club: "HFX Wanderers",
-    position: "MF",
-    contractEnd: "2026",
-    status: "Guaranteed",
-  },
-  {
-    id: "forge-1",
-    name: "Another Player",
-    club: "Forge FC",
     position: "DF",
-    contractEnd: "2025",
-    status: "Option",
+    contractEnd: "2026",
+    contractType: "Guaranteed",
+    source: "HFX roster update (club article)",
+    notes: "Guaranteed for 2026 per club roster update.",
   },
+  // (you can paste the rest of the HFX list after this)
 ];

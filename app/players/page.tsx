@@ -4,16 +4,15 @@ export default function PlayersPage() {
   return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Players</h1>
-      <p>Early prototype list (hard-coded for now).</p>
 
       <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
         <thead>
           <tr>
-            {["Name", "Club", "Pos", "Contract end", "Type"].map((h) => (
-              <th key={h} style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>
-                {h}
-              </th>
-            ))}
+            <th style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Name</th>
+            <th style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Club</th>
+            <th style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Pos</th>
+            <th style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Contract end</th>
+            <th style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Type</th>
           </tr>
         </thead>
         <tbody>
@@ -23,7 +22,7 @@ export default function PlayersPage() {
               <td style={{ padding: "0.5rem" }}>{p.club}</td>
               <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
               <td style={{ padding: "0.5rem" }}>{p.contractEnd ?? "—"}</td>
-              <td style={{ padding: "0.5rem" }}>{p.contractType ?? "—"}</td>
+              <td style={{ padding: "0.5rem" }}>{p.contractType}</td>
             </tr>
           ))}
         </tbody>
