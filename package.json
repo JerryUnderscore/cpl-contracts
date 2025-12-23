@@ -14,10 +14,10 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "@types/node": "^20.19.27",
     "@types/react": "^18.2.15",
-    "@types/node": "^20.8.1",
     "eslint": "^8.49.0",
-    "eslint-config-next": "^14.0.4"
+    "eslint-config-next": "^14.0.4",
+    "typescript": "^5.2.2"
   }
 }

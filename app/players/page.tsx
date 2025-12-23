@@ -9,7 +9,7 @@ export default function PlayersPage() {
       <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
         <thead>
           <tr>
-            {["Name", "Club", "Pos", "Contract end", "Status"].map((h) => (
+            {["Name", "Club", "Pos", "Contract end", "Type"].map((h) => (
               <th key={h} style={{ textAlign: "left", borderBottom: "1px solid #ddd", padding: "0.5rem" }}>
                 {h}
               </th>
@@ -23,7 +23,7 @@ export default function PlayersPage() {
               <td style={{ padding: "0.5rem" }}>{p.club}</td>
               <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
               <td style={{ padding: "0.5rem" }}>{p.contractEnd ?? "—"}</td>
-              <td style={{ padding: "0.5rem" }}>{p.status ?? "—"}</td>
+              <td style={{ padding: "0.5rem" }}>{p.contractType ?? "—"}</td>
             </tr>
           ))}
         </tbody>
