@@ -1,5 +1,6 @@
 import { getPlayers } from "../lib/players";
 
+export const revalidate = 3600; // seconds (1 hour)
 export default async function PlayersPage() {
   const players = await getPlayers();
 
