@@ -1,37 +1,79 @@
 "use client";
 
 import * as React from "react";
+import type { Player } from "../lib/players";
 
-type ContractType = "Guaranteed" | "Option" | "Loan" | "Unknown";
-
-export type Player = {
-  id: string;
-  name: string;
-  club: string;
-  position?: string;
-  contractEnd?: string;
-  contractType?: ContractType;
-  source?: string;
-  notes?: string;
-};
-
-type SortKey = "name" | "club" | "position" | "contractEnd" | "contractType";
 type SortDir = "asc" | "desc";
+type SortKey =
+  | "name"
+  | "club"
+  | "position"
+  | "number"
+  | "age"
+  | "nationality"
+  | `season:${string}`;
 
-function compare(a: string, b: string) {
+function compareStrings(a: string, b: string) {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+}
+
+function compareValues(a: string | number, b: string | number) {
+  const aNum = typeof a === "number";
+  const bNum = typeof b === "number";
+  if (aNum && bNum) return a - b;
+  return compareStrings(String(a), String(b));
 }
 
 export default function PlayersTable({ players }: { players: Player[] }) {
   const [sortKey, setSortKey] = React.useState<SortKey>("name");
   const [sortDir, setSortDir] = React.useState<SortDir>("asc");
 
+  const years = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const p of players) {
+      for (const y of Object.keys(p.seasons ?? {})) {
+        if (/^\d{4}$/.test(y)) set.add(y);
+      }
+    }
+    return Array.from(set).sort();
+  }, [players]);
+
+  const currentYear = new Date().getFullYear();
+
+  function ageOf(p: Player) {
+    return p.birthYear ? currentYear - p.birthYear : undefined;
+  }
+
+  function sortValue(p: Player, key: SortKey): string | number {
+    if (key.startsWith("season:")) {
+      const y = key.slice("season:".length);
+      return p.seasons?.[y] ?? "";
+    }
+
+    switch (key) {
+      case "name":
+        return p.name ?? "";
+      case "club":
+        return p.club ?? "";
+      case "position":
+        return p.position ?? "";
+      case "nationality":
+        return p.nationality ?? "";
+      case "number":
+        return p.number ?? Number.POSITIVE_INFINITY; // blanks sort last
+      case "age":
+        return ageOf(p) ?? Number.POSITIVE_INFINITY; // blanks sort last
+      default:
+        return "";
+    }
+  }
+
   const sorted = React.useMemo(() => {
     const copy = [...players];
     copy.sort((p1, p2) => {
-      const v1 = (p1[sortKey] ?? "").toString();
-      const v2 = (p2[sortKey] ?? "").toString();
-      const c = compare(v1, v2);
+      const v1 = sortValue(p1, sortKey);
+      const v2 = sortValue(p2, sortKey);
+      const c = compareValues(v1, v2);
       return sortDir === "asc" ? c : -c;
     });
     return copy;
@@ -72,23 +114,38 @@ export default function PlayersTable({ players }: { players: Player[] }) {
     <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
       <thead>
         <tr>
-          <Header keyName="name" label="Name" />
-          <Header keyName="club" label="Club" />
+          <Header keyName="number" label="No." />
+          <Header keyName="name" label="Player" />
           <Header keyName="position" label="Pos" />
-          <Header keyName="contractEnd" label="Contract end" />
-          <Header keyName="contractType" label="Type" />
+          <Header keyName="age" label="Age" />
+          <Header keyName="nationality" label="Nat." />
+          <Header keyName="club" label="Club" />
+          {years.map((y) => (
+            <Header key={y} keyName={`season:${y}`} label={y} />
+          ))}
         </tr>
       </thead>
+
       <tbody>
-        {sorted.map((p) => (
-          <tr key={p.id}>
-            <td style={{ padding: "0.5rem" }}>{p.name}</td>
-            <td style={{ padding: "0.5rem" }}>{p.club}</td>
-            <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
-            <td style={{ padding: "0.5rem" }}>{p.contractEnd ?? "—"}</td>
-            <td style={{ padding: "0.5rem" }}>{p.contractType ?? "—"}</td>
-          </tr>
-        ))}
+        {sorted.map((p) => {
+          const age = ageOf(p);
+          return (
+            <tr key={p.id}>
+              <td style={{ padding: "0.5rem" }}>{p.number ?? "—"}</td>
+              <td style={{ padding: "0.5rem" }}>{p.name}</td>
+              <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
+              <td style={{ padding: "0.5rem" }}>{age ?? "—"}</td>
+              <td style={{ padding: "0.5rem" }}>{p.nationality ?? "—"}</td>
+              <td style={{ padding: "0.5rem" }}>{p.club}</td>
+
+              {years.map((y) => (
+                <td key={y} style={{ padding: "0.5rem" }}>
+                  {p.seasons?.[y] ?? "—"}
+                </td>
+              ))}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

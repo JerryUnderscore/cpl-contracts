@@ -1,53 +1,141 @@
-export type ContractType = "Guaranteed" | "Option" | "Loan" | "Unknown";
+// app/lib/players.ts
 
 export type Player = {
   id: string;
-  name: string;
+  clubSlug: string;
   club: string;
+  name: string;
   position?: string;
-  contractEnd?: string;
-  contractType?: ContractType;
+  birthYear?: number;
+  nationality?: string;
+  number?: number;
   source?: string;
   notes?: string;
+
+  // Dynamic contract columns (e.g., "2026", "2027", "2028", ...)
+  seasons: Record<string, string>;
 };
 
-function parseCSV(csv: string): Record<string, string>[] {
-  const lines = csv.trim().split(/\r?\n/);
-  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
-  return lines.slice(1).map((line) => {
-    const cells = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-    const row: Record<string, string> = {};
-    headers.forEach((h, i) => (row[h] = cells[i] ?? ""));
-    return row;
+const SHEET_CSV_URL = process.env.PLAYERS_CSV_URL;
+
+function parseCSV(csvText: string): Record<string, string>[] {
+  // Small, safe CSV parser that supports quoted fields + commas/newlines inside quotes.
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const c = csvText[i];
+
+    if (c === '"') {
+      // Handle escaped quote ""
+      if (inQuotes && csvText[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (!inQuotes && (c === "," || c === "\n" || c === "\r")) {
+      // End of field
+      row.push(field);
+      field = "";
+
+      // Handle CRLF or standalone CR
+      if (c === "\r" && csvText[i + 1] === "\n") i++;
+
+      // End of row
+      if (c === "\n" || c === "\r") {
+        // Ignore completely empty trailing row
+        if (row.some((x) => x.trim() !== "")) rows.push(row);
+        row = [];
+      }
+      continue;
+    }
+
+    field += c;
+  }
+
+  // Flush last field/row
+  row.push(field);
+  if (row.some((x) => x.trim() !== "")) rows.push(row);
+
+  if (rows.length === 0) return [];
+
+  const headers = rows[0].map((h) => h.trim());
+  return rows.slice(1).map((r) => {
+    const obj: Record<string, string> = {};
+    headers.forEach((h, idx) => {
+      obj[h] = (r[idx] ?? "").trim();
+    });
+    return obj;
   });
 }
 
-function normalizeContractType(value: string): ContractType {
-  const v = value.trim();
-  if (v === "Guaranteed" || v === "Option" || v === "Loan" || v === "Unknown") return v;
-  return "Unknown";
+function isYearHeader(h: string) {
+  return /^\d{4}$/.test(h);
+}
+
+function toNumberMaybe(v: string): number | undefined {
+  const s = (v ?? "").trim();
+  if (!s) return undefined;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 export async function getPlayers(): Promise<Player[]> {
-  const url = process.env.PLAYERS_SHEET_CSV_URL;
-  if (!url) throw new Error("Missing PLAYERS_SHEET_CSV_URL env var");
+  if (!SHEET_CSV_URL) {
+    throw new Error(
+      "Missing PLAYERS_CSV_URL. Set it in .env.local (and in Vercel env vars) to your Google Sheets CSV export URL."
+    );
+  }
 
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed to fetch CSV: ${res.status} ${res.statusText}`);
+  const res = await fetch(SHEET_CSV_URL, {
+    // Helps Next keep this server-side and compatible with ISR revalidate on pages
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch players CSV: ${res.status} ${res.statusText}`);
+  }
 
   const csv = await res.text();
-  const rows = parseCSV(csv);
+  const rawRows = parseCSV(csv);
 
-  return rows
-    .filter((r) => r.id && r.name)
-    .map((r) => ({
-      id: r.id,
-      name: r.name,
-      club: r.club,
-      position: r.position || undefined,
-      contractEnd: r.contractEnd || undefined,
-      contractType: r.contractType ? normalizeContractType(r.contractType) : undefined,
-      source: r.source || undefined,
-      notes: r.notes || undefined,
-    }));
+  // Discover year columns from the sheet headers dynamically
+  const yearColumns = rawRows.length
+    ? Object.keys(rawRows[0]).filter(isYearHeader).sort()
+    : [];
+
+  const players: Player[] = rawRows
+    .map((r) => {
+      const seasons: Record<string, string> = {};
+      for (const y of yearColumns) {
+        const val = (r[y] ?? "").trim();
+        if (val) seasons[y] = val;
+      }
+
+      const player: Player = {
+        id: r.id ?? "",
+        clubSlug: r.clubSlug ?? "",
+        club: r.club ?? "",
+        name: r.name ?? "",
+        position: r.position || undefined,
+        birthYear: toNumberMaybe(r.birthYear),
+        nationality: r.nationality || undefined,
+        number: toNumberMaybe(r.number),
+        source: r.source || undefined,
+        notes: r.notes || undefined,
+        seasons,
+      };
+
+      return player;
+    })
+    // Basic sanity filters
+    .filter((p) => p.id && p.name && p.clubSlug);
+
+  return players;
 }
