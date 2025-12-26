@@ -19,9 +19,9 @@ function compareStrings(a: string, b: string) {
 }
 
 function compareValues(a: string | number, b: string | number) {
-  const aIsNum = typeof a === "number";
-  const bIsNum = typeof b === "number";
-  if (aIsNum && bIsNum) return a - b;
+  const aNum = typeof a === "number";
+  const bNum = typeof b === "number";
+  if (aNum && bNum) return a - b;
   return compareStrings(String(a), String(b));
 }
 
@@ -59,12 +59,11 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       case "position":
         return p.position ?? "";
       case "nationality":
-        // Sort by raw cell value (e.g., "CA; JM" or "ENG")
         return p.nationality ?? "";
       case "number":
-        return p.number ?? Number.POSITIVE_INFINITY; // blanks sort last
+        return p.number ?? Number.POSITIVE_INFINITY;
       case "age":
-        return ageOf(p) ?? Number.POSITIVE_INFINITY; // blanks sort last
+        return ageOf(p) ?? Number.POSITIVE_INFINITY;
       default:
         return "";
     }
@@ -138,7 +137,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
               <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
               <td style={{ padding: "0.5rem" }}>{age ?? "—"}</td>
 
-              <td style={{ padding: "0.5rem" }} title={p.nationality ?? ""}>
+              <td style={{ padding: "0.5rem" }}>
                 {FlagsFromCell(p.nationality)}
               </td>
 
