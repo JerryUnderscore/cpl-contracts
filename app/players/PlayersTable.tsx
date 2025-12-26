@@ -50,10 +50,12 @@ function Flag({ code, title }: { code: string; title?: string }) {
 
 function renderFlags(cell: string | undefined) {
   if (!cell) return "—";
+
   const codes = cell
     .split(";")
     .map((s) => s.trim())
-    .filter(Boolean);
+    .map(normalizeIso2)
+    .filter((c) => /^[a-z]{2}$/.test(c)); // keep only valid ISO-2
 
   if (codes.length === 0) return "—";
 

@@ -1,0 +1,185 @@
+team,playerId,firstName,lastName,fullName,birthYear,nationality,number
+Cavalry,cpl::Football_Player::b4b2c4b1ad704a3b9f0b7b2d7034ef26,Daniel,Clarke,Daniel Clarke,2003,Canada,41
+Cavalry,cpl::Football_Player::d80c8273244649a0841591e849fc3590,Diego,Gutiérrez,Diego Gutiérrez,1997,Canada,27
+Cavalry,cpl::Football_Player::6b48ced0357d4fd4a50e8ba77b6784d8,Tobias,Warschewski,Tobias Warschewski,1998,Germany,9
+Cavalry,cpl::Football_Player::d3eccdc138364416ab9dd2b141d41e76,Joseph,Holliday,Joseph Holliday,2005,Canada,21
+Cavalry,cpl::Football_Player::5689e826363240e892378a5cd52e5101,Nicolas,Wähling,Nicolas Wähling,1997,Germany,17
+Cavalry,cpl::Football_Player::c314ef65be194ced895c50a72967def8,Daan,Klomp,Daan Klomp,1998,Netherlands,4
+Cavalry,cpl::Football_Player::09f14fe890a548b08665ad76b2857552,Mihail,Gherasimencov,Mihail Gherasimencov,2005,Moldova,19
+Cavalry,cpl::Football_Player::013f2c6247454e60b16f8b8fb80f1c00,Michael,Baldisimo,Michael Baldisimo,2000,Philippines,55
+Cavalry,cpl::Football_Player::e63403e9bab940f29bef92f45ffb29ca,Owen,Antoniuk,Owen Antoniuk,2002,Canada,29
+Cavalry,cpl::Football_Player::6aa006d1cfcb4e3c92a2de560fa893f6,Callum,Montgomery,Callum Montgomery,1997,Canada,3
+Cavalry,cpl::Football_Player::04974dd93657419b8440025eca4e2ef0,Tom,Field,Tom Field,1997,Republic of Ireland,12
+Cavalry,cpl::Football_Player::665cea6eccc741f8aef577d5196aa0be,James,McGlinchey,James McGlinchey,2007,Canada,30
+Cavalry,cpl::Football_Player::fb2fbc059914452eb9a95cd309d66335,Goteh,Ntignee,Goteh Ntignee,2002,Canada,20
+Cavalry,cpl::Football_Player::1e2de1b3d9654cbe87321fe6e1f3837b,Chanan,Chanda,Chanan Chanda,2006,Canada,23
+Cavalry,cpl::Football_Player::6aa0420a7a3448a49b34c863c5b11ce4,Niko,Myroniuk,Niko Myroniuk,2005,Canada,28
+Cavalry,cpl::Football_Player::2dd1997d40764eb08c0b5287219a3269,Bradley,Kamdem,Bradley Kamdem,1994,France,5
+Cavalry,cpl::Football_Player::9a4eee0d25484d5f90e1813044a4feae,Neven,Fewster,Neven Fewster,2007,Canada,31
+Cavalry,cpl::Football_Player::9a6571b3737143b79989244b08fbd50d,Sergio,Camargo,Sergio Camargo,1994,Canada,10
+Cavalry,cpl::Football_Player::1c3ffcc6c1e9408b9aa8b9546452a28b,Levi,Laing,Levi Laing,2003,England,15
+Cavalry,cpl::Football_Player::83cede75122b41d0aad420f4fb5daf2e,Jesse,Daley,Jesse Daley,1997,Australia,8
+Cavalry,cpl::Football_Player::2765417c9ab14808ae40c91c05077259,Michael,Harms,Michael Harms,2005,Canada,2
+Cavalry,cpl::Football_Player::23c92ceb8bee415a886f16e93c507c65,Marco,Carducci,Marco Carducci,1996,Canada,1
+Cavalry,cpl::Football_Player::f52a8b692a56475c9c08c17236a42e86,Shamit,Shome,Shamit Shome,1997,Bangladesh,26
+Cavalry,cpl::Football_Player::c3af4ebd8c0846c096482cc3c95b4e78,Caniggia,Elva,Caniggia Elva,1996,St. Lucia,14
+Cavalry,cpl::Football_Player::3e29f3a4fcaa401fb6b92e75b6a94f42,Max,Piepgrass,Max Piepgrass,2004,Canada,15
+Cavalry,cpl::Football_Player::6507064e8aea4d54b88989d36f006a96,Matas,Jokubaitis,Matas Jokubaitis,2007,Canada,34
+Cavalry,cpl::Football_Player::2d8cec65b1bb4b20872a91ac73584d29,Ali,Musse,Ali Musse,1996,Somalia,7
+Cavalry,cpl::Football_Player::41f23e52e26541bca62d8378fafc1953,Fraser,Aird,Fraser Aird,1995,Canada,33
+Cavalry,cpl::Football_Player::a2bda4ee744a46f5ba2c6d64d47b4f9e,Ayman,Sellouf,Ayman Sellouf,2001,Netherlands,25
+Vancouver FC,cpl::Football_Player::0b3c2dfa6c324a4f9203996ab6e6181b,Jay,Herdman,Jay Herdman,2004,New Zealand,11
+Cavalry,cpl::Football_Player::0f32aad5bf304f70bb295ab41b41b4d9,Maël,Henry,Maël Henry,2004,Canada,18
+Cavalry,cpl::Football_Player::cad9192d6a9541128a76febb4a58387f,Eryk,Kobza,Eryk Kobza,2001,Canada,24
+Pacific,cpl::Football_Player::f5f9dbfb4ae043d7bf4f7094d31693c3,Juan,Quintana,Juan Quintana,2003,Colombia,5
+Pacific,cpl::Football_Player::3023352676954b56b16a0f7ca64bd877,Daniel,Zadravec,Daniel Zadravec,2000,Canada,31
+Pacific,cpl::Football_Player::82ff8e880ba54f74a34fe1f8165f3b46,Matthew,Baldisimo,Matthew Baldisimo,1998,Philippines,33
+Pacific,cpl::Football_Player::a372613653034050a858936ee489a7f1,Veniamin,Chernyshev,Veniamin Chernyshev,2008,Ukraine,39
+Pacific,cpl::Football_Player::edf6ef9ee973485dbbf8b5123cf83a94,Kadin,Chung,Kadin Chung,1998,Canada,7
+Pacific,cpl::Football_Player::bf1559f63d3642679c430ff1f41355a7,Georges,Mukumbilwa,Georges Mukumbilwa,1999,Canada,2
+Pacific,cpl::Football_Player::a4c7c645cfc244d59a886830c20ae894,Mattias,Vales,Mattias Vales,2008,Canada,37
+Pacific,cpl::Football_Player::da7371bc78e546b598216e0fcda77c7e,Ahmad Ali,Mansour,Ahmad Ali Mansour,2000,Canada,16
+Pacific,cpl::Football_Player::410af9177f254590abcec9f3cd63eba5,Max,Anchor,Max Anchor,2004,Canada,50
+Pacific,cpl::Football_Player::74a0a76ad8ac4650bf8bd3c161adbe4b,Lukas,Browning-Lagerfeldt,Lukas Browning-Lagerfeldt,1999,Sweden,6
+Pacific,cpl::Football_Player::2fb8d39dd40f4a81853d0221df63464c,Matteo,Schiavoni,Matteo Schiavoni,2005,Canada,88
+Pacific,cpl::Football_Player::6f78048ef6fe4d51aa66aa87e5fbf0c5,Aidan,Daniels,Aidan Daniels,1998,Canada,8
+Pacific,cpl::Football_Player::df0de20d12274b3d9549323a3547572b,Josh,Heard,Josh Heard,1994,Wales,11
+Pacific,cpl::Football_Player::91a915f684dc4b769c0cf45719f2a87e,Marco,Bustos,Marco Bustos,1996,Canada,10
+Pacific,cpl::Football_Player::29b80ce439ab453abb1f55797afba749,Yann,Toualy,Yann Toualy,2001,Côte d'Ivoire,64
+Pacific,cpl::Football_Player::a86a1a3737bc4895b1340dc348ae5b09,Sean,Melvin,Sean Melvin,1994,Canada,55
+Pacific,cpl::Football_Player::7205a0ef2aab4cf98da19157fb879f8a,Eric,Lajeunesse,Eric Lajeunesse,2003,Canada,3
+Pacific,cpl::Football_Player::cd1e9f98817545a8904ffd9556963f44,Alejandro,Díaz,Alejandro Díaz,1996,Mexico,99
+Pacific,cpl::Football_Player::41a6af9f6ff34b93a944156aafe64ecf,Pedro Miguel,Ruas Machado,Pedro Miguel Ruas Machado,1996,Portugal,14
+Pacific,cpl::Football_Player::165349da6f4642fb9d3d648ac53a905c,Aly,Ndom,Aly Ndom,1996,France,44
+Pacific,cpl::Football_Player::5e3618d3335b4f5b8d239395023ae296,Roshawn,Juhmi,Roshawn Juhmi,2001,Canada,66
+Pacific,cpl::Football_Player::f5cced86d80d4ac4b60880f88aecac15,Fin,Tugwell,Fin Tugwell,2003,Canada,4
+Pacific,cpl::Football_Player::8baee08a0ffb48ed8e4c68b4c56a02cc,Christian,Greco-Taylor,Christian Greco-Taylor,2005,Canada,15
+Pacific,cpl::Football_Player::b0c18e549550408c91e0cd9f54969faa,Emanuel,Montejano,Emanuel Montejano,2001,Mexico,17
+Pacific,cpl::Football_Player::8db1339e383a4ccdb4225ef5cb15dfd1,Daniel,de Pauli Oliveira,Daniel de Pauli Oliveira,1999,Brazil,21
+Pacific,cpl::Football_Player::8f05f759197149d88e64f7a679adef64,Ronan,Kratt,Ronan Kratt,2003,Canada,27
+Pacific,cpl::Football_Player::608a3af8ed44452d9fe6ae4fd93ab951,Will,Edgson,Will Edgson,2008,Canada,36
+Pacific,cpl::Football_Player::6d71463236d1442fb192c9170e86e702,Matthias,Hallam,Matthias Hallam,2008,Canada,32
+Pacific,cpl::Football_Player::03b82a7bcff7496e991befe586fcc2c9,Sean,Young,Sean Young,2001,Canada,20
+Pacific,cpl::Football_Player::1b99b171024743c4a0fb01eeea19478e,Dario,Zanatta,Dario Zanatta,1997,Canada,9
+Pacific,cpl::Football_Player::258f605d8ae64e80ad26709927d49cec,Sami,Keshavarz,Sami Keshavarz,2006,Canada,34
+Vancouver FC,cpl::Football_Player::c7f62c1be1924bb08ef13e489cf704eb,Henri,Godbout,Henri Godbout,2005,Canada,24
+Vancouver FC,cpl::Football_Player::25edf8435cd445dfbfb5185b259ca0cf,Vasco,Fry,Vasco Fry,2000,Peru,6
+Vancouver FC,cpl::Football_Player::3a76fbaceee3425fa81fd8fd27b4c24f,Matheus,de Souza,Matheus de Souza,2005,Canada,35
+Vancouver FC,cpl::Football_Player::242992e119ea4cf3b76878a2029dddac,Paris,Gee,Paris Gee,1994,Canada,2
+Vancouver FC,cpl::Football_Player::58430e4fe62548d7894e74b9202fcbc1,Nicolás,Mezquida,Nicolás Mezquida,1992,Uruguay,20
+Vancouver FC,cpl::Football_Player::9dfa32fd254946aa9189e26a8888a192,Elage,Bah,Elage Bah,2004,Canada,7
+Vancouver FC,cpl::Football_Player::c0ae1ca6360b41c6ad94f45a8b50a872,Tyler,Crawford,Tyler Crawford,2004,Canada,12
+Vancouver FC,cpl::Football_Player::982a96a792e04404805090a131cb95df,Terran,Campbell,Terran Campbell,1998,Canada,14
+Vancouver FC,cpl::Football_Player::8a18e8df224041bead247e8ca00b6410,Dominic,Joseph,Dominic Joseph,2008,Trinidad and Tobago,32
+Vancouver FC,cpl::Football_Player::b0f2bab1e3bd4880a057607ae79ef51c,Abdoulaye,Ouattara,Abdoulaye Ouattara,2005,France,23
+Vancouver FC,cpl::Football_Player::c9e511289fcd419eb6a09d9fdfcaede9,Mehdi,Essoussi,Mehdi Essoussi,2001,Canada,8
+Vancouver FC,cpl::Football_Player::aceae7c77e384a08a0b2e7147138d478,José,Navarro,José Navarro,2003,Mexico,19
+Vancouver FC,cpl::Football_Player::76af0bbb44f04af1b02452602e267e96,Felipe,Jaramillo,Felipe Jaramillo,2008,Colombia,41
+Vancouver FC,cpl::Football_Player::b0ea2d178d304a30ace558498e189223,Juan Batista,Lopes da Silva,Juan Batista Lopes da Silva,2001,Brazil,10
+Vancouver FC,cpl::Football_Player::9bb76f9c898142e29c5b405e62366a59,Hugo,Mbongue,Hugo Mbongue,2004,Canada,9
+Vancouver FC,cpl::Football_Player::f3ffebc2701c4e608f9f5055198c5ec9,David,Norman Jr.,David Norman Jr.,1998,Canada,13
+Vancouver FC,cpl::Football_Player::b0a7f5c0cf994edbb5392b5b73bf8898,Thomas,Powell,Thomas Powell,2001,Canada,18
+Vancouver FC,cpl::Football_Player::3aa93b6a47f24dd59a4d50f71ae926d5,Mikaël,Cantave,Mikaël Cantave,1996,Haiti,11
+Vancouver FC,cpl::Football_Player::4da84a61c12443e48f9c5d0dd8f2f3ae,Kunle,Dada-Luke,Kunle Dada-Luke,2000,Canada,3
+Vancouver FC,cpl::Football_Player::9b7094aee7c641cbac9d8be17145e9af,Michel,Cavalcante Fonseca da Silva,Michel Cavalcante Fonseca da Silva,2006,Brazil,16
+Vancouver FC,cpl::Football_Player::b6597676a5e34edf998b3ef92a3c14d0,Matteo,Campagna,Matteo Campagna,2004,Canada,5
+Vancouver FC,cpl::Football_Player::8acd7b030e09457dacf4d02078701836,Allan,Enyou,Allan Enyou,2003,Uganda,4
+Vancouver FC,cpl::Football_Player::88ac022bf06149f1be2ce2ab7f3c087c,Zachary,Verhoven,Zachary Verhoven,1998,Canada,8
+Pacific,cpl::Football_Player::cd1e9f98817545a8904ffd9556963f44,Alejandro,Díaz,Alejandro Díaz,1996,Mexico,99
+Vancouver FC,cpl::Football_Player::cdf16bdca43b45068971796bf6288923,Joey,Buchanan,Joey Buchanan,2007,Canada,40
+Vancouver FC,cpl::Football_Player::44490e86552c412ab66b3bac33c27621,Emrick,Fotsing,Emrick Fotsing,2007,Canada,17
+Vancouver FC,cpl::Football_Player::f65a926f24a34b7aa5fdec34e32cb212,Ndiaye,Pathé,Ndiaye Pathé,2004,Senegal,25
+Vancouver FC,cpl::Football_Player::f039393214e24dadbb1211ec2c063983,Jakob,Frank,Jakob Frank,,Canada,31
+Vancouver FC,cpl::Football_Player::0b3c2dfa6c324a4f9203996ab6e6181b,Jay,Herdman,Jay Herdman,2004,New Zealand,11
+Vancouver FC,cpl::Football_Player::b5392c37961145ba9d2b542150ab0e2f,Aidan,O'Connor,Aidan O'Connor,2001,USA,15
+Vancouver FC,cpl::Football_Player::c56c8817d72148ac9e0870d2b4b18361,Kevin,Podgorni,Kevin Podgorni,2008,Canada,29
+Vancouver FC,cpl::Football_Player::ed6b655ed6bb4c7baedb0fe8fc42495d,Callum,Irving,Callum Irving,1993,Canada,1
+Vancouver FC,cpl::Football_Player::b00f998dc9ab48df9be8be1e6a9bea0d,Taryck,Tahid,Taryck Tahid,2007,Canada,26
+Forge,cpl::Football_Player::901d6c67f4fb4410a6035a929953e009,Amadou,Koné,Amadou Koné,2005,Canada,41
+Forge,cpl::Football_Player::0e2b6aa5fbdf49f399441b22b356d14c,Kyle,Bekker,Kyle Bekker,1990,Canada,10
+Forge,cpl::Football_Player::0a71cc5786ac4cb6a42caa6d849c2129,Christopher,Kalongo,Christopher Kalongo,2002,Canada,29
+Forge,cpl::Football_Player::58c03096b6c940afacb752b030a52ad2,Malik,Owolabi-Belewu,Malik Owolabi-Belewu,2002,Canada,81
+Forge,cpl::Football_Player::3fe556ac24fd4748b30189a2bc007f20,Dino,Bontis,Dino Bontis,2004,Canada,36
+Forge,cpl::Football_Player::e6c4cd6819fa4138a703a0019c110ed2,Oliver,Clow,Oliver Clow,2007,Canada,33
+Forge,cpl::Football_Player::9a040c91c1d2424ca095e663faf5075a,Khadim,Kane,Khadim Kane,2005,Canada,16
+Forge,cpl::Football_Player::f40858671e354d42ad80fd9d251afb6f,Rezart,Rama,Rezart Rama,2000,Albania,24
+Forge,cpl::Football_Player::cf565a60f22d43a897616135c5775ec0,Hoce,Massunda,Hoce Massunda,2005,Canada,17
+Forge,cpl::Football_Player::e8768ad114d74ff98efac31e2ba6d402,Harry,Paton,Harry Paton,1998,Canada,23
+Forge,cpl::Football_Player::03cdc7a6041945c5bc297dd76227db5f,Maxime,Filion,Maxime Filion,2003,Canada,12
+Forge,cpl::Football_Player::4677d430ee38453e9a424d4e8c1cc96b,Tristan,Borges,Tristan Borges,1998,Canada,19
+Forge,cpl::Football_Player::04cd976c461148d79ab8cafc0bf69c62,David,Choinière,David Choinière,1997,Canada,7
+Forge,cpl::Football_Player::d9884452bb6e4ebd802b73a429b81f2d,Zayne,Bruno,Zayne Bruno,2007,Canada,32
+Forge,cpl::Football_Player::c3b03cc1de7848cdaaca16450017b36d,Daniel,Nimick,Daniel Nimick,2000,Canada,5
+Forge,cpl::Football_Player::6a778700603244eeabcce04c59c6ccc0,Alessandro,Hojabrpour,Alessandro Hojabrpour,2000,Canada,21
+Forge,cpl::Football_Player::33b0cf3a477d454f96fe4f14c3b6125c,Alexander,Achinioti-Jönsson,Alexander Achinioti-Jönsson,1996,Sweden,13
+Forge,cpl::Football_Player::6c28b35898b64ba8aaec59d8291a55f4,Keito,Lipovschek,Keito Lipovschek,2005,Canada,28
+Forge,cpl::Football_Player::9ff2698d6b4d47f9a1949a20ae1b2adc,Marko,Jevremovic,Marko Jevremovic,1996,Serbia,3
+Forge,cpl::Football_Player::0b10dc469e84486cbf18d636e3bc635e,Jassem,Koleilat,Jassem Koleilat,1999,Czechia,1
+Forge,cpl::Football_Player::c438af58a66c4143ba56b03a62341b4c,Christos,Liatifis,Christos Liatifis,2005,Greece,99
+Forge,cpl::Football_Player::b2128eb98c0e4992a9bce2dd26483fb4,Orlendis,Benítez,Orlendis Benítez,1996,Cuba,10
+Forge,cpl::Football_Player::2e8fce5008414fd4b602677f53e0bb18,Ben,Paton,Ben Paton,2000,Canada,6
+Forge,cpl::Football_Player::31115f5131a74426969fd8573af2d8b9,Brian,Wright,Brian Wright,1995,Canada,9
+Forge,cpl::Football_Player::25873ca3630f4b3098e2a7f20d7a708a,Emmanuel,Marmolejo,Emmanuel Marmolejo,2007,Canada,42
+Forge,cpl::Football_Player::3c3cd8920062442f93c9e257f9d44111,Noah,Jensen,Noah Jensen,1999,Canada,22
+Forge,cpl::Football_Player::9530e64bf7744102b3eeecd7fcf46c34,Elimane,Cissé,Elimane Cissé,1995,Senegal,8
+Forge,cpl::Football_Player::99a91175ff8e476ca86125ecab87f00b,Molham,Babouli,Molham Babouli,1993,Syria,18
+Forge,cpl::Football_Player::2989b90b079449a0916022698aecc47b,Béni,Badibanga,Béni Badibanga,1996,Congo DR,39
+Forge,cpl::Football_Player::e59631b9384648c1a9d3a057aabe9412,Viktor,Klonaridis,Viktor Klonaridis,1992,Belgium,27
+Forge,cpl::Football_Player::c39cf7fa836f436d961ce8dbbf72dc90,Nana,Ampomah,Nana Ampomah,1996,Ghana,11
+Atlético,cpl::Football_Player::067092352a084dc4bde838b40e5b4cfb,Kevin,Ortega,Kevin Ortega,2002,Mexico,6
+Atlético,cpl::Football_Player::4eb0f3ce9e404d69a8b6b99ca92c02eb,Ralph,Khoury,Ralph Khoury,2007,Lebanon,30
+Atlético,cpl::Football_Player::bf41bb0adda048e4bed23b2545e0db2a,Antonio,Álvarez,Antonio Álvarez,2003,Mexico,24
+Atlético,cpl::Football_Player::9dfc9045ab234f19a37a7fbd9c091f3e,Richlord,Ennin,Richlord Ennin,1998,Canada,77
+Atlético,cpl::Football_Player::5781eacb0adf484b80e8dd83f7619dc5,Monty,Patterson,Monty Patterson,1996,New Zealand,12
+Atlético,cpl::Football_Player::3e694b5d3a004945a65d70fab1ee17fe,David,Rodríguez,David Rodríguez,2002,USA,7
+Atlético,cpl::Football_Player::bcd2bd431fea40f2ad5e2cd7d95bef32,Aboubacar,Sissoko,Aboubacar Sissoko,1995,Mali,33
+Atlético,cpl::Football_Player::7c7c78f8a9b24353a2c2418452327dab,Kévin David,Nogueira Carvalho dos Santos,Kévin David Nogueira Carvalho dos Santos,1999,Portugal,19
+Atlético,cpl::Football_Player::1122de539ffd41e896e9f9ac2dbcc457,Loïc,Cloutier,Loïc Cloutier,2004,Canada,28
+Atlético,cpl::Football_Player::a96eb3025e23467ca33277ae9c86f369,Samuel,Salter,Samuel Salter,2000,Canada,9
+Atlético,cpl::Football_Player::5e944a82a82b42b483bed288bb7633a8,Manuel,Aparicio,Manuel Aparicio,1995,Canada,10
+Atlético,cpl::Football_Player::474e7cdb2e5742da97bb54f6e7a4e236,Sergei,Kozlovskiy,Sergei Kozlovskiy,2008,Canada,84
+Atlético,cpl::Football_Player::b48a3c5692c34ed3915577a233b54697,Noah,Abatneh,Noah Abatneh,2004,Canada,23
+Atlético,cpl::Football_Player::46e85b6f18f042fe837554290482828b,Amer,Didic,Amer Didic,1994,Canada,55
+Atlético,cpl::Football_Player::b5c2bedf649c4d0e99c3d22079bb5a16,Joaquim,Coulanges,Joaquim Coulanges,2006,Canada,20
+Atlético,cpl::Football_Player::468783c9b1c041c987781c4facdee0b1,Jason,Hartill,Jason Hartill,2004,Canada,16
+Atlético,cpl::Football_Player::8a6c8e7f553849f9a237ca5dd408e66d,Brett,Levis,Brett Levis,1993,Canada,17
+Atlético,cpl::Football_Player::0193e9b2803b43938a676ad9232cede8,Noah,Verhoeven,Noah Verhoeven,1999,Canada,8
+Atlético,cpl::Football_Player::2d5018feb2d44e5796770ebc81f9db71,Enmanuel,Mbomio Angue,Enmanuel Mbomio Angue,2005,Equatorial Guinea,18
+Atlético,cpl::Football_Player::4d636b2222ce4dadada19f4087f42b9e,Jean-Aniel,Assi,Jean-Aniel Assi,2004,Canada,14
+Atlético,cpl::Football_Player::8478206db8304d6487d404b1b5dd322c,Gabriel,Mendes Antinoro,Gabriel Mendes Antinoro,2004,Brazil,11
+Atlético,cpl::Football_Player::ab744dc321ed481d9060ebc48b16f9b3,Juan,Castro,Juan Castro,1991,Mexico,2
+Atlético,cpl::Football_Player::130bf1bad34e405d8bf525d7dab36e0f,Tyr,Walker,Tyr Walker,2003,Canada,4
+Atlético,cpl::Football_Player::e062e50eb3404d07b682bf9855e3a980,Alberto,Zapater,Alberto Zapater,1985,Spain,21
+Atlético,cpl::Football_Player::7b7be3facecb4ab98e4c3f2b04baf071,Tristan,Crampton,Tristan Crampton,2002,Canada,1
+Atlético,cpl::Football_Player::1f645daf53bb4f9bad1e6896c1e68d2c,Iker,Moreno,Iker Moreno,2003,Mexico,5
+Atlético,cpl::Football_Player::364352c812a14e868234e4883c9bd4e0,Nathan,Ingham,Nathan Ingham,1993,Canada,29
+Atlético,cpl::Football_Player::41d0f411d33949359fd8e13884639ba0,Ballou,Tabla,Ballou Tabla,1999,Canada,13
+Atlético,cpl::Football_Player::3aaf25a2f090423584d5e9d492e5ca42,Jonathan,Grant,Jonathan Grant,1993,Guyana,3
+Wanderers,cpl::Football_Player::360a1cff07aa439cb939b0d0d222b08c,Julian,Dunn,Julian Dunn,2000,Canada,4
+Wanderers,cpl::Football_Player::edcfdeb0583a4f25b44f57a7e66b2d6d,Lorenzo,Callegari,Lorenzo Callegari,1998,France,6
+Wanderers,cpl::Football_Player::db08922169dd4965b34c10fd27536050,Camilo,Vasconcelos,Camilo Vasconcelos,2005,Canada,41
+Wanderers,cpl::Football_Player::43059b02bd294234aae2d3c8a806f9b7,Luka,Juricic,Luka Juricic,2005,Canada,24
+Wanderers,cpl::Football_Player::44bbbee1a40b4627a0d187e56fc881c6,Reshaun,Walkes,Reshaun Walkes,1999,Canada,22
+Wanderers,cpl::Football_Player::e9cd44c2190e4d57b7fec90bf7892145,Tavio,Ciccarelli,Tavio Ciccarelli,2006,Canada,20
+Wanderers,cpl::Football_Player::4d70b47d3a204f74aa5f64db85c4eab6,Giorgio,Probo,Giorgio Probo,1999,Italy,27
+Wanderers,cpl::Football_Player::d65b644d608b40dbb79ba6a0fb08d7f1,Aiden,Rushenas,Aiden Rushenas,2003,Canada,13
+Wanderers,cpl::Football_Player::b940ad457329419389bb304e2399a9ae,Jason,Bahamboula,Jason Bahamboula,2001,Congo,14
+Wanderers,cpl::Football_Player::29146de022e149ceb100b57434a926f9,Sean,Rea,Sean Rea,2002,Canada,10
+Wanderers,cpl::Football_Player::0f153dc7081442a3bc20cd568ca71e39,Wesley,Timóteo,Wesley Timóteo,2000,Canada,17
+Wanderers,cpl::Football_Player::9e824d03d70a46fe9d571a6ea8b26a28,Nassim,Mekidèche,Nassim Mekidèche,2000,Algeria,44
+Wanderers,cpl::Football_Player::6b46d359901b4fcdbbc99c0d60edd8fe,Vitor,Feitoza Almeida Dias,Vitor Feitoza Almeida Dias,1998,Brazil,11
+Wanderers,cpl::Football_Player::893b596feacd4aa3a30c402af4ff1814,Yohan,Baï,Yohan Baï,1996,France,19
+Wanderers,cpl::Football_Player::588cc7602a904011b1490a8e56d533e2,Isaiah,Johnston,Isaiah Johnston,2001,Canada,8
+Wanderers,cpl::Football_Player::141494f5941d475e9bdcd8c685f15d53,Adam,Pearlman,Adam Pearlman,2005,Canada,5
+Wanderers,cpl::Football_Player::7727bd856f6142ccb04b744b64364141,Andre,Rampersad,Andre Rampersad,1995,Trinidad and Tobago,18
+Wanderers,cpl::Football_Player::6306b765944944b3b26cdc5135460126,Sinclair,Astridge,Sinclair Astridge,2005,Canada,12
+Wanderers,cpl::Football_Player::3a40cda943824387943792e6a62fee0f,Ryan,Telfer,Ryan Telfer,1994,Trinidad and Tobago,7
+Wanderers,cpl::Football_Player::dace44682e2f47b8bc651c8032e6e97d,Tiago,Coimbra,Tiago Coimbra,2004,Canada,9
+Wanderers,cpl::Football_Player::d46e06f14e0d47e58d6f5f00e1eabfa9,Thomas,Meilleur-Giguère,Thomas Meilleur-Giguère,1997,Canada,26
+Wanderers,cpl::Football_Player::b8323e41957d481298856f9df4007606,Ben,Marsh,Ben Marsh,2008,Canada,39
+Wanderers,cpl::Football_Player::ea993e84d28d42ad8bdef8cff90110c3,Jérémy,Gagnon-Laparé,Jérémy Gagnon-Laparé,1995,Canada,28
+Wanderers,cpl::Football_Player::aaacbf86bfeb43ef894d906fd5aa7bdb,Jefferson,Alphonse,Jefferson Alphonse,2003,Canada,21
+Wanderers,cpl::Football_Player::d8fcedb579df4ec2aaa0ed1f3daea958,Joven,Mann,Joven Mann,2004,Canada,77
+Wanderers,cpl::Football_Player::95c5a896975b488cb559f52bde46d3d4,Rayane,Yesli,Rayane Yesli,1999,Algeria,99
+Wanderers,cpl::Football_Player::3ebb1a23b8bf4400bf5519f616825cad,Kareem,Sow,Kareem Sow,2000,Canada,16
+Wanderers,cpl::Football_Player::29b04cda7de84ca2a60dac0e06a8f8d4,Alessandro,Biello,Alessandro Biello,2006,Canada,23
