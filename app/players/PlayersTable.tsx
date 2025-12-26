@@ -24,31 +24,46 @@ function compareValues(a: string | number, b: string | number) {
   return compareStrings(String(a), String(b));
 }
 
-// Convert ISO-2 country code (e.g., "CA") into flag emoji (🇨🇦)
-function iso2ToFlagEmoji(code: string) {
-  const c = (code || "").trim().toUpperCase();
-  if (!/^[A-Z]{2}$/.test(c)) return "🏳️"; // fallback for bad data
-  const BASE = 0x1f1e6; // regional indicator symbol letter A
-  const A = "A".charCodeAt(0);
-  return String.fromCodePoint(
-    BASE + (c.charCodeAt(0) - A),
-    BASE + (c.charCodeAt(1) - A)
+function normalizeIso2(code: string) {
+  return code.trim().toLowerCase();
+}
+
+function Flag({ code, title }: { code: string; title?: string }) {
+  const iso2 = normalizeIso2(code);
+  if (!/^[a-z]{2}$/.test(iso2)) return null;
+
+  return (
+    <img
+      src={`/flags/4x3/${iso2}.svg`}
+      alt={code.toUpperCase()}
+      title={title ?? code.toUpperCase()}
+      style={{
+        width: "1.2em",
+        height: "0.9em",
+        verticalAlign: "middle",
+        borderRadius: "2px",
+        boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+      }}
+    />
   );
 }
 
-// Your sheet will store ISO-2 codes, separated by semicolons: "CA;HT"
-function renderFlags(nationalityCell?: string) {
-  const raw = (nationalityCell ?? "").trim();
-  if (!raw) return "—";
-
-  const parts = raw
+function renderFlags(cell: string | undefined) {
+  if (!cell) return "—";
+  const codes = cell
     .split(";")
     .map((s) => s.trim())
     .filter(Boolean);
 
-  if (!parts.length) return "—";
+  if (codes.length === 0) return "—";
 
-  return parts.map(iso2ToFlagEmoji).join(" ");
+  return (
+    <span style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
+      {codes.map((c) => (
+        <Flag key={c} code={c} title={cell} />
+      ))}
+    </span>
+  );
 }
 
 export default function PlayersTable({ players }: { players: Player[] }) {
@@ -71,7 +86,6 @@ export default function PlayersTable({ players }: { players: Player[] }) {
     return p.birthYear ? currentYear - p.birthYear : undefined;
   }
 
-  // Sorting: for nationality, sort by the raw ISO-2 string in the sheet
   function sortValue(p: Player, key: SortKey): string | number {
     if (key.startsWith("season:")) {
       const y = key.slice("season:".length);
@@ -86,6 +100,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       case "position":
         return p.position ?? "";
       case "nationality":
+        // sort by raw cell value (e.g., "CA;NG")
         return p.nationality ?? "";
       case "number":
         return p.number ?? Number.POSITIVE_INFINITY; // blanks sort last
@@ -157,8 +172,6 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       <tbody>
         {sorted.map((p) => {
           const age = ageOf(p);
-          const rawNat = (p.nationality ?? "").trim();
-
           return (
             <tr key={p.id}>
               <td style={{ padding: "0.5rem" }}>{p.number ?? "—"}</td>
@@ -166,8 +179,8 @@ export default function PlayersTable({ players }: { players: Player[] }) {
               <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
               <td style={{ padding: "0.5rem" }}>{age ?? "—"}</td>
 
-              <td style={{ padding: "0.5rem" }} title={rawNat || ""}>
-                {renderFlags(rawNat)}
+              <td style={{ padding: "0.5rem" }} title={p.nationality ?? ""}>
+                {renderFlags(p.nationality)}
               </td>
 
               <td style={{ padding: "0.5rem" }}>{p.club}</td>
