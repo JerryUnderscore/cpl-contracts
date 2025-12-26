@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { Player } from "../lib/players";
+import { FlagsFromCell } from "../lib/Flag";
 
 type SortDir = "asc" | "desc";
 type SortKey =
@@ -18,54 +19,10 @@ function compareStrings(a: string, b: string) {
 }
 
 function compareValues(a: string | number, b: string | number) {
-  const aNum = typeof a === "number";
-  const bNum = typeof b === "number";
-  if (aNum && bNum) return a - b;
+  const aIsNum = typeof a === "number";
+  const bIsNum = typeof b === "number";
+  if (aIsNum && bIsNum) return a - b;
   return compareStrings(String(a), String(b));
-}
-
-function normalizeIso2(code: string) {
-  return code.trim().toLowerCase();
-}
-
-function Flag({ code, title }: { code: string; title?: string }) {
-  const iso2 = normalizeIso2(code);
-  if (!/^[a-z]{2}$/.test(iso2)) return null;
-
-  return (
-    <img
-      src={`/flags/4x3/${iso2}.svg`}
-      alt={code.toUpperCase()}
-      title={title ?? code.toUpperCase()}
-      style={{
-        width: "1.2em",
-        height: "0.9em",
-        verticalAlign: "middle",
-        borderRadius: "2px",
-        boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
-      }}
-    />
-  );
-}
-
-function renderFlags(cell: string | undefined) {
-  if (!cell) return "—";
-
-  const codes = cell
-    .split(";")
-    .map((s) => s.trim())
-    .map(normalizeIso2)
-    .filter((c) => /^[a-z]{2}$/.test(c)); // keep only valid ISO-2
-
-  if (codes.length === 0) return "—";
-
-  return (
-    <span style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
-      {codes.map((c) => (
-        <Flag key={c} code={c} title={cell} />
-      ))}
-    </span>
-  );
 }
 
 export default function PlayersTable({ players }: { players: Player[] }) {
@@ -102,7 +59,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       case "position":
         return p.position ?? "";
       case "nationality":
-        // sort by raw cell value (e.g., "CA;NG")
+        // Sort by raw cell value (e.g., "CA; JM" or "ENG")
         return p.nationality ?? "";
       case "number":
         return p.number ?? Number.POSITIVE_INFINITY; // blanks sort last
@@ -182,7 +139,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
               <td style={{ padding: "0.5rem" }}>{age ?? "—"}</td>
 
               <td style={{ padding: "0.5rem" }} title={p.nationality ?? ""}>
-                {renderFlags(p.nationality)}
+                {FlagsFromCell(p.nationality)}
               </td>
 
               <td style={{ padding: "0.5rem" }}>{p.club}</td>
