@@ -25,6 +25,28 @@ function compareValues(a: string | number, b: string | number) {
   return compareStrings(String(a), String(b));
 }
 
+// CPL rule: age on Jan 1 of the season year
+function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
+  if (!birthDate) return undefined;
+
+  // birthDate is "YYYY-MM-DD"
+  const m = birthDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return undefined;
+
+  const y = Number(m[1]);
+  const mo = Number(m[2]); // 1-12
+  const d = Number(m[3]);  // 1-31
+  if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
+
+  let age = seasonYear - y;
+
+  // If birthday is AFTER Jan 1 (i.e., not Jan 1), subtract 1
+  // Jan 1 => (mo === 1 && d === 1) means no subtraction.
+  if (!(mo === 1 && d === 1)) age -= 1;
+
+  return age;
+}
+
 export default function PlayersTable({ players }: { players: Player[] }) {
   const [sortKey, setSortKey] = React.useState<SortKey>("name");
   const [sortDir, setSortDir] = React.useState<SortDir>("asc");
@@ -39,10 +61,14 @@ export default function PlayersTable({ players }: { players: Player[] }) {
     return Array.from(set).sort();
   }, [players]);
 
-  const currentYear = new Date().getFullYear();
+  // Use the first season column (usually 2026) to compute the Age column
+  const ageSeason = React.useMemo(() => {
+    const first = years[0];
+    return first && /^\d{4}$/.test(first) ? Number(first) : new Date().getFullYear();
+  }, [years]);
 
   function ageOf(p: Player) {
-    return p.birthYear ? currentYear - p.birthYear : undefined;
+    return ageOnJan1(p.birthDate, ageSeason);
   }
 
   function sortValue(p: Player, key: SortKey): string | number {
@@ -59,6 +85,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       case "position":
         return p.position ?? "";
       case "nationality":
+        // sort by raw cell value (e.g., "CA;NG")
         return p.nationality ?? "";
       case "number":
         return p.number ?? Number.POSITIVE_INFINITY;
@@ -78,7 +105,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       return sortDir === "asc" ? c : -c;
     });
     return copy;
-  }, [players, sortKey, sortDir]);
+  }, [players, sortKey, sortDir, ageSeason]);
 
   function onHeaderClick(key: SortKey) {
     if (key === sortKey) {
