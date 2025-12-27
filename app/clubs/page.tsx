@@ -1,35 +1,57 @@
+// app/clubs/page.tsx
 import Link from "next/link";
 import { getPlayers } from "../lib/players";
-import { slugifyClub } from "../lib/slug";
 
-export const revalidate = 300; // 5 minutes
+export const revalidate = 300;
 
-export default async function ClubsPage() {
+function slugifyClub(clubSlug: string | undefined, clubName: string | undefined) {
+  // Prefer the clubSlug from your sheet (best!)
+  if (clubSlug?.trim()) return clubSlug.trim();
+
+  // Fallback: crude slug from name (only used if clubSlug missing)
+  return (clubName ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+export default async function ClubsIndexPage() {
   const players = await getPlayers();
 
-  const counts = new Map<string, number>();
+  const clubs = new Map<string, { slug: string; name: string; count: number }>();
+
   for (const p of players) {
-    counts.set(p.club, (counts.get(p.club) ?? 0) + 1);
+    const slug = slugifyClub(p.clubSlug, p.club);
+    const name = p.club ?? slug;
+
+    const prev = clubs.get(slug);
+    if (prev) {
+      prev.count += 1;
+    } else {
+      clubs.set(slug, { slug, name, count: 1 });
+    }
   }
 
-  const clubs = Array.from(counts.entries())
-    .sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: "base" }))
-    .map(([club, count]) => ({ club, count, slug: slugifyClub(club) }));
+  const list = Array.from(clubs.values()).sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+  );
 
   return (
     <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>Clubs</h1>
-      <p>Select a club to view its roster/contracts.</p>
+      <p>Select a club to view its roster.</p>
 
-      <ul style={{ marginTop: "1rem", lineHeight: 1.8 }}>
-        {clubs.map(({ club, count, slug }) => (
-          <li key={club}>
-            <Link href={`/clubs/${slug}`}>{club}</Link> ({count})
+      <ul style={{ lineHeight: 1.8 }}>
+        {list.map((c) => (
+          <li key={c.slug}>
+            <Link href={`/clubs/${c.slug}`}>{c.name}</Link> <span style={{ color: "#666" }}>({c.count})</span>
           </li>
         ))}
       </ul>
 
-      <p style={{ marginTop: "2rem" }}>
+      <p style={{ marginTop: "1.5rem" }}>
         <Link href="/players">← Back to all players</Link>
       </p>
     </main>

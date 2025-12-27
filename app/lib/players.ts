@@ -6,9 +6,13 @@ export type Player = {
   club: string;
   name: string;
   position?: string;
-  birthYear?: number;
-  nationality?: string;
+
+  // New: full birth date (YYYY-MM-DD)
+  birthDate?: string;
+
+  nationality?: string; // ISO-2 codes like "CA" or "CA;JM"
   number?: number;
+
   source?: string;
   notes?: string;
 
@@ -86,6 +90,15 @@ function toNumberMaybe(v: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function toBirthDateMaybe(v: string): string | undefined {
+  const s = (v ?? "").trim();
+  if (!s) return undefined;
+
+  // Expecting YYYY-MM-DD. Keep as string; validate lightly.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return undefined;
+  return s;
+}
+
 export async function getPlayers(): Promise<Player[]> {
   if (!SHEET_CSV_URL) {
     throw new Error(
@@ -124,7 +137,10 @@ export async function getPlayers(): Promise<Player[]> {
         club: r.club ?? "",
         name: r.name ?? "",
         position: r.position || undefined,
-        birthYear: toNumberMaybe(r.birthYear),
+
+        // New birthDate column
+        birthDate: toBirthDateMaybe(r.birthDate),
+
         nationality: r.nationality || undefined,
         number: toNumberMaybe(r.number),
         source: r.source || undefined,
