@@ -38,24 +38,16 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
 
   let age = seasonYear - y;
-  if (!(mo === 1 && d === 1)) age -= 1;
+  if (!(mo === 1 && d === 1)) age -= 1; // Jan 1 => no subtraction
   return age;
 }
 
-// Decide whether a season cell counts as "under contract / meaningful status"
-function isActiveSeasonCell(raw: string | undefined) {
-  const s = (raw ?? "").trim();
-  if (!s) return false;
-
-  const low = s.toLowerCase();
-
-  // treat these as NOT under contract
-  if (low === "-" || low === "—") return false;
-  if (low === "n/a" || low === "na") return false;
-  if (low.includes("expired")) return false;
-
-  // everything else counts (Domestic, International, Guaranteed, Option, In Discussion, etc.)
-  return true;
+// IMPORTANT: “U-21” means < 21 on Jan 1 (i.e., 20 or younger).
+function badgeForSeasonAge(age: number | undefined) {
+  if (age == null) return null;
+  if (age < 18) return { label: "U-18", title: "U-18 on Jan 1" };
+  if (age < 21) return { label: "U-21", title: "U-21 on Jan 1" };
+  return null;
 }
 
 function Badge({ label, title }: { label: string; title?: string }) {
@@ -65,14 +57,13 @@ function Badge({ label, title }: { label: string; title?: string }) {
       style={{
         display: "inline-block",
         marginLeft: "0.4rem",
-        padding: "0.05rem 0.35rem",
+        padding: "0.1rem 0.4rem",
         borderRadius: "999px",
-        fontSize: "0.7rem",
+        fontSize: "0.75rem",
         lineHeight: 1.4,
         border: "1px solid #ddd",
         background: "#f8f8f8",
         whiteSpace: "nowrap",
-        verticalAlign: "middle",
       }}
     >
       {label}
@@ -80,11 +71,9 @@ function Badge({ label, title }: { label: string; title?: string }) {
   );
 }
 
-function badgeForSeasonAge(age: number | undefined) {
-  if (age == null) return null;
-  if (age < 18) return { label: "U-18", title: "U-18 on Jan 1" };
-  if (age < 21) return { label: "U-21", title: "U-21 on Jan 1" };
-  return null;
+function hasSeasonValue(v: string | undefined) {
+  const s = (v ?? "").trim();
+  return s.length > 0;
 }
 
 export default function PlayersTable({ players }: { players: Player[] }) {
@@ -101,25 +90,18 @@ export default function PlayersTable({ players }: { players: Player[] }) {
     return Array.from(set).sort();
   }, [players]);
 
-  // Choose what year the Age column represents (closest season >= current year)
-  const ageSeason = React.useMemo(() => {
-    const current = new Date().getFullYear();
-    const numericYears = years
-      .map((y) => Number(y))
-      .filter((n) => Number.isFinite(n))
-      .sort((a, b) => a - b);
+  // “First contract year column” (left-most season column in the table)
+  const firstYear = years[0];
 
-    return numericYears.find((y) => y >= current) ?? numericYears[0] ?? current;
-  }, [years]);
-
-  function ageOf(p: Player) {
-    return ageOnJan1(p.birthDate, ageSeason);
+  function ageForSeason(p: Player, seasonYearStr: string) {
+    const seasonYear = Number(seasonYearStr);
+    if (!Number.isFinite(seasonYear)) return undefined;
+    return ageOnJan1(p.birthDate, seasonYear);
   }
 
   function sortValue(p: Player, key: SortKey): string | number {
     if (key.startsWith("season:")) {
       const y = key.slice("season:".length);
-      // Sort by the raw season cell value (blank sorts last naturally via "")
       return p.seasons?.[y] ?? "";
     }
 
@@ -133,9 +115,13 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       case "nationality":
         return p.nationality ?? "";
       case "number":
-        return p.number ?? Number.POSITIVE_INFINITY;
-      case "age":
-        return ageOf(p) ?? Number.POSITIVE_INFINITY;
+        return p.number ?? Number.POSITIVE_INFINITY; // blanks sort last
+      case "age": {
+        // Use first year to compute a consistent Age column sort
+        if (!firstYear) return Number.POSITIVE_INFINITY;
+        const a = ageForSeason(p, firstYear);
+        return a ?? Number.POSITIVE_INFINITY;
+      }
       default:
         return "";
     }
@@ -150,7 +136,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       return sortDir === "asc" ? c : -c;
     });
     return copy;
-  }, [players, sortKey, sortDir, ageSeason]);
+  }, [players, sortKey, sortDir, firstYear]);
 
   function onHeaderClick(key: SortKey) {
     if (key === sortKey) {
@@ -201,7 +187,8 @@ export default function PlayersTable({ players }: { players: Player[] }) {
 
       <tbody>
         {sorted.map((p) => {
-          const age = ageOf(p);
+          // Age column is “age on Jan 1 of the first year shown”
+          const age = firstYear ? ageForSeason(p, firstYear) : undefined;
 
           return (
             <tr key={p.id}>
@@ -209,25 +196,34 @@ export default function PlayersTable({ players }: { players: Player[] }) {
               <td style={{ padding: "0.5rem" }}>{p.name}</td>
               <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
               <td style={{ padding: "0.5rem" }}>{age ?? "—"}</td>
+
               <td style={{ padding: "0.5rem" }}>{FlagsFromCell(p.nationality)}</td>
+
               <td style={{ padding: "0.5rem" }}>{p.club}</td>
 
               {years.map((y) => {
-                const raw = p.seasons?.[y]; // will be undefined if your sheet cell is blank (because getPlayers only stores non-empty)
-                const showBadge = isActiveSeasonCell(raw);
+                const seasonVal = p.seasons?.[y];
+                const underContract = hasSeasonValue(seasonVal);
 
-                const seasonYear = Number(y);
-                const seasonAge =
-                  showBadge && Number.isFinite(seasonYear)
-                    ? ageOnJan1(p.birthDate, seasonYear)
-                    : undefined;
+                // Only show badges for seasons where the player has a value in that year column
+                const seasonAge = underContract ? ageForSeason(p, y) : undefined;
+                const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
 
-                const b = showBadge ? badgeForSeasonAge(seasonAge) : null;
+                // Tooltip: only on the FIRST year column, show notes (if any)
+                const tooltip =
+                  y === firstYear && (p.notes ?? "").trim() ? (p.notes ?? "").trim() : undefined;
 
                 return (
-                  <td key={y} style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                    {raw ? raw : "" /* blank cell stays blank */}
-                    {b ? <Badge label={b.label} title={b.title} /> : null}
+                  <td
+                    key={y}
+                    style={{ padding: "0.5rem", whiteSpace: "nowrap" }}
+                    title={tooltip}
+                  >
+                    {underContract ? seasonVal : ""}
+
+                    {underContract && badge ? (
+                      <Badge label={badge.label} title={badge.title} />
+                    ) : null}
                   </td>
                 );
               })}
