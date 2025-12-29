@@ -8,21 +8,30 @@ export const metadata = {
 };
 
 function slugLabel(slug: string) {
-  // quick readable defaults (you can tweak any time)
+  // quick readable defaults (tweak any time)
   const map: Record<string, string> = {
-    "hfx-wanderers": "Wanderers",
-    "atletico-ottawa": "Atlético",
+    pacific: "Pacific",
+    vancouver: "Vancouver FC",
     cavalry: "Cavalry",
     forge: "Forge",
-    pacific: "Pacific",
-    valour: "Valour",
-    "vancouver": "Vancouver FC",
     "inter-toronto": "Inter Toronto",
+    "atletico-ottawa": "Atlético",
     supra: "Supra",
-    "york-united": "York United",
+    "hfx-wanderers": "Wanderers",
   };
   return map[slug] ?? slug.replace(/-/g, " ");
 }
+
+const WEST_TO_EAST_ORDER = [
+  "pacific",
+  "vancouver",
+  "cavalry",
+  "forge",
+  "inter-toronto",
+  "atletico-ottawa",
+  "supra",
+  "hfx-wanderers",
+];
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const players = await getPlayers();
@@ -35,7 +44,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     ).entries()
   )
     .map(([clubSlug, club]) => ({ clubSlug, club }))
-    .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
+    .sort((a, b) => {
+      const ai = WEST_TO_EAST_ORDER.indexOf(a.clubSlug);
+      const bi = WEST_TO_EAST_ORDER.indexOf(b.clubSlug);
+
+      // both found → order by geography
+      if (ai !== -1 && bi !== -1) return ai - bi;
+
+      // one found → it comes first
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+
+      // neither found → fallback alphabetical
+      return a.club.localeCompare(b.club, undefined, { sensitivity: "base" });
+    });
 
   return (
     <html lang="en">
@@ -65,8 +87,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </a>
 
             <div style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap" }}>
-              <a href="/players" style={{ textDecoration: "none" }}>Players</a>
-              <a href="/clubs" style={{ textDecoration: "none" }}>Clubs</a>
+              <a href="/players" style={{ textDecoration: "none" }}>
+                Players
+              </a>
+              <a href="/clubs" style={{ textDecoration: "none" }}>
+                Clubs
+              </a>
 
               {clubs.map((c) => (
                 <a
