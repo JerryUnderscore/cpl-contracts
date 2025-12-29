@@ -1,7 +1,7 @@
 // app/layout.tsx
 import * as React from "react";
 import { getPlayers } from "./lib/players";
-import Footer from "./components/Footer";
+import Footer from "./components/footer";
 
 export const metadata = {
   title: "CanPL Contracts",
