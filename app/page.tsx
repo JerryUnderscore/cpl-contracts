@@ -232,7 +232,7 @@ export default async function HomePage() {
 
       <footer style={{ color: "#444", lineHeight: 1.5 }}>
         <p style={{ margin: 0 }}>
-          CanPL Contracts is not affiliated with the Canadian Premier League (CPL) or any of its clubs.
+          CPL Contracts is an independent, community-run project and not affiliated with the Canadian Premier League (CPL) or any of its clubs.
           The CPL logo, team logos, team names, and other trademarks are the property of their respective owners.
           If you are a trademark owner and would like something removed, please contact us.
         </p>
