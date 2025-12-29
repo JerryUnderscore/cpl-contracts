@@ -1,6 +1,7 @@
 // app/layout.tsx
 import * as React from "react";
 import { getPlayers } from "./lib/players";
+import Footer from "./components/Footer";
 
 export const metadata = {
   title: "CanPL Contracts",
@@ -8,7 +9,7 @@ export const metadata = {
 };
 
 function slugLabel(slug: string) {
-  // quick readable defaults (tweak any time)
+  // Keep these labels short for the header
   const map: Record<string, string> = {
     pacific: "Pacific",
     vancouver: "Vancouver FC",
@@ -22,7 +23,8 @@ function slugLabel(slug: string) {
   return map[slug] ?? slug.replace(/-/g, " ");
 }
 
-const WEST_TO_EAST_ORDER = [
+// Desired west → east order
+const WEST_TO_EAST: string[] = [
   "pacific",
   "vancouver",
   "cavalry",
@@ -36,32 +38,36 @@ const WEST_TO_EAST_ORDER = [
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const players = await getPlayers();
 
-  const clubs = Array.from(
-    new Map(
-      players
-        .filter((p) => p.clubSlug && p.club)
-        .map((p) => [p.clubSlug, p.club] as const)
-    ).entries()
-  )
+  // Collect clubs present in the data
+  const clubMap = new Map<string, string>();
+  for (const p of players) {
+    if (!p.clubSlug || !p.club) continue;
+    if (!clubMap.has(p.clubSlug)) clubMap.set(p.clubSlug, p.club);
+  }
+
+  // Order clubs west→east, then append any unexpected slugs at the end (alphabetical)
+  const known = WEST_TO_EAST.filter((slug) => clubMap.has(slug)).map((slug) => ({
+    clubSlug: slug,
+    club: clubMap.get(slug)!,
+  }));
+
+  const extras = Array.from(clubMap.entries())
+    .filter(([slug]) => !WEST_TO_EAST.includes(slug))
     .map(([clubSlug, club]) => ({ clubSlug, club }))
-    .sort((a, b) => {
-      const ai = WEST_TO_EAST_ORDER.indexOf(a.clubSlug);
-      const bi = WEST_TO_EAST_ORDER.indexOf(b.clubSlug);
+    .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
-      // both found → order by geography
-      if (ai !== -1 && bi !== -1) return ai - bi;
-
-      // one found → it comes first
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
-
-      // neither found → fallback alphabetical
-      return a.club.localeCompare(b.club, undefined, { sensitivity: "base" });
-    });
+  const clubs = [...known, ...extras];
 
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" }}>
+      <body
+        style={{
+          margin: 0,
+          fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+          background: "white",
+          color: "#111",
+        }}
+      >
         <header
           style={{
             position: "sticky",
@@ -87,10 +93,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </a>
 
             <div style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap" }}>
-              <a href="/players" style={{ textDecoration: "none" }}>
+              <a href="/players" style={{ textDecoration: "none", color: "black" }}>
                 Players
               </a>
-              <a href="/clubs" style={{ textDecoration: "none" }}>
+              <a href="/clubs" style={{ textDecoration: "none", color: "black" }}>
                 Clubs
               </a>
 
@@ -98,7 +104,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <a
                   key={c.clubSlug}
                   href={`/clubs/${c.clubSlug}`}
-                  style={{ textDecoration: "none" }}
+                  style={{ textDecoration: "none", color: "black" }}
                   title={c.club}
                 >
                   {slugLabel(c.clubSlug)}
@@ -107,14 +113,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </div>
 
             <div style={{ marginLeft: "auto", display: "flex", gap: "0.75rem" }}>
-              {/* optional: keep your social links if you want */}
-              {/* <a href="https://twitter.com/..." target="_blank" rel="noreferrer">X</a> */}
-              {/* <a href="https://instagram.com/..." target="_blank" rel="noreferrer">IG</a> */}
+              {/* optional social links */}
             </div>
           </nav>
         </header>
 
         <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }}>{children}</main>
+
+        <Footer />
       </body>
     </html>
   );

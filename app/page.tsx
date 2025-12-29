@@ -26,7 +26,6 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
 function isUnderContract(p: Player, season: string) {
   const v = (p.seasons?.[season] ?? "").trim();
   if (!v) return false;
-  // treat explicit N/A as not under contract
   if (/^n\/a$/i.test(v)) return false;
   return true;
 }
@@ -37,21 +36,19 @@ function isInternationalStatus(p: Player, season: string) {
 }
 
 function isEyt(p: Player, season: string) {
-  // You can tighten this later if you formalize how you mark EYT
   const v = (p.seasons?.[season] ?? "").toLowerCase();
   return v.includes("eyt");
 }
 
 function badgeForSeasonAge(age: number | undefined) {
-  // you already fixed this logic: U-18 is <18, U-21 is <21
+  // U-18 is <18, U-21 is <21
   if (age == null) return null;
   if (age < 18) return { label: "U-18" };
   if (age < 21) return { label: "U-21" };
   return null;
 }
 
-// “Recent” is tricky without a date column.
-// This is a heuristic: it looks for keywords in notes.
+// “Recent” is heuristic based on notes keywords.
 function looksLikeAddition(notes: string | undefined) {
   const s = (notes ?? "").toLowerCase();
   return (
@@ -82,7 +79,6 @@ function looksLikeDeparture(notes: string | undefined) {
 }
 
 function smallClubTag(club: string) {
-  // short-ish tag for lists
   const map: Record<string, string> = {
     "HFX Wanderers FC": "HFX",
     "Atlético Ottawa": "ATO",
@@ -92,8 +88,6 @@ function smallClubTag(club: string) {
     "Vancouver FC": "VFC",
     "Inter Toronto FC": "ITO",
     "FC Supra du Québec": "SUP",
-    "Valour FC": "VAL",
-    "York United FC": "YRK",
   };
   return map[club] ?? club.split(" ")[0];
 }
@@ -103,9 +97,7 @@ export default async function HomePage() {
 
   // infer “primary season” as the earliest year column that exists in data
   const allYears = Array.from(
-    new Set(
-      players.flatMap((p) => Object.keys(p.seasons ?? {}).filter(isYearHeader))
-    )
+    new Set(players.flatMap((p) => Object.keys(p.seasons ?? {}).filter(isYearHeader)))
   ).sort();
 
   const season = allYears[0] ?? String(new Date().getFullYear());
@@ -123,10 +115,17 @@ export default async function HomePage() {
   const clubRows = Array.from(byClub.entries())
     .map(([key, ps]) => {
       const [clubSlug, club] = key.split("|||");
+
       const under = ps.filter((p) => isUnderContract(p, season));
       const intl = under.filter((p) => isInternationalStatus(p, season));
-      const u21 = under.filter((p) => badgeForSeasonAge(ageOnJan1(p.birthDate, Number(season)))?.label === "U-21");
-      const u18 = under.filter((p) => badgeForSeasonAge(ageOnJan1(p.birthDate, Number(season)))?.label === "U-18");
+
+      const u21 = under.filter(
+        (p) => badgeForSeasonAge(ageOnJan1(p.birthDate, Number(season)))?.label === "U-21"
+      );
+      const u18 = under.filter(
+        (p) => badgeForSeasonAge(ageOnJan1(p.birthDate, Number(season)))?.label === "U-18"
+      );
+
       const eyt = under.filter((p) => isEyt(p, season));
 
       return {
@@ -141,27 +140,25 @@ export default async function HomePage() {
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
-  const additions = players
-    .filter((p) => isUnderContract(p, season) && looksLikeAddition(p.notes))
-    .slice(0, 8);
-
-  const departures = players
-    .filter((p) => looksLikeDeparture(p.notes))
-    .slice(0, 8);
+  const additions = players.filter((p) => isUnderContract(p, season) && looksLikeAddition(p.notes)).slice(0, 8);
+  const departures = players.filter((p) => looksLikeDeparture(p.notes)).slice(0, 8);
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center", padding: "1rem 0 0.5rem" }}>
-        <img
-          src="/logo.png"
-          alt="CanPL Contracts"
-          style={{ maxWidth: 720, width: "100%", height: "auto" }}
-        />
+        <img src="/logo.png" alt="CanPL Contracts" style={{ maxWidth: 720, width: "100%", height: "auto" }} />
       </div>
 
       <h1 style={{ textAlign: "center", margin: "0.5rem 0 1.5rem" }}>Contracts</h1>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "2rem",
+          alignItems: "start",
+        }}
+      >
         <div>
           <h2 style={{ marginTop: 0 }}>Recent additions</h2>
           <ul>
@@ -227,16 +224,6 @@ export default async function HomePage() {
       <p style={{ textAlign: "center", marginTop: "0.75rem", color: "#666", fontSize: "0.9rem" }}>
         *EYT logic is a placeholder until we standardize how it’s marked in the sheet.
       </p>
-
-      <hr style={{ margin: "2rem 0" }} />
-
-      <footer style={{ color: "#444", lineHeight: 1.5 }}>
-        <p style={{ margin: 0 }}>
-          CPL Contracts is an independent, community-run project and not affiliated with the Canadian Premier League (CPL) or any of its clubs.
-          The CPL logo, team logos, team names, and other trademarks are the property of their respective owners.
-          If you are a trademark owner and would like something removed, please contact us.
-        </p>
-      </footer>
     </div>
   );
 }
