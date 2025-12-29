@@ -25,6 +25,10 @@ function compareValues(a: string | number, b: string | number) {
   return compareStrings(String(a), String(b));
 }
 
+function isYearHeader(h: string) {
+  return /^\d{4}$/.test(h);
+}
+
 // CPL rule: age on Jan 1 of the season year
 function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   if (!birthDate) return undefined;
@@ -38,11 +42,19 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
 
   let age = seasonYear - y;
-  if (!(mo === 1 && d === 1)) age -= 1; // Jan 1 => no subtraction
+  // Jan 1 counts as already had birthday; anything after Jan 1 => subtract 1
+  if (!(mo === 1 && d === 1)) age -= 1;
   return age;
 }
 
-// IMPORTANT: “U-21” means < 21 on Jan 1 (i.e., 20 or younger).
+function isUnderContractValue(raw: string | undefined) {
+  const v = (raw ?? "").trim();
+  if (!v) return false;
+  if (/^n\/a$/i.test(v)) return false;
+  return true;
+}
+
+// badges: U-18 is <18, U-21 is <21
 function badgeForSeasonAge(age: number | undefined) {
   if (age == null) return null;
   if (age < 18) return { label: "U-18", title: "U-18 on Jan 1" };
@@ -56,8 +68,8 @@ function Badge({ label, title }: { label: string; title?: string }) {
       title={title}
       style={{
         display: "inline-block",
-        marginLeft: "0.4rem",
-        padding: "0.1rem 0.4rem",
+        marginLeft: "0.5rem",
+        padding: "0.1rem 0.45rem",
         borderRadius: "999px",
         fontSize: "0.75rem",
         lineHeight: 1.4,
@@ -71,38 +83,84 @@ function Badge({ label, title }: { label: string; title?: string }) {
   );
 }
 
-function hasSeasonValue(v: string | undefined) {
-  const s = (v ?? "").trim();
-  return s.length > 0;
+function pillStyle(kind: string): React.CSSProperties {
+  // neutral defaults
+  const base: React.CSSProperties = {
+    display: "inline-block",
+    padding: "0.15rem 0.55rem",
+    borderRadius: "999px",
+    fontSize: "0.85rem",
+    lineHeight: 1.4,
+    border: "1px solid #ddd",
+    background: "#f7f7f7",
+    whiteSpace: "nowrap",
+  };
+
+  // tiny “semantic-ish” variations using grayscale so we don’t fight club colours yet
+  if (kind === "international") return { ...base, background: "#fff4f4", borderColor: "#f0c9c9" };
+  if (kind === "domestic") return { ...base, background: "#f4fff6", borderColor: "#cfe9d4" };
+  if (kind === "option") return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
+  if (kind === "draft") return { ...base, background: "#fffaf0", borderColor: "#f0e1bf" };
+  if (kind === "discussion") return { ...base, background: "#f8f8f8", borderColor: "#e0e0e0" };
+
+  return base;
 }
 
-export default function PlayersTable({ players }: { players: Player[] }) {
+function contractKindFromValue(raw: string) {
+  const v = raw.toLowerCase();
+  if (v.includes("international")) return "international";
+  if (v.includes("domestic")) return "domestic";
+  if (v.includes("option")) return "option";
+  if (v.includes("u-sports") || v.includes("draft")) return "draft";
+  if (v.includes("discussion")) return "discussion";
+  return "other";
+}
+
+function ContractPill({ value }: { value: string }) {
+  const kind = contractKindFromValue(value);
+  return (
+    <span style={pillStyle(kind)} title={value}>
+      {value}
+    </span>
+  );
+}
+
+export default function PlayersTable({
+  players,
+  hideClub = false,
+}: {
+  players: Player[];
+  hideClub?: boolean;
+}) {
   const [sortKey, setSortKey] = React.useState<SortKey>("name");
   const [sortDir, setSortDir] = React.useState<SortDir>("asc");
+  const [hoverId, setHoverId] = React.useState<string | null>(null);
 
   const years = React.useMemo(() => {
     const set = new Set<string>();
     for (const p of players) {
       for (const y of Object.keys(p.seasons ?? {})) {
-        if (/^\d{4}$/.test(y)) set.add(y);
+        if (isYearHeader(y)) set.add(y);
       }
     }
     return Array.from(set).sort();
   }, [players]);
 
-  // “First contract year column” (left-most season column in the table)
-  const firstYear = years[0];
+  // Age column uses the first season column (e.g., 2026) for “age on Jan 1”
+  const ageSeason = React.useMemo(() => {
+    const first = years[0];
+    return first && isYearHeader(first) ? Number(first) : new Date().getFullYear();
+  }, [years]);
 
-  function ageForSeason(p: Player, seasonYearStr: string) {
-    const seasonYear = Number(seasonYearStr);
-    if (!Number.isFinite(seasonYear)) return undefined;
-    return ageOnJan1(p.birthDate, seasonYear);
+  function ageOf(p: Player) {
+    return ageOnJan1(p.birthDate, ageSeason);
   }
 
   function sortValue(p: Player, key: SortKey): string | number {
     if (key.startsWith("season:")) {
       const y = key.slice("season:".length);
-      return p.seasons?.[y] ?? "";
+      // Sort by the raw string in the cell (so “Domestic” vs “Option” sorts consistently)
+      return (p.seasons?.[y] ?? "").trim();
     }
 
     switch (key) {
@@ -115,13 +173,9 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       case "nationality":
         return p.nationality ?? "";
       case "number":
-        return p.number ?? Number.POSITIVE_INFINITY; // blanks sort last
-      case "age": {
-        // Use first year to compute a consistent Age column sort
-        if (!firstYear) return Number.POSITIVE_INFINITY;
-        const a = ageForSeason(p, firstYear);
-        return a ?? Number.POSITIVE_INFINITY;
-      }
+        return p.number ?? Number.POSITIVE_INFINITY;
+      case "age":
+        return ageOf(p) ?? Number.POSITIVE_INFINITY;
       default:
         return "";
     }
@@ -136,7 +190,7 @@ export default function PlayersTable({ players }: { players: Player[] }) {
       return sortDir === "asc" ? c : -c;
     });
     return copy;
-  }, [players, sortKey, sortDir, firstYear]);
+  }, [players, sortKey, sortDir, ageSeason]);
 
   function onHeaderClick(key: SortKey) {
     if (key === sortKey) {
@@ -169,6 +223,8 @@ export default function PlayersTable({ players }: { players: Player[] }) {
     );
   }
 
+  const firstYear = years[0]; // vertical divider goes before this column
+
   return (
     <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
       <thead>
@@ -178,52 +234,80 @@ export default function PlayersTable({ players }: { players: Player[] }) {
           <Header keyName="position" label="Pos" />
           <Header keyName="age" label="Age" />
           <Header keyName="nationality" label="Nat." />
-          <Header keyName="club" label="Club" />
-          {years.map((y) => (
-            <Header key={y} keyName={`season:${y}`} label={y} />
-          ))}
+          {!hideClub && <Header keyName="club" label="Club" />}
+
+          {years.map((y) => {
+            const leftDivider = y === firstYear;
+            return (
+              <th
+                key={y}
+                onClick={() => onHeaderClick(`season:${y}`)}
+                style={{
+                  textAlign: "left",
+                  borderBottom: "1px solid #ddd",
+                  padding: "0.5rem",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  whiteSpace: "nowrap",
+                  borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
+                }}
+                title="Click to sort"
+              >
+                {y}
+                {sortKey === `season:${y}` ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              </th>
+            );
+          })}
         </tr>
       </thead>
 
       <tbody>
-        {sorted.map((p) => {
-          // Age column is “age on Jan 1 of the first year shown”
-          const age = firstYear ? ageForSeason(p, firstYear) : undefined;
+        {sorted.map((p, idx) => {
+          const age = ageOf(p);
+          const isHover = hoverId === p.id;
+
+          // Zebra + hover
+          const baseBg = idx % 2 === 0 ? "white" : "#fafafa";
+          const rowBg = isHover ? "#f1f7ff" : baseBg;
 
           return (
-            <tr key={p.id}>
-              <td style={{ padding: "0.5rem" }}>{p.number ?? "—"}</td>
-              <td style={{ padding: "0.5rem" }}>{p.name}</td>
-              <td style={{ padding: "0.5rem" }}>{p.position ?? "—"}</td>
-              <td style={{ padding: "0.5rem" }}>{age ?? "—"}</td>
+            <tr
+              key={p.id}
+              onMouseEnter={() => setHoverId(p.id)}
+              onMouseLeave={() => setHoverId(null)}
+              style={{ background: rowBg }}
+            >
+              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.number ?? "—"}</td>
 
-              <td style={{ padding: "0.5rem" }}>{FlagsFromCell(p.nationality)}</td>
+              <td style={{ padding: "0.5rem", fontWeight: 600 }}>{p.name}</td>
 
-              <td style={{ padding: "0.5rem" }}>{p.club}</td>
+              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.position ?? "—"}</td>
+
+              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{age ?? "—"}</td>
+
+              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{FlagsFromCell(p.nationality)}</td>
+
+              {!hideClub && <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.club}</td>}
 
               {years.map((y) => {
-                const seasonVal = p.seasons?.[y];
-                const underContract = hasSeasonValue(seasonVal);
+                const raw = (p.seasons?.[y] ?? "").trim();
+                const underContract = isUnderContractValue(raw);
 
-                // Only show badges for seasons where the player has a value in that year column
-                const seasonAge = underContract ? ageForSeason(p, y) : undefined;
+                const leftDivider = y === firstYear;
+                const seasonAge = ageOnJan1(p.birthDate, Number(y));
                 const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
-
-                // Tooltip: only on the FIRST year column, show notes (if any)
-                const tooltip =
-                  y === firstYear && (p.notes ?? "").trim() ? (p.notes ?? "").trim() : undefined;
 
                 return (
                   <td
                     key={y}
-                    style={{ padding: "0.5rem", whiteSpace: "nowrap" }}
-                    title={tooltip}
+                    style={{
+                      padding: "0.5rem",
+                      whiteSpace: "nowrap",
+                      borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
+                    }}
                   >
-                    {underContract ? seasonVal : ""}
-
-                    {underContract && badge ? (
-                      <Badge label={badge.label} title={badge.title} />
-                    ) : null}
+                    {underContract ? <ContractPill value={raw} /> : "—"}
+                    {badge ? <Badge label={badge.label} title={badge.title} /> : null}
                   </td>
                 );
               })}
