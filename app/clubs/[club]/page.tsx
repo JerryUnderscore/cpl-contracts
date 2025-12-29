@@ -109,7 +109,7 @@ export default async function ClubPage({
 
       {/* Roster */}
       <h2 style={{ marginTop: "2rem" }}>Roster</h2>
-      <PlayersTable players={clubPlayers} />
+      <PlayersTable players={clubPlayers} hideClub />
     </div>
   );
 }
