@@ -8,8 +8,26 @@ export const metadata = {
   description: "A community-made CPL contract tracker",
 };
 
+type ClubNavItem = {
+  clubSlug: string;
+  club: string;
+  label: string;
+  logoSrc?: string;
+};
+
+// West → East order (your requested order)
+const CLUB_ORDER: string[] = [
+  "pacific",
+  "vancouver",
+  "cavalry",
+  "forge",
+  "inter-toronto",
+  "atletico-ottawa",
+  "supra",
+  "hfx-wanderers",
+];
+
 function slugLabel(slug: string) {
-  // Keep these labels short for the header
   const map: Record<string, string> = {
     pacific: "Pacific",
     vancouver: "Vancouver FC",
@@ -23,40 +41,46 @@ function slugLabel(slug: string) {
   return map[slug] ?? slug.replace(/-/g, " ");
 }
 
-// Desired west → east order
-const WEST_TO_EAST: string[] = [
-  "pacific",
-  "vancouver",
-  "cavalry",
-  "forge",
-  "inter-toronto",
-  "atletico-ottawa",
-  "supra",
-  "hfx-wanderers",
-];
+function slugLogo(slug: string): string | undefined {
+  // Must match filenames in /public/clubs
+  const map: Record<string, string> = {
+    pacific: "/clubs/pacific.svg",
+    vancouver: "/clubs/vancouver.png",
+    cavalry: "/clubs/cavalry.svg",
+    forge: "/clubs/forge.svg",
+    "inter-toronto": "/clubs/toronto.png",
+    "atletico-ottawa": "/clubs/ottawa.svg",
+    supra: "/clubs/supra.png",
+    "hfx-wanderers": "/clubs/wanderers.svg",
+  };
+  return map[slug];
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const players = await getPlayers();
 
-  // Collect clubs present in the data
-  const clubMap = new Map<string, string>();
-  for (const p of players) {
-    if (!p.clubSlug || !p.club) continue;
-    if (!clubMap.has(p.clubSlug)) clubMap.set(p.clubSlug, p.club);
-  }
-
-  // Order clubs west→east, then append any unexpected slugs at the end (alphabetical)
-  const known = WEST_TO_EAST.filter((slug) => clubMap.has(slug)).map((slug) => ({
-    clubSlug: slug,
-    club: clubMap.get(slug)!,
+  // Grab unique clubs from data
+  const clubsFromData = Array.from(
+    new Map(
+      players
+        .filter((p) => p.clubSlug && p.club)
+        .map((p) => [p.clubSlug, p.club] as const)
+    ).entries()
+  ).map(([clubSlug, club]) => ({
+    clubSlug,
+    club,
   }));
 
-  const extras = Array.from(clubMap.entries())
-    .filter(([slug]) => !WEST_TO_EAST.includes(slug))
-    .map(([clubSlug, club]) => ({ clubSlug, club }))
-    .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
-
-  const clubs = [...known, ...extras];
+  // Build nav items in west→east order, but only include clubs that exist in data
+  const clubMap = new Map(clubsFromData.map((c) => [c.clubSlug, c.club]));
+  const orderedNav: ClubNavItem[] = CLUB_ORDER
+    .filter((slug) => clubMap.has(slug))
+    .map((slug) => ({
+      clubSlug: slug,
+      club: clubMap.get(slug) ?? slug,
+      label: slugLabel(slug),
+      logoSrc: slugLogo(slug),
+    }));
 
   return (
     <html lang="en">
@@ -84,36 +108,72 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               padding: "0.75rem 1rem",
               display: "flex",
               gap: "1rem",
-              flexWrap: "wrap",
               alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
             }}
           >
-            <a href="/" style={{ fontWeight: 700, textDecoration: "none", color: "black" }}>
-              CanPL Contracts
+            {/* Left: site brand */}
+            <a
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                textDecoration: "none",
+              }}
+            >
+              <img
+                src="/logo.png"
+                alt="CanPL Contracts"
+                style={{
+                  height: 44,
+                  width: "auto",
+                  display: "block",
+                }}
+              />
             </a>
 
-            <div style={{ display: "flex", gap: "0.9rem", flexWrap: "wrap" }}>
-              <a href="/players" style={{ textDecoration: "none", color: "black" }}>
-                Players
-              </a>
-              <a href="/clubs" style={{ textDecoration: "none", color: "black" }}>
-                Clubs
-              </a>
-
-              {clubs.map((c) => (
+            {/* Right: club nav */}
+            <div
+              style={{
+                display: "flex",
+                gap: "0.9rem",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+            >
+              {orderedNav.map((c) => (
                 <a
                   key={c.clubSlug}
                   href={`/clubs/${c.clubSlug}`}
-                  style={{ textDecoration: "none", color: "black" }}
                   title={c.club}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.45rem",
+                    textDecoration: "none",
+                    color: "#1d4ed8",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap",
+                  }}
                 >
-                  {slugLabel(c.clubSlug)}
+                  {c.logoSrc ? (
+                    <img
+                      src={c.logoSrc}
+                      alt=""
+                      aria-hidden="true"
+                      style={{
+                        width: 18,
+                        height: 18,
+                        objectFit: "contain",
+                        display: "block",
+                      }}
+                    />
+                  ) : null}
+                  <span>{c.label}</span>
                 </a>
               ))}
-            </div>
-
-            <div style={{ marginLeft: "auto", display: "flex", gap: "0.75rem" }}>
-              {/* optional social links */}
             </div>
           </nav>
         </header>
