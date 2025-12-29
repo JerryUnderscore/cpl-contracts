@@ -1,109 +1,29 @@
 // app/clubs/[club]/page.tsx
 import * as React from "react";
+import { notFound } from "next/navigation";
 import { getPlayers } from "../../lib/players";
 import PlayersTable from "../../players/PlayersTable";
+import { CLUB_BY_SLUG } from "../../lib/clubs";
 
 export const revalidate = 300;
 
-type ClubMeta = {
-  label: string;
-  logo: string;
-  location: string;
-  stadium: string;
-  capacity: number;
-  joined: number;
-  coach: string;
-};
-
-const CLUBS: Record<string, ClubMeta> = {
-  "atletico-ottawa": {
-    label: "Atlético Ottawa",
-    logo: "/clubs/ottawa.svg",
-    location: "Ottawa, Ontario",
-    stadium: "TD Place Stadium",
-    capacity: 6419,
-    joined: 2020,
-    coach: "Diego Mejía",
-  },
-  cavalry: {
-    label: "Cavalry FC",
-    logo: "/clubs/cavalry.svg",
-    location: "Foothills County, Alberta",
-    stadium: "ATCO Field",
-    capacity: 6000,
-    joined: 2019,
-    coach: "Tommy Wheeldon Jr.",
-  },
-  forge: {
-    label: "Forge FC",
-    logo: "/clubs/forge.svg",
-    location: "Hamilton, Ontario",
-    stadium: "Hamilton Stadium",
-    capacity: 23218,
-    joined: 2019,
-    coach: "Bobby Smyrniotis",
-  },
-  "hfx-wanderers": {
-    label: "HFX Wanderers FC",
-    logo: "/clubs/wanderers.svg",
-    location: "Halifax, Nova Scotia",
-    stadium: "Wanderers Grounds",
-    capacity: 7500,
-    joined: 2019,
-    coach: "Vanni Sartini",
-  },
-  "inter-toronto": {
-    label: "Inter Toronto FC",
-    logo: "/clubs/toronto.png",
-    location: "Toronto, Ontario",
-    stadium: "York Lions Stadium",
-    capacity: 4000,
-    joined: 2019,
-    coach: "Mauro Eustáquio",
-  },
-  pacific: {
-    label: "Pacific FC",
-    logo: "/clubs/pacific.svg",
-    location: "Langford, British Columbia",
-    stadium: "Starlight Stadium",
-    capacity: 6000,
-    joined: 2019,
-    coach: "James Merriman",
-  },
-  supra: {
-    label: "FC Supra du Québec",
-    logo: "/clubs/supra.png",
-    location: "Laval, Quebec",
-    stadium: "Stade Boréale",
-    capacity: 5581,
-    joined: 2026,
-    coach: "Nicholas Razzaghi",
-  },
-  vancouver: {
-    label: "Vancouver FC",
-    logo: "/clubs/vancouver.png",
-    location: "Langley, British Columbia",
-    stadium: "Willoughby Community Park Stadium",
-    capacity: 6560,
-    joined: 2023,
-    coach: "Martin Nash",
-  },
-};
+function fmtNumber(n: number) {
+  return new Intl.NumberFormat("en-CA").format(n);
+}
 
 export default async function ClubPage({
   params,
 }: {
   params: { club: string };
 }) {
-  const club = CLUBS[params.club];
-  if (!club) {
-    return <h1>Club not found</h1>;
-  }
+  const clubSlug = params.club;
+  const club = CLUB_BY_SLUG[clubSlug];
+  if (!club) return notFound();
 
   const players = await getPlayers();
-  const clubPlayers = players.filter(
-    (p) => p.clubSlug === params.club
-  );
+  const clubPlayers = players.filter((p) => p.clubSlug === clubSlug);
+
+  const accent = `#${club.colors.primary}`;
 
   return (
     <div>
@@ -111,46 +31,84 @@ export default async function ClubPage({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "200px 1fr",
-          gap: "2rem",
+          gridTemplateColumns: "180px 1fr",
+          gap: "1.5rem",
           alignItems: "center",
-          marginBottom: "2rem",
+          marginTop: "0.5rem",
+          padding: "1.25rem 1rem",
+          border: "1px solid #eee",
+          borderRadius: 14,
+          borderTop: `6px solid ${accent}`, // primary colour accent
+          background: "white",
         }}
       >
-        <img
-          src={club.logo}
-          alt={club.label}
+        <div
           style={{
-            width: "100%",
-            maxWidth: 200,
-            height: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "0.25rem",
           }}
-        />
+        >
+          <img
+            src={`/clubs/${club.logoFile}`}
+            alt={`${club.name} logo`}
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: 140,
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
+        </div>
 
         <div>
-          <h1 style={{ marginTop: 0 }}>{club.label}</h1>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, lineHeight: 1.8 }}>
-            <li>
-              <strong>Location:</strong> {club.location}
-            </li>
-            <li>
-              <strong>Stadium:</strong> {club.stadium}
-            </li>
-            <li>
-              <strong>Capacity:</strong> {club.capacity.toLocaleString()}
-            </li>
-            <li>
-              <strong>Joined:</strong> {club.joined}
-            </li>
-            <li>
-              <strong>Head coach:</strong> {club.coach}
-            </li>
-          </ul>
+          <h1 style={{ margin: 0, fontSize: "2.25rem", lineHeight: 1.1 }}>
+            {club.name}
+          </h1>
+
+          <div
+            style={{
+              marginTop: "0.85rem",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0.5rem 1.25rem",
+              color: "#222",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: "0.85rem", color: "#666" }}>Location</div>
+              <div style={{ fontWeight: 600 }}>{club.location}</div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.85rem", color: "#666" }}>Stadium</div>
+              <div style={{ fontWeight: 600 }}>{club.stadium}</div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.85rem", color: "#666" }}>Capacity</div>
+              <div style={{ fontWeight: 600 }}>{fmtNumber(club.capacity)}</div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.85rem", color: "#666" }}>Joined</div>
+              <div style={{ fontWeight: 600 }}>{club.joined}</div>
+            </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={{ fontSize: "0.85rem", color: "#666" }}>
+                Head coach
+              </div>
+              <div style={{ fontWeight: 600 }}>{club.headCoach}</div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Roster */}
-      <h2>Roster</h2>
+      <h2 style={{ marginTop: "2rem" }}>Roster</h2>
       <PlayersTable players={clubPlayers} />
     </div>
   );

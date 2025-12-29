@@ -1,95 +1,28 @@
 // app/layout.tsx
 import * as React from "react";
-import { getPlayers } from "./lib/players";
 import Footer from "./components/footer";
+import { CLUBS, CLUB_ORDER_WEST_EAST, CLUB_BY_SLUG } from "./lib/clubs";
 
 export const metadata = {
-  title: "CanPL Contracts",
+  title: "CPL Contracts",
   description: "A community-made CPL contract tracker",
 };
 
-type ClubNavItem = {
-  clubSlug: string;
-  club: string;
-  label: string;
-  logoSrc?: string;
-};
-
-// West → East order (your requested order)
-const CLUB_ORDER: string[] = [
-  "pacific",
-  "vancouver",
-  "cavalry",
-  "forge",
-  "inter-toronto",
-  "atletico-ottawa",
-  "supra",
-  "hfx-wanderers",
-];
-
-function slugLabel(slug: string) {
-  const map: Record<string, string> = {
-    pacific: "Pacific",
-    vancouver: "Vancouver FC",
-    cavalry: "Cavalry",
-    forge: "Forge",
-    "inter-toronto": "Inter Toronto",
-    "atletico-ottawa": "Atlético",
-    supra: "Supra",
-    "hfx-wanderers": "Wanderers",
-  };
-  return map[slug] ?? slug.replace(/-/g, " ");
+function orderedClubs() {
+  // Uses your west→east order, but still safe if something is missing
+  return CLUB_ORDER_WEST_EAST.map((slug) => CLUB_BY_SLUG[slug]).filter(Boolean);
 }
 
-function slugLogo(slug: string): string | undefined {
-  // Must match filenames in /public/clubs
-  const map: Record<string, string> = {
-    pacific: "/clubs/pacific.svg",
-    vancouver: "/clubs/vancouver.png",
-    cavalry: "/clubs/cavalry.svg",
-    forge: "/clubs/forge.svg",
-    "inter-toronto": "/clubs/toronto.png",
-    "atletico-ottawa": "/clubs/ottawa.svg",
-    supra: "/clubs/supra.png",
-    "hfx-wanderers": "/clubs/wanderers.svg",
-  };
-  return map[slug];
-}
-
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const players = await getPlayers();
-
-  // Grab unique clubs from data
-  const clubsFromData = Array.from(
-    new Map(
-      players
-        .filter((p) => p.clubSlug && p.club)
-        .map((p) => [p.clubSlug, p.club] as const)
-    ).entries()
-  ).map(([clubSlug, club]) => ({
-    clubSlug,
-    club,
-  }));
-
-  // Build nav items in west→east order, but only include clubs that exist in data
-  const clubMap = new Map(clubsFromData.map((c) => [c.clubSlug, c.club]));
-  const orderedNav: ClubNavItem[] = CLUB_ORDER
-    .filter((slug) => clubMap.has(slug))
-    .map((slug) => ({
-      clubSlug: slug,
-      club: clubMap.get(slug) ?? slug,
-      label: slugLabel(slug),
-      logoSrc: slugLogo(slug),
-    }));
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const clubs = orderedClubs();
 
   return (
     <html lang="en">
       <body
         style={{
           margin: 0,
-          fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
-          background: "white",
-          color: "#111",
+          fontFamily:
+            "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
         }}
       >
         <header
@@ -109,19 +42,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               display: "flex",
               gap: "1rem",
               alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
             }}
           >
-            {/* Left: site brand */}
-            <a
-              href="/"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                textDecoration: "none",
-              }}
-            >
+            {/* Left: site logo only */}
+            <a href="/" style={{ display: "inline-flex", alignItems: "center" }}>
               <img
                 src="/logo.png"
                 alt="CanPL Contracts"
@@ -133,52 +57,52 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               />
             </a>
 
-            {/* Right: club nav */}
+            {/* Right: club nav (west → east) */}
             <div
               style={{
+                marginLeft: "auto",
                 display: "flex",
-                gap: "0.9rem",
+                gap: "1.1rem",
                 flexWrap: "wrap",
                 alignItems: "center",
                 justifyContent: "flex-end",
               }}
             >
-              {orderedNav.map((c) => (
+              {clubs.map((c) => (
                 <a
-                  key={c.clubSlug}
-                  href={`/clubs/${c.clubSlug}`}
-                  title={c.club}
+                  key={c.slug}
+                  href={`/clubs/${c.slug}`}
+                  title={c.name}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.45rem",
                     textDecoration: "none",
-                    color: "#1d4ed8",
-                    fontWeight: 500,
+                    fontWeight: 600,
+                    color: "#1d4ed8", // your current “link blue” vibe; easy to tweak later
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {c.logoSrc ? (
-                    <img
-                      src={c.logoSrc}
-                      alt=""
-                      aria-hidden="true"
-                      style={{
-                        width: 18,
-                        height: 18,
-                        objectFit: "contain",
-                        display: "block",
-                      }}
-                    />
-                  ) : null}
-                  <span>{c.label}</span>
+                  <img
+                    src={`/clubs/${c.logoFile}`}
+                    alt={`${c.name} logo`}
+                    style={{
+                      height: 18,
+                      width: 18,
+                      objectFit: "contain",
+                      display: "block",
+                    }}
+                  />
+                  <span>{c.navLabel}</span>
                 </a>
               ))}
             </div>
           </nav>
         </header>
 
-        <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }}>{children}</main>
+        <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }}>
+          {children}
+        </main>
 
         <Footer />
       </body>
