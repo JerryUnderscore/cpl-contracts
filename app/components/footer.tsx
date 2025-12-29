@@ -1,25 +1,53 @@
-// app/components/Footer.tsx
+// app/components/footer.tsx
 import * as React from "react";
 
 export default function Footer() {
   return (
     <footer
       style={{
+        borderTop: "1px solid #eee",
         marginTop: "2rem",
         padding: "1.25rem 1rem",
-        borderTop: "1px solid #eee",
         color: "#444",
-        lineHeight: 1.5,
-        fontSize: "0.9rem",
       }}
     >
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <p style={{ margin: 0 }}>
-          CPL Contracts is an independent, community-run project and not affiliated with the
-          Canadian Premier League (CPL) or any of its clubs. The CPL logo, team logos, team names,
-          and other trademarks are the property of their respective owners. If you are a trademark
-          owner and would like something removed, please{" "}
-          <a href="mailto:wurnig@gmail.com" style={{ color: "inherit" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "1rem",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            <a href="/players" style={{ textDecoration: "none", color: "#1d4ed8" }}>
+              Players
+            </a>
+            <a href="/clubs" style={{ textDecoration: "none", color: "#1d4ed8" }}>
+              Clubs
+            </a>
+            <a href="/" style={{ textDecoration: "none", color: "#1d4ed8" }}>
+              About / Disclaimer
+            </a>
+            <a
+              href="mailto:wurnig@gmail.com"
+              style={{ textDecoration: "none", color: "#1d4ed8" }}
+            >
+              Contact
+            </a>
+          </div>
+
+          <div style={{ fontSize: "0.9rem", color: "#666" }}>© {new Date().getFullYear()} CanPL Contracts</div>
+        </div>
+
+        <p style={{ margin: 0, lineHeight: 1.5, fontSize: "0.95rem" }}>
+          CanPL Contracts is an independent, community-run project and not affiliated with the Canadian Premier League
+          (CPL) or any of its clubs. Team names, logos, and other trademarks are the property of their respective owners.
+          If you are a trademark owner and would like something removed, please{" "}
+          <a href="mailto:wurnig@gmail.com" style={{ color: "#1d4ed8" }}>
             contact us
           </a>
           .
