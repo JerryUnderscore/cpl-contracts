@@ -146,7 +146,7 @@ export default async function HomePage() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center", padding: "1rem 0 0.5rem" }}>
-        <img src="/logo.png" alt="CanPL Contracts" style={{ maxWidth: 720, width: "100%", height: "auto" }} />
+        <img src="/logo_nb.png" alt="CanPL Contracts" style={{ maxWidth: 720, width: "100%", height: "auto" }} />
       </div>
 
       <h1 style={{ textAlign: "center", margin: "0.5rem 0 1.5rem" }}>Contracts</h1>

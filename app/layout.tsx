@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* Left: site logo only */}
             <a href="/" style={{ display: "inline-flex", alignItems: "center" }}>
               <img
-                src="/logo.png"
+                src="/logo_nb.png"
                 alt="CanPL Contracts"
                 style={{
                   height: 44,
