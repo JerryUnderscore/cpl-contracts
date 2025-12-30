@@ -1,6 +1,8 @@
 // app/page.tsx
 import * as React from "react";
 import { getPlayers, type Player } from "./lib/players";
+import { normalizeContractValue, hasContractValue } from "./lib/contracts";
+import { CLUB_BY_SLUG } from "./lib/clubs";
 
 function isYearHeader(h: string) {
   return /^\d{4}$/.test(h);
@@ -18,37 +20,27 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
 
   let age = seasonYear - y;
-  // Jan 1 counts as "already had birthday"; anything after Jan 1 => subtract 1
   if (!(mo === 1 && d === 1)) age -= 1;
   return age;
 }
 
-function isUnderContract(p: Player, season: string) {
-  const v = (p.seasons?.[season] ?? "").trim();
-  if (!v) return false;
-  if (/^n\/a$/i.test(v)) return false;
-  return true;
+function isPrimaryRosterValue(v: string) {
+  return v === "Domestic" || v === "International" || v === "Club Option";
 }
 
-function isInternationalStatus(p: Player, season: string) {
-  const v = (p.seasons?.[season] ?? "").toLowerCase();
-  return v.includes("international");
+function isDevelopmentalValue(v: string) {
+  return v === "EYT" || v === "U SPORTS" || v === "Development";
 }
 
-function isEyt(p: Player, season: string) {
-  const v = (p.seasons?.[season] ?? "").toLowerCase();
-  return v.includes("eyt");
+function isInternationalValue(v: string) {
+  return v === "International";
 }
 
-function badgeForSeasonAge(age: number | undefined) {
-  // U-18 is <18, U-21 is <21
-  if (age == null) return null;
-  if (age < 18) return { label: "U-18" };
-  if (age < 21) return { label: "U-21" };
-  return null;
+function isDomesticValue(v: string) {
+  return v === "Domestic";
 }
 
-// “Recent” is heuristic based on notes keywords.
+// “Recent” heuristic: still based on notes
 function looksLikeAddition(notes: string | undefined) {
   const s = (notes ?? "").toLowerCase();
   return (
@@ -92,6 +84,38 @@ function smallClubTag(club: string) {
   return map[club] ?? club.split(" ")[0];
 }
 
+function fmtNumber(n: number) {
+  return new Intl.NumberFormat("en-CA").format(n);
+}
+
+function miniRule(label: string) {
+  return (
+    <div style={{ fontSize: "0.85rem", color: "var(--muted)", fontWeight: 500, marginTop: "0.15rem" }}>
+      {label}
+    </div>
+  );
+}
+
+function statusChip(ok: boolean, labelOk: string, labelBad: string) {
+  const txt = ok ? labelOk : labelBad;
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "0.12rem 0.55rem",
+        borderRadius: 999,
+        border: `1px solid ${ok ? "var(--okBorder)" : "var(--badBorder)"}`,
+        background: ok ? "var(--okBg)" : "var(--badBg)",
+        fontSize: "0.85rem",
+        whiteSpace: "nowrap",
+        lineHeight: 1.2,
+      }}
+    >
+      {txt}
+    </span>
+  );
+}
+
 export default async function HomePage() {
   const players = await getPlayers();
 
@@ -101,6 +125,7 @@ export default async function HomePage() {
   ).sort();
 
   const season = allYears[0] ?? String(new Date().getFullYear());
+  const seasonYearNum = Number(season);
 
   // group by club
   const byClub = new Map<string, Player[]>();
@@ -116,49 +141,84 @@ export default async function HomePage() {
     .map(([key, ps]) => {
       const [clubSlug, club] = key.split("|||");
 
-      const under = ps.filter((p) => isUnderContract(p, season));
-      const intl = under.filter((p) => isInternationalStatus(p, season));
+      const seasonVals = ps.map((p) => ({
+        p,
+        v: normalizeContractValue(p.seasons?.[season]),
+      }));
 
-      const u21 = under.filter(
-        (p) => badgeForSeasonAge(ageOnJan1(p.birthDate, Number(season)))?.label === "U-21"
-      );
-      const u18 = under.filter(
-        (p) => badgeForSeasonAge(ageOnJan1(p.birthDate, Number(season)))?.label === "U-18"
-      );
+      const primary = seasonVals.filter(({ v }) => isPrimaryRosterValue(v));
+      const internationals = seasonVals.filter(({ v }) => isInternationalValue(v));
+      const developmental = seasonVals.filter(({ v }) => isDevelopmentalValue(v));
 
-      const eyt = under.filter((p) => isEyt(p, season));
+      const domesticU21 = seasonVals.filter(({ p, v }) => {
+        if (!isDomesticValue(v)) return false;
+        const age = ageOnJan1(p.birthDate, seasonYearNum);
+        return age != null && age < 21;
+      });
+
+      const okSize = primary.length >= 20 && primary.length <= 23;
+      const okIntl = internationals.length <= 7;
+      const okU21 = domesticU21.length >= 3;
+
+      const logoFile = CLUB_BY_SLUG[clubSlug]?.logoFile;
 
       return {
         clubSlug,
         club,
-        total: under.length,
-        internationals: intl.length,
-        u21: u21.length,
-        u18: u18.length,
-        eyt: eyt.length,
+        logoFile,
+
+        primaryCount: primary.length,
+        intlCount: internationals.length,
+        domU21Count: domesticU21.length,
+        devCount: developmental.length,
+
+        okSize,
+        okIntl,
+        okU21,
       };
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
-  const additions = players.filter((p) => isUnderContract(p, season) && looksLikeAddition(p.notes)).slice(0, 8);
+  const additions = players
+    .filter(
+      (p) => hasContractValue(normalizeContractValue(p.seasons?.[season])) && looksLikeAddition(p.notes)
+    )
+    .slice(0, 8);
+
   const departures = players.filter((p) => looksLikeDeparture(p.notes)).slice(0, 8);
+
+  const thStyle: React.CSSProperties = {
+    textAlign: "left",
+    borderBottom: "2px solid var(--border)",
+    padding: "0.75rem 0.6rem",
+    whiteSpace: "nowrap",
+  };
+
+  const tdStyle: React.CSSProperties = {
+    borderBottom: "1px solid var(--borderSoft)",
+    padding: "0.75rem 0.6rem",
+    whiteSpace: "nowrap",
+    verticalAlign: "middle",
+  };
+
+  const tdCenter: React.CSSProperties = {
+    ...tdStyle,
+    textAlign: "center",
+  };
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center", padding: "1rem 0 0.5rem" }}>
-        <img src="/logo_nb.png" alt="CanPL Contracts" style={{ maxWidth: 575, width: "100%", height: "auto" }} />
+        <img
+          src="/logo_nb.png"
+          alt="CanPL Contracts"
+          style={{ maxWidth: 720, width: "100%", height: "auto" }}
+        />
       </div>
 
       <h1 style={{ textAlign: "center", margin: "0.5rem 0 1.5rem" }}>Contracts</h1>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "2rem",
-          alignItems: "start",
-        }}
-      >
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }}>
         <div>
           <h2 style={{ marginTop: 0 }}>Recent additions</h2>
           <ul>
@@ -190,53 +250,103 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <h2 style={{ textAlign: "center", marginTop: "2rem" }}>{season} Rosters</h2>
+      <h2 style={{ textAlign: "center", marginTop: "2rem" }}>{season} Roster Compliance</h2>
 
       <div style={{ overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
           <thead>
             <tr>
               <th style={thStyle}>Team</th>
-              <th style={thStyle}>Total</th>
-              <th style={thStyle}>Internationals</th>
-              <th style={thStyle}>U-21</th>
-              <th style={thStyle}>U-18</th>
-              <th style={thStyle}>EYT*</th>
+
+              <th style={{ ...thStyle, textAlign: "center" }}>
+                <div>Primary roster</div>
+                {miniRule("20–23")}
+              </th>
+
+              <th style={{ ...thStyle, textAlign: "center" }}>
+                <div>Internationals</div>
+                {miniRule("Max 7")}
+              </th>
+
+              <th style={{ ...thStyle, textAlign: "center" }}>
+                <div>Domestic U-21</div>
+                {miniRule("Min 3")}
+              </th>
+
+              <th style={{ ...thStyle, textAlign: "center" }}>Developmental</th>
+
+              <th style={{ ...thStyle, textAlign: "center" }}>Status</th>
             </tr>
           </thead>
+
           <tbody>
-            {clubRows.map((r) => (
-              <tr key={r.clubSlug}>
-                <td style={tdStyle}>
-                  <a href={`/clubs/${r.clubSlug}`}>{r.club}</a>
-                </td>
-                <td style={tdStyle}>{r.total}</td>
-                <td style={tdStyle}>{r.internationals}</td>
-                <td style={tdStyle}>{r.u21}</td>
-                <td style={tdStyle}>{r.u18}</td>
-                <td style={tdStyle}>{r.eyt ? r.eyt : "—"}</td>
-              </tr>
-            ))}
+            {clubRows.map((r) => {
+              const allOk = r.okSize && r.okIntl && r.okU21;
+
+              return (
+                <tr key={r.clubSlug}>
+                  <td style={tdStyle}>
+                    <a
+                      href={`/clubs/${r.clubSlug}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}
+                    >
+                      {r.logoFile ? (
+                        <img
+                          src={`/clubs/${r.logoFile}`}
+                          alt=""
+                          aria-hidden="true"
+                          style={{ width: 22, height: 22, objectFit: "contain", display: "block" }}
+                        />
+                      ) : null}
+                      <span>{r.club}</span>
+                    </a>
+                  </td>
+
+                  <td style={tdCenter}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span style={{ fontWeight: 700 }}>{fmtNumber(r.primaryCount)}</span>
+                      {statusChip(r.okSize, "Size OK", "Size ⚠️")}
+                    </div>
+                  </td>
+
+                  <td style={tdCenter}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span style={{ fontWeight: 700 }}>{fmtNumber(r.intlCount)}</span>
+                      {statusChip(r.okIntl, "Intl OK", "Intl ⚠️")}
+                    </div>
+                  </td>
+
+                  <td style={tdCenter}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span style={{ fontWeight: 700 }}>{fmtNumber(r.domU21Count)}</span>
+                      {statusChip(r.okU21, "U-21 OK", "U-21 ⚠️")}
+                    </div>
+                  </td>
+
+                  <td style={tdCenter}>
+                    <span style={{ fontWeight: 700 }}>{fmtNumber(r.devCount)}</span>
+                  </td>
+
+                  <td style={tdCenter}>
+  {allOk
+    ? statusChip(true, "Compliant ✅", "Not Compliant ❌")
+    : statusChip(false, "Compliant ✅", "Not Compliant ❌")}
+</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      <p style={{ textAlign: "center", marginTop: "0.75rem", color: "#666", fontSize: "0.9rem" }}>
-        *EYT logic is a placeholder until we standardize how it’s marked in the sheet.
+      <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--muted)", fontSize: "0.95rem" }}>
+        Primary roster counts <b>Domestic</b>, <b>International</b>, and <b>Club Option</b>. Developmental counts{" "}
+        <b>EYT</b>, <b>U SPORTS</b>, and <b>Development</b>.
+        <br />
+        <span style={{ color: "var(--muted2)" }}>
+          “Option (pending)”, “In Discussion”, and “N/A” are ignored for roster compliance.
+        </span>
       </p>
     </div>
   );
 }
-
-const thStyle: React.CSSProperties = {
-  textAlign: "left",
-  borderBottom: "2px solid #ddd",
-  padding: "0.6rem",
-  whiteSpace: "nowrap",
-};
-
-const tdStyle: React.CSSProperties = {
-  borderBottom: "1px solid #eee",
-  padding: "0.6rem",
-  whiteSpace: "nowrap",
-};

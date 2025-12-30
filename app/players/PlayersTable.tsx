@@ -1,8 +1,14 @@
+// app/players/PlayersTable.tsx
 "use client";
 
 import * as React from "react";
 import type { Player } from "../lib/players";
 import { FlagsFromCell } from "../lib/Flag";
+import {
+  normalizeContractValue,
+  hasContractValue,
+  contractKindFromValue,
+} from "../lib/contracts";
 
 type SortDir = "asc" | "desc";
 type SortKey =
@@ -47,13 +53,6 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   return age;
 }
 
-function isUnderContractValue(raw: string | undefined) {
-  const v = (raw ?? "").trim();
-  if (!v) return false;
-  if (/^n\/a$/i.test(v)) return false;
-  return true;
-}
-
 // badges: U-18 is <18, U-21 is <21
 function badgeForSeasonAge(age: number | undefined) {
   if (age == null) return null;
@@ -95,23 +94,17 @@ function pillStyle(kind: string): React.CSSProperties {
     whiteSpace: "nowrap",
   };
 
+  // semantic-ish variations (kept subtle)
   if (kind === "international") return { ...base, background: "#fff4f4", borderColor: "#f0c9c9" };
   if (kind === "domestic") return { ...base, background: "#f4fff6", borderColor: "#cfe9d4" };
-  if (kind === "option") return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
-  if (kind === "draft") return { ...base, background: "#fffaf0", borderColor: "#f0e1bf" };
-  if (kind === "discussion") return { ...base, background: "#f8f8f8", borderColor: "#e0e0e0" };
+  if (kind === "club_option") return { ...base, background: "#fffaf0", borderColor: "#f0e1bf" };
+  if (kind === "option_pending") return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
+  if (kind === "in_discussion") return { ...base, background: "#f8f8f8", borderColor: "#e0e0e0" };
+  if (kind === "eyt") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
+  if (kind === "u_sports") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
+  if (kind === "development") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
 
   return base;
-}
-
-function contractKindFromValue(raw: string) {
-  const v = raw.toLowerCase();
-  if (v.includes("international")) return "international";
-  if (v.includes("domestic")) return "domestic";
-  if (v.includes("option")) return "option";
-  if (v.includes("u-sports") || v.includes("draft")) return "draft";
-  if (v.includes("discussion")) return "discussion";
-  return "other";
 }
 
 function ContractPill({ value }: { value: string }) {
@@ -140,11 +133,12 @@ export default function PlayersTable({
     return Array.from(set).sort();
   }, [players]);
 
+  const firstYear = years[0]; // divider before this
+
   // Age column uses the first season column (e.g., 2026) for “age on Jan 1”
   const ageSeason = React.useMemo(() => {
-    const first = years[0];
-    return first && isYearHeader(first) ? Number(first) : new Date().getFullYear();
-  }, [years]);
+    return firstYear && isYearHeader(firstYear) ? Number(firstYear) : new Date().getFullYear();
+  }, [firstYear]);
 
   function ageOf(p: Player) {
     return ageOnJan1(p.birthDate, ageSeason);
@@ -153,7 +147,7 @@ export default function PlayersTable({
   function sortValue(p: Player, key: SortKey): string | number {
     if (key.startsWith("season:")) {
       const y = key.slice("season:".length);
-      return (p.seasons?.[y] ?? "").trim();
+      return normalizeContractValue(p.seasons?.[y]);
     }
 
     switch (key) {
@@ -186,9 +180,8 @@ export default function PlayersTable({
   }, [players, sortKey, sortDir, ageSeason]);
 
   function onHeaderClick(key: SortKey) {
-    if (key === sortKey) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
+    if (key === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
       setSortKey(key);
       setSortDir("asc");
     }
@@ -216,8 +209,6 @@ export default function PlayersTable({
     );
   }
 
-  const firstYear = years[0]; // vertical divider goes before this column
-
   return (
     <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
       <thead>
@@ -231,12 +222,15 @@ export default function PlayersTable({
 
           {years.map((y) => {
             const leftDivider = y === firstYear;
+            const active = sortKey === `season:${y}`;
+            const arrow = active ? (sortDir === "asc" ? " ▲" : " ▼") : "";
+
             return (
               <th
                 key={y}
                 onClick={() => onHeaderClick(`season:${y}`)}
                 style={{
-                  textAlign: "center", // ✅ centered year headers
+                  textAlign: "center",
                   borderBottom: "1px solid #ddd",
                   padding: "0.5rem",
                   cursor: "pointer",
@@ -247,7 +241,7 @@ export default function PlayersTable({
                 title="Click to sort"
               >
                 {y}
-                {sortKey === `season:${y}` ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+                {arrow}
               </th>
             );
           })}
@@ -259,7 +253,6 @@ export default function PlayersTable({
           const age = ageOf(p);
           const isHover = hoverId === p.id;
 
-          // Zebra + hover
           const baseBg = idx % 2 === 0 ? "white" : "#fafafa";
           const rowBg = isHover ? "#f1f7ff" : baseBg;
 
@@ -278,40 +271,39 @@ export default function PlayersTable({
 
               <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{age ?? "—"}</td>
 
-              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                {FlagsFromCell(p.nationality)}
-              </td>
+              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{FlagsFromCell(p.nationality)}</td>
 
               {!hideClub && <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.club}</td>}
-{years.map((y, yearIdx) => {
-  const raw = (p.seasons?.[y] ?? "").trim();
-  const underContract = isUnderContractValue(raw);
 
-  const leftDivider = y === firstYear;
-  const seasonAge = ageOnJan1(p.birthDate, Number(y));
-  const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
+              {years.map((y, yearIdx) => {
+                const raw = normalizeContractValue(p.seasons?.[y]);
+                const underContract = hasContractValue(raw);
 
-  // Tooltip on FIRST contract year only (when notes exist)
-  const showNotesTooltip = yearIdx === 0 && !!p.notes;
-  const cellTitle = showNotesTooltip ? p.notes : undefined;
+                const leftDivider = y === firstYear;
+                const seasonAge = ageOnJan1(p.birthDate, Number(y));
+                const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
 
-  return (
-    <td
-      key={y}
-      title={cellTitle}
-      style={{
-        padding: "0.5rem",
-        whiteSpace: "nowrap",
-        borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
-        textAlign: "center",
-        verticalAlign: "middle",
-      }}
-    >
-      {underContract ? <ContractPill value={raw} /> : "—"}
-      {badge ? <Badge label={badge.label} title={badge.title} /> : null}
-    </td>
-  );
-})}
+                // Notes tooltip on the FIRST year column only, but only if that cell is actually "under contract".
+                const cellTitle =
+                  yearIdx === 0 && underContract && p.notes ? p.notes : undefined;
+
+                return (
+                  <td
+                    key={y}
+                    title={cellTitle}
+                    style={{
+                      padding: "0.5rem",
+                      whiteSpace: "nowrap",
+                      borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {underContract ? <ContractPill value={raw} /> : "—"}
+                    {badge ? <Badge label={badge.label} title={badge.title} /> : null}
+                  </td>
+                );
+              })}
             </tr>
           );
         })}
