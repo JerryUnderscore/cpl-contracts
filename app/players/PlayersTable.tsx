@@ -84,7 +84,6 @@ function Badge({ label, title }: { label: string; title?: string }) {
 }
 
 function pillStyle(kind: string): React.CSSProperties {
-  // neutral defaults
   const base: React.CSSProperties = {
     display: "inline-block",
     padding: "0.15rem 0.55rem",
@@ -96,7 +95,6 @@ function pillStyle(kind: string): React.CSSProperties {
     whiteSpace: "nowrap",
   };
 
-  // tiny “semantic-ish” variations using grayscale so we don’t fight club colours yet
   if (kind === "international") return { ...base, background: "#fff4f4", borderColor: "#f0c9c9" };
   if (kind === "domestic") return { ...base, background: "#f4fff6", borderColor: "#cfe9d4" };
   if (kind === "option") return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
@@ -118,11 +116,7 @@ function contractKindFromValue(raw: string) {
 
 function ContractPill({ value }: { value: string }) {
   const kind = contractKindFromValue(value);
-  return (
-    <span style={pillStyle(kind)} title={value}>
-      {value}
-    </span>
-  );
+  return <span style={pillStyle(kind)}>{value}</span>;
 }
 
 export default function PlayersTable({
@@ -159,7 +153,6 @@ export default function PlayersTable({
   function sortValue(p: Player, key: SortKey): string | number {
     if (key.startsWith("season:")) {
       const y = key.slice("season:".length);
-      // Sort by the raw string in the cell (so “Domestic” vs “Option” sorts consistently)
       return (p.seasons?.[y] ?? "").trim();
     }
 
@@ -243,7 +236,7 @@ export default function PlayersTable({
                 key={y}
                 onClick={() => onHeaderClick(`season:${y}`)}
                 style={{
-                  textAlign: "left",
+                  textAlign: "center", // ✅ centered year headers
                   borderBottom: "1px solid #ddd",
                   padding: "0.5rem",
                   cursor: "pointer",
@@ -285,32 +278,40 @@ export default function PlayersTable({
 
               <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{age ?? "—"}</td>
 
-              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{FlagsFromCell(p.nationality)}</td>
+              <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
+                {FlagsFromCell(p.nationality)}
+              </td>
 
               {!hideClub && <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.club}</td>}
+{years.map((y, yearIdx) => {
+  const raw = (p.seasons?.[y] ?? "").trim();
+  const underContract = isUnderContractValue(raw);
 
-              {years.map((y) => {
-                const raw = (p.seasons?.[y] ?? "").trim();
-                const underContract = isUnderContractValue(raw);
+  const leftDivider = y === firstYear;
+  const seasonAge = ageOnJan1(p.birthDate, Number(y));
+  const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
 
-                const leftDivider = y === firstYear;
-                const seasonAge = ageOnJan1(p.birthDate, Number(y));
-                const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
+  // Tooltip on FIRST contract year only (when notes exist)
+  const showNotesTooltip = yearIdx === 0 && !!p.notes;
+  const cellTitle = showNotesTooltip ? p.notes : undefined;
 
-                return (
-                  <td
-                    key={y}
-                    style={{
-                      padding: "0.5rem",
-                      whiteSpace: "nowrap",
-                      borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
-                    }}
-                  >
-                    {underContract ? <ContractPill value={raw} /> : "—"}
-                    {badge ? <Badge label={badge.label} title={badge.title} /> : null}
-                  </td>
-                );
-              })}
+  return (
+    <td
+      key={y}
+      title={cellTitle}
+      style={{
+        padding: "0.5rem",
+        whiteSpace: "nowrap",
+        borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
+        textAlign: "center",
+        verticalAlign: "middle",
+      }}
+    >
+      {underContract ? <ContractPill value={raw} /> : "—"}
+      {badge ? <Badge label={badge.label} title={badge.title} /> : null}
+    </td>
+  );
+})}
             </tr>
           );
         })}
