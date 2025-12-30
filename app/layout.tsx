@@ -1,7 +1,8 @@
 // app/layout.tsx
 import * as React from "react";
 import Footer from "./components/footer";
-import { CLUBS, CLUB_ORDER_WEST_EAST, CLUB_BY_SLUG } from "./lib/clubs";
+import { CLUB_ORDER_WEST_EAST, CLUB_BY_SLUG } from "./lib/clubs";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
   title: "CPL Contracts",
@@ -105,6 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
