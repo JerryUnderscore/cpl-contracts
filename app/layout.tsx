@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 src="/logo_nb.png"
                 alt="CanPL Contracts"
                 style={{
-                  height: 44,
+                  height: 28,
                   width: "auto",
                   display: "block",
                 }}
