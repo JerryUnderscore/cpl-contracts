@@ -104,10 +104,10 @@ function SourcePill({
   href?: string;
 }) {
   const style: React.CSSProperties = {
+    display: "inline-block",
     marginLeft: "0.35rem",
     fontSize: "0.65rem",
-    lineHeight: 1,
-    verticalAlign: "super",
+    lineHeight: 1.2,
     padding: "0.05rem 0.3rem",
     borderRadius: 6,
     background: "#99999933",
@@ -115,19 +115,20 @@ function SourcePill({
     color: "inherit",
     textDecoration: "none",
     whiteSpace: "nowrap",
+    verticalAlign: "baseline", // 👈 explicitly NOT raised
   };
 
   if (!href) {
     return (
-      <sup style={style} title={title}>
+      <span style={style} title={title}>
         {label}
-      </sup>
+      </span>
     );
   }
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" title={title}>
-      <sup style={style}>{label}</sup>
+    <a href={href} target="_blank" rel="noreferrer" style={style} title={title}>
+      {label}
     </a>
   );
 }
