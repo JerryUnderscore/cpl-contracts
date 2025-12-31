@@ -2,6 +2,7 @@
 import * as React from "react";
 import { getPlayers, type Player } from "./lib/players";
 import { normalizeContractValue, hasContractValue } from "./lib/contracts";
+import { getUpdates } from "./lib/updates";
 import { CLUB_BY_SLUG } from "./lib/clubs";
 
 function isYearHeader(h: string) {
@@ -25,6 +26,7 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
 }
 
 function isPrimaryRosterValue(v: string) {
+  // primary roster counts toward 20–23
   return v === "Domestic" || v === "International" || v === "Club Option";
 }
 
@@ -38,36 +40,6 @@ function isInternationalValue(v: string) {
 
 function isDomesticValue(v: string) {
   return v === "Domestic";
-}
-
-// “Recent” heuristic: still based on notes
-function looksLikeAddition(notes: string | undefined) {
-  const s = (notes ?? "").toLowerCase();
-  return (
-    s.includes("signed") ||
-    s.includes("new signing") ||
-    s.includes("made permanent") ||
-    s.includes("re-signed") ||
-    s.includes("resigned") ||
-    s.includes("guaranteed through") ||
-    s.includes("contract retained") ||
-    s.includes("option exercised") ||
-    s.includes("option executed")
-  );
-}
-
-function looksLikeDeparture(notes: string | undefined) {
-  const s = (notes ?? "").toLowerCase();
-  return (
-    s.includes("contract expired") ||
-    s.includes("option declined") ||
-    s.includes("returned to parent club") ||
-    s.includes("terminated") ||
-    s.includes("mutual agreement") ||
-    s.includes("free agent") ||
-    s.includes("left") ||
-    s.includes("released")
-  );
 }
 
 function smallClubTag(club: string) {
@@ -88,36 +60,44 @@ function fmtNumber(n: number) {
   return new Intl.NumberFormat("en-CA").format(n);
 }
 
-function miniRule(label: string) {
+function chipStyle(ok: boolean): React.CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.35rem",
+    padding: "0.18rem 0.55rem",
+    borderRadius: 999,
+    border: `1px solid ${ok ? "var(--okBorder)" : "var(--badBorder)"}`,
+    background: ok ? "var(--okBg)" : "var(--badBg)",
+    fontSize: "0.85rem",
+    whiteSpace: "nowrap",
+    lineHeight: 1.4,
+  };
+}
+
+function statusChip(ok: boolean, labelOk: string, labelBad: string) {
+  return <span style={chipStyle(ok)}>{ok ? labelOk : labelBad}</span>;
+}
+
+function headerCell(title: string, subtitle?: string): React.ReactNode {
   return (
-    <div style={{ fontSize: "0.85rem", color: "var(--muted)", fontWeight: 500, marginTop: "0.15rem" }}>
-      {label}
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
+      <div style={{ fontWeight: 700 }}>{title}</div>
+      {subtitle ? (
+        <div style={{ color: "var(--muted)", fontWeight: 600, fontSize: "0.9rem" }}>{subtitle}</div>
+      ) : null}
     </div>
   );
 }
 
-function statusChip(ok: boolean, labelOk: string, labelBad: string) {
-  const txt = ok ? labelOk : labelBad;
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        padding: "0.12rem 0.55rem",
-        borderRadius: 999,
-        border: `1px solid ${ok ? "var(--okBorder)" : "var(--badBorder)"}`,
-        background: ok ? "var(--okBg)" : "var(--badBg)",
-        fontSize: "0.85rem",
-        whiteSpace: "nowrap",
-        lineHeight: 1.2,
-      }}
-    >
-      {txt}
-    </span>
-  );
+function clubLogoForSlug(slug: string) {
+  const c = CLUB_BY_SLUG[slug];
+  return c?.logoFile ? `/clubs/${c.logoFile}` : null;
 }
 
 export default async function HomePage() {
   const players = await getPlayers();
+  const updates = await getUpdates();
 
   // infer “primary season” as the earliest year column that exists in data
   const allYears = Array.from(
@@ -126,6 +106,11 @@ export default async function HomePage() {
 
   const season = allYears[0] ?? String(new Date().getFullYear());
   const seasonYearNum = Number(season);
+
+  // --- Updates (from Updates tab) ---
+  const signings = updates.filter((u) => u.type === "Signing").slice(0, 5);
+  const departures = updates.filter((u) => u.type === "Departure").slice(0, 5);
+  const extensions = updates.filter((u) => u.type === "Extension").slice(0, 5);
 
   // group by club
   const byClub = new Map<string, Player[]>();
@@ -141,6 +126,7 @@ export default async function HomePage() {
     .map(([key, ps]) => {
       const [clubSlug, club] = key.split("|||");
 
+      // season cell value for each player
       const seasonVals = ps.map((p) => ({
         p,
         v: normalizeContractValue(p.seasons?.[season]),
@@ -156,16 +142,17 @@ export default async function HomePage() {
         return age != null && age < 21;
       });
 
+      // Rules
       const okSize = primary.length >= 20 && primary.length <= 23;
       const okIntl = internationals.length <= 7;
       const okU21 = domesticU21.length >= 3;
 
-      const logoFile = CLUB_BY_SLUG[clubSlug]?.logoFile;
+      const compliant = okSize && okIntl && okU21;
 
       return {
         clubSlug,
         club,
-        logoFile,
+        logoSrc: clubLogoForSlug(clubSlug),
 
         primaryCount: primary.length,
         intlCount: internationals.length,
@@ -175,30 +162,32 @@ export default async function HomePage() {
         okSize,
         okIntl,
         okU21,
+        compliant,
       };
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
-  const additions = players
-    .filter(
-      (p) => hasContractValue(normalizeContractValue(p.seasons?.[season])) && looksLikeAddition(p.notes)
-    )
-    .slice(0, 8);
-
-  const departures = players.filter((p) => looksLikeDeparture(p.notes)).slice(0, 8);
+  // If you still want the old “notes heuristic” data to exist (but it’s now secondary),
+  // we keep it here just to avoid unused imports if you later remove it.
+  // (Not rendered by default.)
+  void hasContractValue;
 
   const thStyle: React.CSSProperties = {
     textAlign: "left",
-    borderBottom: "2px solid var(--border)",
+    borderBottom: `2px solid var(--border)`,
     padding: "0.75rem 0.6rem",
     whiteSpace: "nowrap",
   };
 
+  const thCenter: React.CSSProperties = {
+    ...thStyle,
+    textAlign: "center",
+  };
+
   const tdStyle: React.CSSProperties = {
-    borderBottom: "1px solid var(--borderSoft)",
+    borderBottom: `1px solid var(--borderSoft)`,
     padding: "0.75rem 0.6rem",
     whiteSpace: "nowrap",
-    verticalAlign: "middle",
   };
 
   const tdCenter: React.CSSProperties = {
@@ -208,9 +197,10 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* Hero logo */}
       <div style={{ display: "flex", justifyContent: "center", padding: "1rem 0 0.5rem" }}>
         <img
-          src="/logo_nb.png"
+          src="/logo.png"
           alt="CanPL Contracts"
           style={{ maxWidth: 720, width: "100%", height: "auto" }}
         />
@@ -218,38 +208,101 @@ export default async function HomePage() {
 
       <h1 style={{ textAlign: "center", margin: "0.5rem 0 1.5rem" }}>Contracts</h1>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }}>
-        <div>
-          <h2 style={{ marginTop: 0 }}>Recent additions</h2>
-          <ul>
-            {additions.length ? (
-              additions.map((p) => (
-                <li key={p.id}>
-                  {p.name} ({smallClubTag(p.club)})
-                </li>
-              ))
-            ) : (
-              <li>No recent additions found (yet).</li>
-            )}
-          </ul>
-        </div>
+      {/* Recent developments (from updates tab) */}
+      <div
+        style={{
+          margin: "1.25rem 0 2rem",
+          padding: "1rem 1rem",
+          border: `1px solid var(--borderSoft)`,
+          borderRadius: 14,
+          background: "var(--card)",
+        }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: "0.85rem" }}>Recent developments</h2>
 
-        <div>
-          <h2 style={{ marginTop: 0 }}>Recent departures</h2>
-          <ul>
-            {departures.length ? (
-              departures.map((p) => (
-                <li key={p.id}>
-                  {p.name} ({smallClubTag(p.club)})
-                </li>
-              ))
-            ) : (
-              <li>No recent departures found (yet).</li>
-            )}
-          </ul>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: "1.25rem",
+            alignItems: "start",
+          }}
+        >
+          <div>
+            <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Signings</h3>
+            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
+              {signings.length ? (
+                signings.map((u) => (
+                  <li key={u.id} style={{ marginBottom: "0.35rem" }}>
+                    <b>{u.player}</b> ({smallClubTag(u.club)}){" "}
+                    {u.summary ? <span style={{ color: "var(--muted)" }}>— {u.summary}</span> : null}
+                    {u.link ? (
+                      <>
+                        {" "}
+                        <a href={u.link} target="_blank" rel="noreferrer">
+                          source
+                        </a>
+                      </>
+                    ) : null}
+                  </li>
+                ))
+              ) : (
+                <li>No signings yet.</li>
+              )}
+            </ul>
+          </div>
+
+          <div>
+            <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Departures</h3>
+            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
+              {departures.length ? (
+                departures.map((u) => (
+                  <li key={u.id} style={{ marginBottom: "0.35rem" }}>
+                    <b>{u.player}</b> ({smallClubTag(u.club)}){" "}
+                    {u.summary ? <span style={{ color: "var(--muted)" }}>— {u.summary}</span> : null}
+                    {u.link ? (
+                      <>
+                        {" "}
+                        <a href={u.link} target="_blank" rel="noreferrer">
+                          source
+                        </a>
+                      </>
+                    ) : null}
+                  </li>
+                ))
+              ) : (
+                <li>No departures yet.</li>
+              )}
+            </ul>
+          </div>
+
+          <div>
+            <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Extensions</h3>
+            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
+              {extensions.length ? (
+                extensions.map((u) => (
+                  <li key={u.id} style={{ marginBottom: "0.35rem" }}>
+                    <b>{u.player}</b> ({smallClubTag(u.club)}){" "}
+                    {u.summary ? <span style={{ color: "var(--muted)" }}>— {u.summary}</span> : null}
+                    {u.link ? (
+                      <>
+                        {" "}
+                        <a href={u.link} target="_blank" rel="noreferrer">
+                          source
+                        </a>
+                      </>
+                    ) : null}
+                  </li>
+                ))
+              ) : (
+                <li>No extensions yet.</li>
+              )}
+            </ul>
+          </div>
         </div>
       </div>
 
+      {/* Roster compliance */}
       <h2 style={{ textAlign: "center", marginTop: "2rem" }}>{season} Roster Compliance</h2>
 
       <div style={{ overflowX: "auto" }}>
@@ -257,31 +310,20 @@ export default async function HomePage() {
           <thead>
             <tr>
               <th style={thStyle}>Team</th>
-
-              <th style={{ ...thStyle, textAlign: "center" }}>
-                <div>Primary roster</div>
-                {miniRule("20–23")}
-              </th>
-
-              <th style={{ ...thStyle, textAlign: "center" }}>
-                <div>Internationals</div>
-                {miniRule("Max 7")}
-              </th>
-
-              <th style={{ ...thStyle, textAlign: "center" }}>
-                <div>Domestic U-21</div>
-                {miniRule("Min 3")}
-              </th>
-
-              <th style={{ ...thStyle, textAlign: "center" }}>Developmental</th>
-
-              <th style={{ ...thStyle, textAlign: "center" }}>Status</th>
+              <th style={thCenter}>{headerCell("Primary roster", "20–23")}</th>
+              <th style={thCenter}>{headerCell("Internationals", "Max 7")}</th>
+              <th style={thCenter}>{headerCell("Domestic U-21", "Min 3")}</th>
+              <th style={thCenter}>{headerCell("Developmental")}</th>
+              <th style={thCenter}>{headerCell("Roster compliant")}</th>
             </tr>
           </thead>
 
           <tbody>
             {clubRows.map((r) => {
-              const allOk = r.okSize && r.okIntl && r.okU21;
+              const sizeChip = statusChip(r.okSize, "Size OK", "Size ⚠️");
+              const intlChip = statusChip(r.okIntl, "Intl OK", "Intl ⚠️");
+              const u21Chip = statusChip(r.okU21, "U-21 OK", "U-21 ⚠️");
+              const rosterChip = statusChip(r.compliant, "Yes ✅", "No ⚠️");
 
               return (
                 <tr key={r.clubSlug}>
@@ -290,12 +332,11 @@ export default async function HomePage() {
                       href={`/clubs/${r.clubSlug}`}
                       style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}
                     >
-                      {r.logoFile ? (
+                      {r.logoSrc ? (
                         <img
-                          src={`/clubs/${r.logoFile}`}
-                          alt=""
-                          aria-hidden="true"
-                          style={{ width: 22, height: 22, objectFit: "contain", display: "block" }}
+                          src={r.logoSrc}
+                          alt={`${r.club} logo`}
+                          style={{ width: 20, height: 20, objectFit: "contain", display: "block" }}
                         />
                       ) : null}
                       <span>{r.club}</span>
@@ -304,34 +345,36 @@ export default async function HomePage() {
 
                   <td style={tdCenter}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 700 }}>{fmtNumber(r.primaryCount)}</span>
-                      {statusChip(r.okSize, "Size OK", "Size ⚠️")}
+                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>
+                        {fmtNumber(r.primaryCount)}
+                      </span>
+                      {sizeChip}
                     </div>
                   </td>
 
                   <td style={tdCenter}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 700 }}>{fmtNumber(r.intlCount)}</span>
-                      {statusChip(r.okIntl, "Intl OK", "Intl ⚠️")}
+                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>
+                        {fmtNumber(r.intlCount)}
+                      </span>
+                      {intlChip}
                     </div>
                   </td>
 
                   <td style={tdCenter}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 700 }}>{fmtNumber(r.domU21Count)}</span>
-                      {statusChip(r.okU21, "U-21 OK", "U-21 ⚠️")}
+                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>
+                        {fmtNumber(r.domU21Count)}
+                      </span>
+                      {u21Chip}
                     </div>
                   </td>
 
                   <td style={tdCenter}>
-                    <span style={{ fontWeight: 700 }}>{fmtNumber(r.devCount)}</span>
+                    <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>{fmtNumber(r.devCount)}</span>
                   </td>
 
-                  <td style={tdCenter}>
-  {allOk
-    ? statusChip(true, "Compliant ✅", "Not Compliant ❌")
-    : statusChip(false, "Compliant ✅", "Not Compliant ❌")}
-</td>
+                  <td style={tdCenter}>{rosterChip}</td>
                 </tr>
               );
             })}
