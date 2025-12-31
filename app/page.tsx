@@ -105,16 +105,16 @@ function SourcePill({
 }) {
   const style: React.CSSProperties = {
     display: "inline-block",
-    marginLeft: "0.5rem",
-    padding: "0.12rem 0.55rem",
+    marginLeft: "0.45rem",
+    padding: "0.08rem 0.42rem", // smaller
     borderRadius: 999,
     border: "1px solid #dddddd",
-    background: "#99999922", // 👈 light grey background (hex + alpha)
-    fontSize: "0.85rem",
-    lineHeight: 1.4,
+    background: "#99999922", // light grey background (hex + alpha)
+    fontSize: "0.78rem", // smaller text
+    lineHeight: 1.25, // tighter
     whiteSpace: "nowrap",
     textDecoration: "none",
-    color: "inherit", // 👈 keep text normal (black in light mode)
+    color: "inherit", // keep text normal (black in light mode)
   };
 
   if (!href) {

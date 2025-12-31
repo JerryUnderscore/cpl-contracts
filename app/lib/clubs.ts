@@ -126,7 +126,7 @@ export const CLUBS: ClubInfo[] = [
   {
     slug: "hfx-wanderers",
     name: "HFX Wanderers FC",
-    navLabel: "Wanderers",
+    navLabel: "HFX Wanderers",
     logoFile: "wanderers.svg",
     location: "Halifax, Nova Scotia",
     stadium: "Wanderers Grounds",
