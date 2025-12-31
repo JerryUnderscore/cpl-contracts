@@ -72,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           <nav
             style={{
-              maxWidth: 1500,
+              maxWidth: 1300,
               margin: "0 auto",
               padding: "0.75rem 1rem",
               display: "flex",
@@ -133,7 +133,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
 
         {/* Main */}
-        <main style={{ maxWidth: 1500, margin: "0 auto", padding: "1rem" }}>{children}</main>
+        <main style={{ maxWidth: 1300, margin: "0 auto", padding: "1rem" }}>{children}</main>
 
         <Footer />
         <Analytics />

@@ -11,7 +11,7 @@ export default function Footer() {
         color: "#444",
       }}
     >
-      <div style={{ maxWidth: 1500, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1300, margin: "0 auto" }}>
         <div
           style={{
             display: "flex",
