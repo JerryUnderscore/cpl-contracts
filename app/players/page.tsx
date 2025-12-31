@@ -10,12 +10,7 @@ export default async function PlayersPage() {
   return (
   <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
     <h1>All Players</h1>
-    <p>Click a column header to sort.</p>
-
-    <p>
-      <Link href="/clubs">Browse by club</Link>
-    </p>
-
+   
     <PlayersTable players={players} />
   </main>
   );
