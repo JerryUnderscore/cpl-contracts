@@ -104,30 +104,30 @@ function SourcePill({
   href?: string;
 }) {
   const style: React.CSSProperties = {
-    display: "inline-block",
-    marginLeft: "0.45rem",
-    padding: "0.08rem 0.42rem", // smaller
-    borderRadius: 999,
+    marginLeft: "0.35rem",
+    fontSize: "0.65rem",
+    lineHeight: 1,
+    verticalAlign: "super",
+    padding: "0.05rem 0.3rem",
+    borderRadius: 6,
+    background: "#99999933",
     border: "1px solid #dddddd",
-    background: "#99999922", // light grey background (hex + alpha)
-    fontSize: "0.78rem", // smaller text
-    lineHeight: 1.25, // tighter
-    whiteSpace: "nowrap",
+    color: "inherit",
     textDecoration: "none",
-    color: "inherit", // keep text normal (black in light mode)
+    whiteSpace: "nowrap",
   };
 
   if (!href) {
     return (
-      <span style={style} title={title}>
+      <sup style={style} title={title}>
         {label}
-      </span>
+      </sup>
     );
   }
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" style={style} title={title}>
-      {label}
+    <a href={href} target="_blank" rel="noreferrer" title={title}>
+      <sup style={style}>{label}</sup>
     </a>
   );
 }

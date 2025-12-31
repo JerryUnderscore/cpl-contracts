@@ -29,9 +29,6 @@ export default function Footer() {
             <a href="/clubs" style={{ textDecoration: "none", color: "#1d4ed8" }}>
               Clubs
             </a>
-            <a href="/" style={{ textDecoration: "none", color: "#1d4ed8" }}>
-              About / Disclaimer
-            </a>
             <a
               href="mailto:wurnig@gmail.com"
               style={{ textDecoration: "none", color: "#1d4ed8" }}
@@ -44,7 +41,7 @@ export default function Footer() {
         </div>
 
         <p style={{ margin: 0, lineHeight: 1.5, fontSize: "0.95rem" }}>
-          CanPL Contracts is an independent, community-run project and not affiliated with the Canadian Premier League
+          CPL Contracts is an independent, community-run project and not affiliated with the Canadian Premier League
           (CPL) or any of its clubs. Team names, logos, and other trademarks are the property of their respective owners.
           If you are a trademark owner and would like something removed, please{" "}
           <a href="mailto:wurnig@gmail.com" style={{ color: "#1d4ed8" }}>
