@@ -13,19 +13,11 @@ function orderedClubs() {
   return CLUB_ORDER_WEST_EAST.map((slug) => CLUB_BY_SLUG[slug]).filter(Boolean);
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const clubs = orderedClubs();
 
   return (
-    <html
-      lang="en"
-      data-theme="light"
-      style={{ colorScheme: "light" }}
-    >
+    <html lang="en" data-theme="light" style={{ colorScheme: "light" }}>
       <head>
         <style>{`
           :root {
@@ -90,21 +82,22 @@ export default function RootLayout({
           >
             {/* Logo */}
             <a href="/" style={{ display: "inline-flex", alignItems: "center" }}>
-              <img
-                src="/logo.png"
-                alt="CPL Contracts"
-                style={{ height: 44, width: "auto" }}
-              />
+              <img src="/logo.png" alt="CPL Contracts" style={{ height: 44, width: "auto" }} />
             </a>
 
-            {/* Club navigation */}
+            {/* Club navigation (single line + horizontal scroll, no wrapping) */}
             <div
               style={{
                 marginLeft: "auto",
                 display: "flex",
                 gap: "1.1rem",
-                flexWrap: "wrap",
+                flexWrap: "nowrap",
                 alignItems: "center",
+                justifyContent: "flex-end",
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch",
+                whiteSpace: "nowrap",
+                maxWidth: "100%",
               }}
             >
               {clubs.map((c) => (
@@ -119,6 +112,7 @@ export default function RootLayout({
                     fontWeight: 600,
                     color: "#1d4ed8",
                     whiteSpace: "nowrap",
+                    flex: "0 0 auto",
                   }}
                 >
                   <img
@@ -128,6 +122,7 @@ export default function RootLayout({
                       height: 18,
                       width: 18,
                       objectFit: "contain",
+                      display: "block",
                     }}
                   />
                   <span>{c.navLabel}</span>
@@ -138,15 +133,7 @@ export default function RootLayout({
         </header>
 
         {/* Main */}
-        <main
-          style={{
-            maxWidth: 1100,
-            margin: "0 auto",
-            padding: "1rem",
-          }}
-        >
-          {children}
-        </main>
+        <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }}>{children}</main>
 
         <Footer />
         <Analytics />
