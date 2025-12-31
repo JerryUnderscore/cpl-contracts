@@ -30,81 +30,149 @@ export default async function ClubPage({
       {/* Club header */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "180px 1fr",
-          gap: "1.5rem",
-          alignItems: "center",
           marginTop: "0.5rem",
           padding: "1.25rem 1rem",
           border: "1px solid #eee",
           borderRadius: 14,
-          borderTop: `6px solid ${accent}`, // primary colour accent
+          borderTop: `6px solid ${accent}`,
           background: "white",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "0.25rem",
-          }}
-        >
-          <img
-            src={`/clubs/${club.logoFile}`}
-            alt={`${club.name} logo`}
-            style={{
-              width: "100%",
-              height: "auto",
-              maxHeight: 140,
-              objectFit: "contain",
-              display: "block",
-            }}
-          />
-        </div>
+        <div className="clubHeaderInner">
+          {/* Badge */}
+          <div className="clubBadgeWrap">
+            <img
+              src={`/clubs/${club.logoFile}`}
+              alt={`${club.name} logo`}
+              className="clubBadge"
+            />
+          </div>
 
-        <div>
-          <h1 style={{ margin: 0, fontSize: "2.25rem", lineHeight: 1.1 }}>
-            {club.name}
-          </h1>
+          {/* Name + info */}
+          <div className="clubInfo">
+            <h1 className="clubName">{club.name}</h1>
 
-          <div
-            style={{
-              marginTop: "0.85rem",
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "0.5rem 1.25rem",
-              color: "#222",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: "0.85rem", color: "#666" }}>Location</div>
-              <div style={{ fontWeight: 600 }}>{club.location}</div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: "0.85rem", color: "#666" }}>Stadium</div>
-              <div style={{ fontWeight: 600 }}>{club.stadium}</div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: "0.85rem", color: "#666" }}>Capacity</div>
-              <div style={{ fontWeight: 600 }}>{fmtNumber(club.capacity)}</div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: "0.85rem", color: "#666" }}>Joined</div>
-              <div style={{ fontWeight: 600 }}>{club.joined}</div>
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <div style={{ fontSize: "0.85rem", color: "#666" }}>
-                Head coach
+            <div className="clubMetaGrid">
+              <div className="clubMetaItem">
+                <div className="clubMetaLabel">Location</div>
+                <div className="clubMetaValue">{club.location}</div>
               </div>
-              <div style={{ fontWeight: 600 }}>{club.headCoach}</div>
+
+              <div className="clubMetaItem">
+                <div className="clubMetaLabel">Stadium</div>
+                <div className="clubMetaValue">{club.stadium}</div>
+              </div>
+
+              <div className="clubMetaItem">
+                <div className="clubMetaLabel">Capacity</div>
+                <div className="clubMetaValue">{fmtNumber(club.capacity)}</div>
+              </div>
+
+              <div className="clubMetaItem">
+                <div className="clubMetaLabel">Joined</div>
+                <div className="clubMetaValue">{club.joined}</div>
+              </div>
+
+              <div className="clubMetaItem clubMetaFull">
+                <div className="clubMetaLabel">Head coach</div>
+                <div className="clubMetaValue">{club.headCoach}</div>
+              </div>
             </div>
           </div>
         </div>
+
+        <style>{`
+          .clubHeaderInner {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+          }
+
+          .clubBadgeWrap {
+            flex: 0 0 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.25rem;
+          }
+
+          .clubBadge {
+            width: 100%;
+            height: auto;
+            max-height: 140px;
+            object-fit: contain;
+            display: block;
+          }
+
+          .clubInfo {
+            flex: 1 1 auto;
+            min-width: 0;
+          }
+
+          .clubName {
+            margin: 0;
+            font-size: 2.25rem;
+            line-height: 1.1;
+          }
+
+          .clubMetaGrid {
+            margin-top: 0.85rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1.25rem;
+            color: #222;
+          }
+
+          .clubMetaLabel {
+            font-size: 0.85rem;
+            color: #666;
+          }
+
+          .clubMetaValue {
+            font-weight: 600;
+          }
+
+          .clubMetaFull {
+            grid-column: 1 / -1;
+          }
+
+          /* ✅ Mobile: stack badge above name/info */
+          @media (max-width: 720px) {
+            .clubHeaderInner {
+              flex-direction: column;
+              align-items: center;
+              text-align: center;
+            }
+
+            .clubBadgeWrap {
+              flex: 0 0 auto;
+              width: 100%;
+            }
+
+            .clubBadge {
+              max-height: 120px;
+              width: 140px;
+            }
+
+            .clubName {
+              font-size: 1.8rem;
+              line-height: 1.1;
+            }
+
+            .clubMetaGrid {
+              grid-template-columns: 1fr;
+              text-align: left;
+              width: 100%;
+              max-width: 420px;
+              margin-left: auto;
+              margin-right: auto;
+            }
+
+            .clubMetaFull {
+              grid-column: auto;
+            }
+          }
+        `}</style>
       </div>
 
       {/* Roster */}
