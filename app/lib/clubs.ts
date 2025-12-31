@@ -54,7 +54,7 @@ export const CLUBS: ClubInfo[] = [
   {
     slug: "vancouver",
     name: "Vancouver FC",
-    navLabel: "Vancouver FC",
+    navLabel: "Vancouver",
     logoFile: "vancouver.png",
     location: "Langley, British Columbia",
     stadium: "Willoughby Community Park Stadium",
@@ -102,7 +102,7 @@ export const CLUBS: ClubInfo[] = [
   {
     slug: "atletico-ottawa",
     name: "Atlético Ottawa",
-    navLabel: "Atlético",
+    navLabel: "Atlético Ottawa",
     logoFile: "ottawa.svg",
     location: "Ottawa, Ontario",
     stadium: "TD Place Stadium",
@@ -114,7 +114,7 @@ export const CLUBS: ClubInfo[] = [
   {
     slug: "supra",
     name: "FC Supra du Québec",
-    navLabel: "Supra",
+    navLabel: "Supra du Quebec",
     logoFile: "supra.png",
     location: "Laval, Quebec",
     stadium: "Stade Boréale",
