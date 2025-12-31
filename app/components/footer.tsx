@@ -11,7 +11,7 @@ export default function Footer() {
         color: "#444",
       }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1500, margin: "0 auto" }}>
         <div
           style={{
             display: "flex",
@@ -37,7 +37,7 @@ export default function Footer() {
             </a>
           </div>
 
-          <div style={{ fontSize: "0.9rem", color: "#666" }}>© {new Date().getFullYear()} CanPL Contracts</div>
+          <div style={{ fontSize: "0.9rem", color: "#666" }}>© {new Date().getFullYear()} CPL Contracts</div>
         </div>
 
         <p style={{ margin: 0, lineHeight: 1.5, fontSize: "0.95rem" }}>
