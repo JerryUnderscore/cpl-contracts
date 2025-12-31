@@ -26,7 +26,6 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
 }
 
 function isPrimaryRosterValue(v: string) {
-  // primary roster counts toward 20–23
   return v === "Domestic" || v === "International" || v === "Club Option";
 }
 
@@ -93,6 +92,65 @@ function headerCell(title: string, subtitle?: string): React.ReactNode {
 function clubLogoForSlug(slug: string) {
   const c = CLUB_BY_SLUG[slug];
   return c?.logoFile ? `/clubs/${c.logoFile}` : null;
+}
+
+function SourcePill({
+  label,
+  title,
+  href,
+}: {
+  label: string;
+  title?: string;
+  href?: string;
+}) {
+  const style: React.CSSProperties = {
+    display: "inline-block",
+    marginLeft: "0.5rem",
+    padding: "0.12rem 0.55rem",
+    borderRadius: 999,
+    border: "1px solid #dddddd",
+    background: "#99999922", // 👈 light grey background (hex + alpha)
+    fontSize: "0.85rem",
+    lineHeight: 1.4,
+    whiteSpace: "nowrap",
+    textDecoration: "none",
+    color: "inherit", // 👈 keep text normal (black in light mode)
+  };
+
+  if (!href) {
+    return (
+      <span style={style} title={title}>
+        {label}
+      </span>
+    );
+  }
+
+  return (
+    <a href={href} target="_blank" rel="noreferrer" style={style} title={title}>
+      {label}
+    </a>
+  );
+}
+
+function updateRow(u: {
+  id: string;
+  player: string;
+  club: string;
+  summary?: string;
+  link?: string;
+  source?: string;
+}) {
+  const tag = smallClubTag(u.club);
+  const pillLabel = u.source?.trim() ? u.source.trim() : "Source";
+  const pillTitle = u.summary?.trim() ? u.summary.trim() : undefined;
+
+  return (
+    <li key={u.id} style={{ marginBottom: "0.4rem" }}>
+      <span style={{ fontWeight: 650 }}>{u.player}</span>{" "}
+      <span style={{ color: "var(--muted)" }}>({tag})</span>
+      <SourcePill label={pillLabel} href={u.link} title={pillTitle} />
+    </li>
+  );
 }
 
 export default async function HomePage() {
@@ -167,9 +225,7 @@ export default async function HomePage() {
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
-  // If you still want the old “notes heuristic” data to exist (but it’s now secondary),
-  // we keep it here just to avoid unused imports if you later remove it.
-  // (Not rendered by default.)
+  // keep this referenced for now
   void hasContractValue;
 
   const thStyle: React.CSSProperties = {
@@ -200,13 +256,11 @@ export default async function HomePage() {
       {/* Hero logo */}
       <div style={{ display: "flex", justifyContent: "center", padding: "1rem 0 0.5rem" }}>
         <img
-          src="/logo.png"
+          src="/logo_nb.png"
           alt="CanPL Contracts"
           style={{ maxWidth: 720, width: "100%", height: "auto" }}
         />
       </div>
-
-      <h1 style={{ textAlign: "center", margin: "0.5rem 0 1.5rem" }}>Contracts</h1>
 
       {/* Recent developments (from updates tab) */}
       <div
@@ -218,7 +272,9 @@ export default async function HomePage() {
           background: "var(--card)",
         }}
       >
-        <h2 style={{ marginTop: 0, marginBottom: "0.85rem" }}>Recent developments</h2>
+        <h2 style={{ marginTop: 0, marginBottom: "0.85rem", textAlign: "center" }}>
+          Recent developments
+        </h2>
 
         <div
           style={{
@@ -231,72 +287,21 @@ export default async function HomePage() {
           <div>
             <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Signings</h3>
             <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              {signings.length ? (
-                signings.map((u) => (
-                  <li key={u.id} style={{ marginBottom: "0.35rem" }}>
-                    <b>{u.player}</b> ({smallClubTag(u.club)}){" "}
-                    {u.summary ? <span style={{ color: "var(--muted)" }}>— {u.summary}</span> : null}
-                    {u.link ? (
-                      <>
-                        {" "}
-                        <a href={u.link} target="_blank" rel="noreferrer">
-                          source
-                        </a>
-                      </>
-                    ) : null}
-                  </li>
-                ))
-              ) : (
-                <li>No signings yet.</li>
-              )}
+              {signings.length ? signings.map(updateRow) : <li>No signings yet.</li>}
             </ul>
           </div>
 
           <div>
             <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Departures</h3>
             <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              {departures.length ? (
-                departures.map((u) => (
-                  <li key={u.id} style={{ marginBottom: "0.35rem" }}>
-                    <b>{u.player}</b> ({smallClubTag(u.club)}){" "}
-                    {u.summary ? <span style={{ color: "var(--muted)" }}>— {u.summary}</span> : null}
-                    {u.link ? (
-                      <>
-                        {" "}
-                        <a href={u.link} target="_blank" rel="noreferrer">
-                          source
-                        </a>
-                      </>
-                    ) : null}
-                  </li>
-                ))
-              ) : (
-                <li>No departures yet.</li>
-              )}
+              {departures.length ? departures.map(updateRow) : <li>No departures yet.</li>}
             </ul>
           </div>
 
           <div>
             <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Extensions</h3>
             <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              {extensions.length ? (
-                extensions.map((u) => (
-                  <li key={u.id} style={{ marginBottom: "0.35rem" }}>
-                    <b>{u.player}</b> ({smallClubTag(u.club)}){" "}
-                    {u.summary ? <span style={{ color: "var(--muted)" }}>— {u.summary}</span> : null}
-                    {u.link ? (
-                      <>
-                        {" "}
-                        <a href={u.link} target="_blank" rel="noreferrer">
-                          source
-                        </a>
-                      </>
-                    ) : null}
-                  </li>
-                ))
-              ) : (
-                <li>No extensions yet.</li>
-              )}
+              {extensions.length ? extensions.map(updateRow) : <li>No extensions yet.</li>}
             </ul>
           </div>
         </div>
@@ -382,7 +387,14 @@ export default async function HomePage() {
         </table>
       </div>
 
-      <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--muted)", fontSize: "0.95rem" }}>
+      <p
+        style={{
+          textAlign: "center",
+          marginTop: "0.75rem",
+          color: "var(--muted)",
+          fontSize: "0.95rem",
+        }}
+      >
         Primary roster counts <b>Domestic</b>, <b>International</b>, and <b>Club Option</b>. Developmental counts{" "}
         <b>EYT</b>, <b>U SPORTS</b>, and <b>Development</b>.
         <br />
