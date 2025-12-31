@@ -3,6 +3,7 @@ import * as React from "react";
 import Footer from "./components/footer";
 import { CLUB_ORDER_WEST_EAST, CLUB_BY_SLUG } from "./lib/clubs";
 import { Analytics } from "@vercel/analytics/react";
+import ClubMenu from "./components/club-menu";
 
 export const metadata = {
   title: "CPL Contracts",
@@ -51,6 +52,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             color: inherit;
             text-decoration: none;
           }
+
+          /* Header responsiveness */
+          .clubNavDesktop { display: flex; }
+          .clubNavMobile { display: none; }
+
+          @media (max-width: 860px) {
+            .clubNavDesktop { display: none; }
+            .clubNavMobile { display: flex; }
+          }
         `}</style>
       </head>
 
@@ -81,15 +91,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }}
           >
             {/* Logo */}
-            <a href="/" style={{ display: "inline-flex", alignItems: "center" }}>
+            <a
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                flex: "0 0 auto",
+              }}
+            >
               <img src="/logo.png" alt="CPL Contracts" style={{ height: 44, width: "auto" }} />
             </a>
 
-            {/* Club navigation (single line + horizontal scroll, no wrapping) */}
+            {/* Desktop club navigation (your existing row) */}
             <div
+              className="clubNavDesktop"
               style={{
                 marginLeft: "auto",
-                display: "flex",
                 gap: "1.1rem",
                 flexWrap: "nowrap",
                 alignItems: "center",
@@ -129,11 +147,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </a>
               ))}
             </div>
+
+            {/* Mobile hamburger */}
+            <div className="clubNavMobile" style={{ marginLeft: "auto" }}>
+              <ClubMenu
+                clubs={clubs.map((c) => ({
+                  slug: c.slug,
+                  name: c.name,
+                  navLabel: c.navLabel,
+                  logoFile: c.logoFile,
+                }))}
+              />
+            </div>
           </nav>
         </header>
 
         {/* Main */}
-        <main style={{ maxWidth: 1300, margin: "0 auto", padding: "1rem" }}>{children}</main>
+        <main style={{ maxWidth: 1300, margin: "0 auto", padding: "1rem" }}>
+          {children}
+        </main>
 
         <Footer />
         <Analytics />

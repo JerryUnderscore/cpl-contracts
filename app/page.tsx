@@ -115,7 +115,7 @@ function SourcePill({
     color: "inherit",
     textDecoration: "none",
     whiteSpace: "nowrap",
-    verticalAlign: "baseline", // 👈 explicitly NOT raised
+    verticalAlign: "baseline",
   };
 
   if (!href) {
@@ -158,7 +158,6 @@ export default async function HomePage() {
   const players = await getPlayers();
   const updates = await getUpdates();
 
-  // infer “primary season” as the earliest year column that exists in data
   const allYears = Array.from(
     new Set(players.flatMap((p) => Object.keys(p.seasons ?? {}).filter(isYearHeader)))
   ).sort();
@@ -166,12 +165,10 @@ export default async function HomePage() {
   const season = allYears[0] ?? String(new Date().getFullYear());
   const seasonYearNum = Number(season);
 
-  // --- Updates (from Updates tab) ---
   const signings = updates.filter((u) => u.type === "Signing").slice(0, 5);
   const departures = updates.filter((u) => u.type === "Departure").slice(0, 5);
   const extensions = updates.filter((u) => u.type === "Extension").slice(0, 5);
 
-  // group by club
   const byClub = new Map<string, Player[]>();
   for (const p of players) {
     if (!p.clubSlug || !p.club) continue;
@@ -185,7 +182,6 @@ export default async function HomePage() {
     .map(([key, ps]) => {
       const [clubSlug, club] = key.split("|||");
 
-      // season cell value for each player
       const seasonVals = ps.map((p) => ({
         p,
         v: normalizeContractValue(p.seasons?.[season]),
@@ -201,7 +197,6 @@ export default async function HomePage() {
         return age != null && age < 21;
       });
 
-      // Rules
       const okSize = primary.length >= 20 && primary.length <= 23;
       const okIntl = internationals.length <= 7;
       const okU21 = domesticU21.length >= 3;
@@ -226,7 +221,6 @@ export default async function HomePage() {
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
-  // keep this referenced for now
   void hasContractValue;
 
   const thStyle: React.CSSProperties = {
@@ -263,7 +257,7 @@ export default async function HomePage() {
         />
       </div>
 
-      {/* Recent developments (from updates tab) */}
+      {/* Recent developments (responsive grid) */}
       <div
         style={{
           margin: "1.25rem 0 2rem",
@@ -280,7 +274,7 @@ export default async function HomePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: "1.25rem",
             alignItems: "start",
           }}
@@ -388,14 +382,7 @@ export default async function HomePage() {
         </table>
       </div>
 
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: "0.75rem",
-          color: "var(--muted)",
-          fontSize: "0.95rem",
-        }}
-      >
+      <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--muted)", fontSize: "0.95rem" }}>
         Primary roster counts <b>Domestic</b>, <b>International</b>, and <b>Club Option</b>. Developmental counts{" "}
         <b>EYT</b>, <b>U SPORTS</b>, and <b>Development</b>.
         <br />
