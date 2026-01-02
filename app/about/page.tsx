@@ -70,7 +70,7 @@ export default function AboutPage() {
           If you spot an error, have additional context, or can provide a source that improves the
           data, please submit it here:{" "}
           <a href={formUrl} target="_blank" rel="noreferrer">
-            Corrections / submissions form
+            <u>Corrections / submissions form</u>
           </a>
           .
         </p>

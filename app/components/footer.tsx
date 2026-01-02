@@ -2,7 +2,7 @@
 import * as React from "react";
 
 export default function Footer() {
-  const correctionsUrl = process.env.CORRECTIONS_FORM_URL;
+  const correctionsUrl = process.env.NEXT_PUBLIC_CORRECTIONS_FORM_URL;
 
   return (
     <footer
@@ -33,8 +33,9 @@ export default function Footer() {
               Clubs
             </a>
             <a href="/about" style={{ textDecoration: "none", color: "#1d4ed8" }}>
-              About / Data Sources
+              About
             </a>
+
             {correctionsUrl ? (
               <a
                 href={correctionsUrl}
@@ -45,10 +46,8 @@ export default function Footer() {
                 Submit a correction
               </a>
             ) : null}
-            <a
-              href="mailto:wurnig@gmail.com"
-              style={{ textDecoration: "none", color: "#1d4ed8" }}
-            >
+
+            <a href="mailto:wurnig@gmail.com" style={{ textDecoration: "none", color: "#1d4ed8" }}>
               Contact
             </a>
           </div>
