@@ -4,6 +4,7 @@ import { getPlayers, type Player } from "./lib/players";
 import { normalizeContractValue, hasContractValue } from "./lib/contracts";
 import { getUpdates } from "./lib/updates";
 import { CLUB_BY_SLUG } from "./lib/clubs";
+import RecentDevelopments from "./components/recent-developments";
 
 function isYearHeader(h: string) {
   return /^\d{4}$/.test(h);
@@ -21,6 +22,7 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
 
   let age = seasonYear - y;
+  // Jan 1 counts as already had birthday; anything after Jan 1 => subtract 1
   if (!(mo === 1 && d === 1)) age -= 1;
   return age;
 }
@@ -39,20 +41,6 @@ function isInternationalValue(v: string) {
 
 function isDomesticValue(v: string) {
   return v === "Domestic";
-}
-
-function smallClubTag(club: string) {
-  const map: Record<string, string> = {
-    "HFX Wanderers FC": "HFX",
-    "Atlético Ottawa": "ATO",
-    "Cavalry FC": "CAV",
-    "Forge FC": "FOR",
-    "Pacific FC": "PAC",
-    "Vancouver FC": "VFC",
-    "Inter Toronto FC": "ITO",
-    "FC Supra du Québec": "SUP",
-  };
-  return map[club] ?? club.split(" ")[0];
 }
 
 function fmtNumber(n: number) {
@@ -94,69 +82,8 @@ function clubLogoForSlug(slug: string) {
   return c?.logoFile ? `/clubs/${c.logoFile}` : null;
 }
 
-function SourcePill({
-  label,
-  title,
-  href,
-}: {
-  label: string;
-  title?: string;
-  href?: string;
-}) {
-  const style: React.CSSProperties = {
-    display: "inline-block",
-    marginLeft: "0.35rem",
-    fontSize: "0.65rem",
-    lineHeight: 1.2,
-    padding: "0.05rem 0.3rem",
-    borderRadius: 6,
-    background: "#99999933",
-    border: "1px solid #dddddd",
-    color: "inherit",
-    textDecoration: "none",
-    whiteSpace: "nowrap",
-    verticalAlign: "baseline",
-  };
-
-  if (!href) {
-    return (
-      <span style={style} title={title}>
-        {label}
-      </span>
-    );
-  }
-
-  return (
-    <a href={href} target="_blank" rel="noreferrer" style={style} title={title}>
-      {label}
-    </a>
-  );
-}
-
-function updateRow(u: {
-  id: string;
-  player: string;
-  club: string;
-  summary?: string;
-  link?: string;
-  source?: string;
-}) {
-  const tag = smallClubTag(u.club);
-  const pillLabel = u.source?.trim() ? u.source.trim() : "Source";
-  const pillTitle = u.summary?.trim() ? u.summary.trim() : undefined;
-
-  return (
-    <li key={u.id} style={{ marginBottom: "0.4rem" }}>
-      <span style={{ fontWeight: 650 }}>{u.player}</span>{" "}
-      <span style={{ color: "var(--muted)" }}>({tag})</span>
-      <SourcePill label={pillLabel} href={u.link} title={pillTitle} />
-    </li>
-  );
-}
-
 export default async function HomePage() {
-  const players = await getPlayers();
-  const updates = await getUpdates();
+  const [players, updates] = await Promise.all([getPlayers(), getUpdates()]);
 
   const allYears = Array.from(
     new Set(players.flatMap((p) => Object.keys(p.seasons ?? {}).filter(isYearHeader)))
@@ -165,9 +92,19 @@ export default async function HomePage() {
   const season = allYears[0] ?? String(new Date().getFullYear());
   const seasonYearNum = Number(season);
 
-  const signings = updates.filter((u) => u.type === "Signing").slice(0, 5);
-  const departures = updates.filter((u) => u.type === "Departure").slice(0, 5);
-  const extensions = updates.filter((u) => u.type === "Extension").slice(0, 5);
+  // Map updates into the shape RecentDevelopments expects
+  const toItem = (u: any) => ({
+    id: u.id ?? `${u.date ?? ""}__${u.playerName ?? u.player ?? ""}__${u.club ?? ""}`,
+    player: u.playerName ?? u.player ?? "",
+    club: u.club ?? "",
+    summary: u.notes ?? u.summary ?? "",
+    link: u.link ?? "",
+    source: u.source ?? "",
+  });
+
+  const signings = updates.filter((u: any) => u.type === "Signing").map(toItem);
+  const departures = updates.filter((u: any) => u.type === "Departure").map(toItem);
+  const extensions = updates.filter((u: any) => u.type === "Extension").map(toItem);
 
   const byClub = new Map<string, Player[]>();
   for (const p of players) {
@@ -221,6 +158,7 @@ export default async function HomePage() {
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
 
+  // keep import "used" (you referenced this previously; leaving it harmless)
   void hasContractValue;
 
   const thStyle: React.CSSProperties = {
@@ -257,50 +195,8 @@ export default async function HomePage() {
         />
       </div>
 
-      {/* Recent developments (responsive grid) */}
-      <div
-        style={{
-          margin: "1.25rem 0 2rem",
-          padding: "1rem 1rem",
-          border: `1px solid var(--borderSoft)`,
-          borderRadius: 14,
-          background: "var(--card)",
-        }}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: "0.85rem", textAlign: "center" }}>
-          Recent developments
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "1.25rem",
-            alignItems: "start",
-          }}
-        >
-          <div>
-            <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Signings</h3>
-            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              {signings.length ? signings.map(updateRow) : <li>No signings yet.</li>}
-            </ul>
-          </div>
-
-          <div>
-            <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Departures</h3>
-            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              {departures.length ? departures.map(updateRow) : <li>No departures yet.</li>}
-            </ul>
-          </div>
-
-          <div>
-            <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Extensions</h3>
-            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-              {extensions.length ? extensions.map(updateRow) : <li>No extensions yet.</li>}
-            </ul>
-          </div>
-        </div>
-      </div>
+      {/* Recent developments */}
+      <RecentDevelopments signings={signings} departures={departures} extensions={extensions} initial={5} step={5} />
 
       {/* Roster compliance */}
       <h2 style={{ textAlign: "center", marginTop: "2rem" }}>{season} Roster Compliance</h2>
@@ -345,27 +241,21 @@ export default async function HomePage() {
 
                   <td style={tdCenter}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-                        {fmtNumber(r.primaryCount)}
-                      </span>
+                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>{fmtNumber(r.primaryCount)}</span>
                       {sizeChip}
                     </div>
                   </td>
 
                   <td style={tdCenter}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-                        {fmtNumber(r.intlCount)}
-                      </span>
+                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>{fmtNumber(r.intlCount)}</span>
                       {intlChip}
                     </div>
                   </td>
 
                   <td style={tdCenter}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-                        {fmtNumber(r.domU21Count)}
-                      </span>
+                      <span style={{ fontWeight: 700, fontSize: "1.05rem" }}>{fmtNumber(r.domU21Count)}</span>
                       {u21Chip}
                     </div>
                   </td>
