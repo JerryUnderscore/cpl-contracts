@@ -52,14 +52,12 @@ function SourcePill({
 }
 
 function TransferRow({ t }: { t: TransferItem }) {
-  const when = t.date ?? "";
   const who = t.playerName;
 
   const left = t.fromClub ?? "—";
   const right = t.toClub ?? "—";
 
   const summaryBits: string[] = [];
-  // In your sheet this is things like "Permanent" (not In/Out)
   if (t.transferType) summaryBits.push(t.transferType);
   if (t.fee) summaryBits.push(t.fee);
 
@@ -68,12 +66,6 @@ function TransferRow({ t }: { t: TransferItem }) {
   return (
     <li style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--borderSoft)" }}>
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "baseline", flexWrap: "wrap" }}>
-        {when ? (
-          <span style={{ color: "var(--muted)", fontSize: "0.9rem", whiteSpace: "nowrap" }}>
-            {when}
-          </span>
-        ) : null}
-
         <span style={{ fontWeight: 700 }}>{who}</span>
 
         <span style={{ color: "var(--muted)" }}>
