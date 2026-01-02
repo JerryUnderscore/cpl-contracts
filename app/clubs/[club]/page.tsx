@@ -97,13 +97,14 @@ export default async function ClubPage({ params }: { params: { club: string } })
 
   const clubPlayers = players.filter((p) => p.clubSlug === clubSlug);
 
-  // IMPORTANT: infer direction by slugs (since your sheet's "transferType" is like "Permanent")
-  const transfersIn = transfers.filter((t) => (t.toClubSlug ?? "").trim() === clubSlug);
-  const transfersOut = transfers.filter((t) => (t.fromClubSlug ?? "").trim() === clubSlug);
+// Transfers for this club (direction inferred by slug)
+const transfersIn = transfers
+  .filter((t) => (t.toClubSlug ?? "").trim() === clubSlug)
+  .sort((a, b) => a.playerName.localeCompare(b.playerName));
 
-  // Sort newest first (if dates exist)
-  transfersIn.sort((a, b) => ((a.date ?? "") < (b.date ?? "") ? 1 : (a.date ?? "") > (b.date ?? "") ? -1 : 0));
-  transfersOut.sort((a, b) => ((a.date ?? "") < (b.date ?? "") ? 1 : (a.date ?? "") > (b.date ?? "") ? -1 : 0));
+const transfersOut = transfers
+  .filter((t) => (t.fromClubSlug ?? "").trim() === clubSlug)
+  .sort((a, b) => a.playerName.localeCompare(b.playerName));
 
   const accent = `#${club.colors.primary}`;
 
