@@ -1,7 +1,7 @@
 // app/page.tsx
 import * as React from "react";
 import { getPlayers, type Player } from "./lib/players";
-import { normalizeContractValue, hasContractValue } from "./lib/contracts";
+import { normalizeContractValue } from "./lib/contracts";
 import { getUpdates } from "./lib/updates";
 import { CLUB_BY_SLUG } from "./lib/clubs";
 import RecentDevelopments from "./components/recent-developments";
@@ -157,9 +157,6 @@ export default async function HomePage() {
       };
     })
     .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
-
-  // keep import "used" (you referenced this previously; leaving it harmless)
-  void hasContractValue;
 
   const thStyle: React.CSSProperties = {
     textAlign: "left",

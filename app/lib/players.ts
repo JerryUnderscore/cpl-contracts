@@ -106,10 +106,7 @@ export async function getPlayers(): Promise<Player[]> {
     );
   }
 
-  const res = await fetch(SHEET_CSV_URL, {
-    // Helps Next keep this server-side and compatible with ISR revalidate on pages
-    cache: "no-store",
-  });
+  const res = await fetch(SHEET_CSV_URL);
 
   if (!res.ok) {
     throw new Error(`Failed to fetch players CSV: ${res.status} ${res.statusText}`);

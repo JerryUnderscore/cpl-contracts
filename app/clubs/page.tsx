@@ -1,21 +1,9 @@
 // app/clubs/page.tsx
 import Link from "next/link";
 import { getPlayers } from "../lib/players";
+import { slugifyClub } from "../lib/slug";
 
 export const revalidate = 300;
-
-function slugifyClub(clubSlug: string | undefined, clubName: string | undefined) {
-  // Prefer the clubSlug from your sheet (best!)
-  if (clubSlug?.trim()) return clubSlug.trim();
-
-  // Fallback: crude slug from name (only used if clubSlug missing)
-  return (clubName ?? "")
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
 
 export default async function ClubsIndexPage() {
   const players = await getPlayers();
@@ -23,7 +11,9 @@ export default async function ClubsIndexPage() {
   const clubs = new Map<string, { slug: string; name: string; count: number }>();
 
   for (const p of players) {
-    const slug = slugifyClub(p.clubSlug, p.club);
+    const slug = (p.clubSlug ?? "").trim()
+      ? (p.clubSlug ?? "").trim()
+      : slugifyClub(p.club ?? "");
     const name = p.club ?? slug;
 
     const prev = clubs.get(slug);

@@ -3,12 +3,9 @@
 
 import * as React from "react";
 import type { Player } from "../lib/players";
+import TagPill from "../components/TagPill";
 import { FlagsFromCell } from "../lib/Flag";
-import {
-  normalizeContractValue,
-  hasContractValue,
-  contractKindFromValue,
-} from "../lib/contracts";
+import { normalizeContractValue, hasContractValue, contractKindFromValue } from "../lib/contracts";
 
 type SortDir = "asc" | "desc";
 type SortKey =
@@ -45,8 +42,7 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   const y = Number(m[1]);
   const mo = Number(m[2]);
   const d = Number(m[3]);
-  if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d))
-    return undefined;
+  if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
 
   let age = seasonYear - y;
   // Jan 1 counts as already had birthday; anything after Jan 1 => subtract 1
@@ -62,27 +58,6 @@ function badgeForSeasonAge(age: number | undefined) {
   return null;
 }
 
-function Badge({ label, title }: { label: string; title?: string }) {
-  return (
-    <span
-      title={title}
-      style={{
-        display: "inline-block",
-        marginLeft: "0.5rem",
-        padding: "0.1rem 0.45rem",
-        borderRadius: "999px",
-        fontSize: "0.75rem",
-        lineHeight: 1.4,
-        border: "1px solid #ddd",
-        background: "#f8f8f8",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {label}
-    </span>
-  );
-}
-
 function pillStyle(kind: string): React.CSSProperties {
   const base: React.CSSProperties = {
     display: "inline-block",
@@ -96,22 +71,14 @@ function pillStyle(kind: string): React.CSSProperties {
   };
 
   // semantic-ish variations (kept subtle)
-  if (kind === "international")
-    return { ...base, background: "#fff4f4", borderColor: "#f0c9c9" };
-  if (kind === "domestic")
-    return { ...base, background: "#f4fff6", borderColor: "#cfe9d4" };
-  if (kind === "club_option")
-    return { ...base, background: "#fffaf0", borderColor: "#f0e1bf" };
-  if (kind === "option_pending")
-    return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
-  if (kind === "in_discussion")
-    return { ...base, background: "#f8f8f8", borderColor: "#e0e0e0" };
-  if (kind === "eyt")
-    return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
-  if (kind === "u_sports")
-    return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
-  if (kind === "development")
-    return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
+  if (kind === "international") return { ...base, background: "#fff4f4", borderColor: "#f0c9c9" };
+  if (kind === "domestic") return { ...base, background: "#f4fff6", borderColor: "#cfe9d4" };
+  if (kind === "club_option") return { ...base, background: "#fffaf0", borderColor: "#f0e1bf" };
+  if (kind === "option_pending") return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
+  if (kind === "in_discussion") return { ...base, background: "#f8f8f8", borderColor: "#e0e0e0" };
+  if (kind === "eyt") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
+  if (kind === "u_sports") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
+  if (kind === "development") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
 
   return base;
 }
@@ -122,7 +89,6 @@ function ContractPill({ value }: { value: string }) {
 }
 
 // --- Country code -> display name (for nationality filter UI) ---
-// Add more as you encounter them; unknown codes fall back to the code.
 const COUNTRY_NAME_BY_CODE: Record<string, string> = {
   AL: "Albania",
   AR: "Argentina",
@@ -183,7 +149,6 @@ function displayCountry(code: string) {
 
 function parseNationalityCodes(cell: string | undefined): string[] {
   if (!cell) return [];
-  // You said you use semicolons; also tolerate commas just in case.
   return cell
     .split(/[;,]/g)
     .map((s) => s.trim().toUpperCase())
@@ -221,7 +186,6 @@ function ageMatchesBucket(age: number | undefined, b: AgeBucket) {
 }
 
 function prettifyStatus(value: string) {
-  // Keeps display stable in the dropdown
   return value;
 }
 
@@ -256,18 +220,14 @@ export default function PlayersTable({
 
   const firstYear = years[0]; // also used for "Status (YYYY)" filter
 
-  // Age column uses the first season column (e.g., 2026) for “age on Jan 1”
   const ageSeason = React.useMemo(() => {
-    return firstYear && isYearHeader(firstYear)
-      ? Number(firstYear)
-      : new Date().getFullYear();
+    return firstYear && isYearHeader(firstYear) ? Number(firstYear) : new Date().getFullYear();
   }, [firstYear]);
 
   function ageOf(p: Player) {
     return ageOnJan1(p.birthDate, ageSeason);
   }
 
-  // Build dropdown options
   const positionOptions = React.useMemo(() => {
     const set = new Set<string>();
     for (const p of players) {
@@ -291,10 +251,7 @@ export default function PlayersTable({
     for (const p of players) {
       for (const c of parseNationalityCodes(p.nationality)) set.add(c);
     }
-    // IMPORTANT: sort by country display name, not code
-    return Array.from(set).sort((a, b) =>
-      compareStrings(displayCountry(a), displayCountry(b))
-    );
+    return Array.from(set).sort((a, b) => compareStrings(displayCountry(a), displayCountry(b)));
   }, [players]);
 
   const statusOptions = React.useMemo(() => {
@@ -305,7 +262,6 @@ export default function PlayersTable({
       const raw = normalizeContractValue(p.seasons?.[y]);
       if (hasContractValue(raw)) set.add(raw);
     }
-    // Make a stable order that feels human
     const preferred = [
       "Domestic",
       "International",
@@ -361,41 +317,28 @@ export default function PlayersTable({
     return players.filter((p) => {
       const age = ageOf(p);
 
-      // Search
       if (query) {
-        const hay = [
-          p.name ?? "",
-          p.club ?? "",
-          p.position ?? "",
-          p.nationality ?? "",
-          String(p.number ?? ""),
-        ]
+        const hay = [p.name ?? "", p.club ?? "", p.position ?? "", p.nationality ?? "", String(p.number ?? "")]
           .join(" ")
           .toLowerCase();
-
         if (!hay.includes(query)) return false;
       }
 
-      // Position
       if (posFilter !== "all") {
         if ((p.position ?? "").trim() !== posFilter) return false;
       }
 
-      // Age bucket
       if (!ageMatchesBucket(age, ageFilter)) return false;
 
-      // Nationality (any match)
       if (natFilter !== "all") {
         const codes = parseNationalityCodes(p.nationality);
         if (!codes.includes(natFilter)) return false;
       }
 
-      // Club
       if (!hideClub && clubFilter !== "all") {
         if ((p.club ?? "").trim() !== clubFilter) return false;
       }
 
-      // Status (based on FIRST year column)
       if (statusFilter !== "all" && firstYear) {
         const raw = normalizeContractValue(p.seasons?.[firstYear]);
         if (!hasContractValue(raw)) return false;
@@ -404,18 +347,7 @@ export default function PlayersTable({
 
       return true;
     });
-  }, [
-    players,
-    q,
-    posFilter,
-    ageFilter,
-    natFilter,
-    clubFilter,
-    statusFilter,
-    ageSeason,
-    firstYear,
-    hideClub,
-  ]);
+  }, [players, q, posFilter, ageFilter, natFilter, clubFilter, statusFilter, ageSeason, firstYear, hideClub]);
 
   const sorted = React.useMemo(() => {
     const copy = [...filtered];
@@ -493,7 +425,6 @@ export default function PlayersTable({
 
   return (
     <div>
-      {/* Filters + search */}
       <div style={controlWrap}>
         <div style={{ ...controlBlock, minWidth: 260, flex: "1 1 260px" }}>
           <div style={labelStyle}>Search</div>
@@ -507,11 +438,7 @@ export default function PlayersTable({
 
         <div style={controlBlock}>
           <div style={labelStyle}>Position</div>
-          <select
-            value={posFilter}
-            onChange={(e) => setPosFilter(e.target.value)}
-            style={inputStyle}
-          >
+          <select value={posFilter} onChange={(e) => setPosFilter(e.target.value)} style={inputStyle}>
             <option value="all">All</option>
             {positionOptions.map((p) => (
               <option key={p} value={p}>
@@ -539,11 +466,7 @@ export default function PlayersTable({
 
         <div style={controlBlock}>
           <div style={labelStyle}>Nationality</div>
-          <select
-            value={natFilter}
-            onChange={(e) => setNatFilter(e.target.value)}
-            style={inputStyle}
-          >
+          <select value={natFilter} onChange={(e) => setNatFilter(e.target.value)} style={inputStyle}>
             <option value="all">All</option>
             {nationalityOptions.map((code) => (
               <option key={code} value={code}>
@@ -573,11 +496,7 @@ export default function PlayersTable({
         {!hideClub ? (
           <div style={controlBlock}>
             <div style={labelStyle}>Club</div>
-            <select
-              value={clubFilter}
-              onChange={(e) => setClubFilter(e.target.value)}
-              style={inputStyle}
-            >
+            <select value={clubFilter} onChange={(e) => setClubFilter(e.target.value)} style={inputStyle}>
               <option value="all">All</option>
               {clubOptions.map((c) => (
                 <option key={c} value={c}>
@@ -610,22 +529,8 @@ export default function PlayersTable({
         </div>
       </div>
 
-      {/* Table (now horizontally scrollable on small screens) */}
-      <div
-        style={{
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-          width: "100%",
-        }}
-      >
-        <table
-          style={{
-            borderCollapse: "collapse",
-            width: "100%",
-            marginTop: "1rem",
-            minWidth: 980, // 👈 forces horizontal scrolling instead of squeezing columns
-          }}
-        >
+      <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem", minWidth: 980 }}>
           <thead>
             <tr>
               <Header keyName="number" label="No." />
@@ -678,27 +583,17 @@ export default function PlayersTable({
                   onMouseLeave={() => setHoverId(null)}
                   style={{ background: rowBg }}
                 >
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                    {p.number ?? "—"}
-                  </td>
+                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.number ?? "—"}</td>
 
                   <td style={{ padding: "0.5rem", fontWeight: 600 }}>{p.name}</td>
 
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                    {p.position ?? "—"}
-                  </td>
+                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.position ?? "—"}</td>
 
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                    {age ?? "—"}
-                  </td>
+                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{age ?? "—"}</td>
 
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                    {FlagsFromCell(p.nationality)}
-                  </td>
+                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{FlagsFromCell(p.nationality)}</td>
 
-                  {!hideClub && (
-                    <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.club}</td>
-                  )}
+                  {!hideClub && <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.club}</td>}
 
                   {years.map((y, yearIdx) => {
                     const raw = normalizeContractValue(p.seasons?.[y]);
@@ -708,9 +603,7 @@ export default function PlayersTable({
                     const seasonAge = ageOnJan1(p.birthDate, Number(y));
                     const badge = underContract ? badgeForSeasonAge(seasonAge) : null;
 
-                    // Notes tooltip on the FIRST year column only, but only if that cell is actually "under contract".
-                    const cellTitle =
-                      yearIdx === 0 && underContract && p.notes ? p.notes : undefined;
+                    const cellTitle = yearIdx === 0 && underContract && p.notes ? p.notes : undefined;
 
                     return (
                       <td
@@ -725,7 +618,13 @@ export default function PlayersTable({
                         }}
                       >
                         {underContract ? <ContractPill value={raw} /> : "—"}
-                        {badge ? <Badge label={badge.label} title={badge.title} /> : null}
+
+                        {/* U-18 / U-21 pill (matches site-wide pill style) */}
+                        {badge ? (
+                          <span style={{ marginLeft: "0.5rem", display: "inline-block" }} title={badge.title}>
+                            <TagPill label={badge.label} />
+                          </span>
+                        ) : null}
                       </td>
                     );
                   })}

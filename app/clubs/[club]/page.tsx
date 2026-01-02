@@ -5,50 +5,12 @@ import { getPlayers } from "../../lib/players";
 import PlayersTable from "../../players/PlayersTable";
 import { CLUB_BY_SLUG } from "../../lib/clubs";
 import { getTransfers, type TransferItem } from "../../lib/transfers";
+import SourcePill from "../../components/SourcePill";
 
 export const revalidate = 300;
 
 function fmtNumber(n: number) {
   return new Intl.NumberFormat("en-CA").format(n);
-}
-
-function SourcePill({
-  label,
-  title,
-  href,
-}: {
-  label: string;
-  title?: string;
-  href?: string;
-}) {
-  const style: React.CSSProperties = {
-    display: "inline-block",
-    marginLeft: "0.35rem",
-    fontSize: "0.65rem",
-    lineHeight: 1.2,
-    padding: "0.05rem 0.3rem",
-    borderRadius: 6,
-    background: "#99999933",
-    border: "1px solid #dddddd",
-    color: "inherit",
-    textDecoration: "none",
-    whiteSpace: "nowrap",
-    verticalAlign: "baseline",
-  };
-
-  if (!href) {
-    return (
-      <span style={style} title={title}>
-        {label}
-      </span>
-    );
-  }
-
-  return (
-    <a href={href} target="_blank" rel="noreferrer" style={style} title={title}>
-      {label}
-    </a>
-  );
 }
 
 function TransferRow({ t }: { t: TransferItem }) {
