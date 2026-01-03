@@ -82,12 +82,23 @@ function clubLogoForSlug(slug: string) {
   return c?.logoFile ? `/clubs/${c.logoFile}` : null;
 }
 
+function sectionTitle(title: string, subtitle?: string) {
+  return (
+    <div style={{ textAlign: "center", marginTop: "2rem" }}>
+      <h2 style={{ margin: 0 }}>{title}</h2>
+      {subtitle ? (
+        <div style={{ marginTop: "0.35rem", color: "var(--muted)", fontSize: "0.98rem", lineHeight: 1.5 }}>
+          {subtitle}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default async function HomePage() {
   const [players, updates] = await Promise.all([getPlayers(), getUpdates()]);
 
-  const allYears = Array.from(
-    new Set(players.flatMap((p) => Object.keys(p.seasons ?? {}).filter(isYearHeader)))
-  ).sort();
+  const allYears = Array.from(new Set(players.flatMap((p) => Object.keys(p.seasons ?? {}).filter(isYearHeader)))).sort();
 
   const season = allYears[0] ?? String(new Date().getFullYear());
   const seasonYearNum = Number(season);
@@ -183,20 +194,48 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero logo */}
-      <div style={{ display: "flex", justifyContent: "center", padding: "1rem 0 0.5rem" }}>
-        <img
-          src="/logo_nb.png"
-          alt="CanPL Contracts"
-          style={{ maxWidth: 720, width: "100%", height: "auto" }}
-        />
-      </div>
+      {/* Hero */}
+      <section
+        style={{
+          marginTop: "0.75rem",
+          padding: "1.25rem 0 0.25rem",
+        }}
+      >
+        <div style={{ maxWidth: 920, margin: "0 auto", textAlign: "center" }}>
+          <img
+            src="/logo_nb.png"
+            alt="CPL Contracts"
+            style={{ width: "100%", maxWidth: 500, height: "auto", display: "block", margin: "0 auto" }}
+          />
+
+          <p
+            style={{
+              margin: "0.9rem auto 0",
+              maxWidth: 760,
+              color: "var(--muted)",
+              fontSize: "1.05rem",
+              lineHeight: 1.6,
+            }}
+          >
+            An independent tracker of contracts, rosters, and transfers across the Canadian Premier League.
+          </p>
+        </div>
+      </section>
 
       {/* Recent developments */}
-      <RecentDevelopments signings={signings} departures={departures} extensions={extensions} initial={5} step={5} />
+      <section style={{ marginTop: "1.25rem" }}>
+        
+        <RecentDevelopments
+          signings={signings}
+          departures={departures}
+          extensions={extensions}
+          initial={5}
+          step={5}
+        />
+      </section>
 
       {/* Roster compliance */}
-      <h2 style={{ textAlign: "center", marginTop: "2rem" }}>{season} Roster Compliance</h2>
+      {sectionTitle(`${season} Roster Compliance`,)}
 
       <div style={{ overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem" }}>
@@ -221,10 +260,7 @@ export default async function HomePage() {
               return (
                 <tr key={r.clubSlug}>
                   <td style={tdStyle}>
-                    <a
-                      href={`/clubs/${r.clubSlug}`}
-                      style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}
-                    >
+                    <a href={`/clubs/${r.clubSlug}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
                       {r.logoSrc ? (
                         <img
                           src={r.logoSrc}
@@ -271,7 +307,7 @@ export default async function HomePage() {
 
       <p style={{ textAlign: "center", marginTop: "0.75rem", color: "var(--muted)", fontSize: "0.95rem" }}>
         Primary roster counts <b>Domestic</b>, <b>International</b>, and <b>Club Option</b>. Developmental counts{" "}
-        <b>EYT</b>, <b>U SPORTS</b>, and <b>Development</b>.
+        <b>Exceptional Young Talent (EYT)</b>, <b>U SPORTS</b>, and <b>Development</b>.
         <br />
         <span style={{ color: "var(--muted2)" }}>
           “Option (pending)”, “In Discussion”, and “N/A” are ignored for roster compliance.

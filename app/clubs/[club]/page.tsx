@@ -6,6 +6,7 @@ import PlayersTable from "../../players/PlayersTable";
 import { CLUB_BY_SLUG } from "../../lib/clubs";
 import { getTransfers, type TransferItem } from "../../lib/transfers";
 import SourcePill from "../../components/SourcePill";
+import Card from "../../components/Card";
 
 export const revalidate = 300;
 
@@ -24,9 +25,16 @@ function TransferRow({ t }: { t: TransferItem }) {
   if (t.fee) summaryBits.push(t.fee);
 
   const pillLabel = t.source?.trim() ? t.source.trim() : t.link ? "Source" : "";
+  const pillTitle = t.notes?.trim() ? t.notes.trim() : undefined;
 
   return (
-    <li style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--borderSoft)" }}>
+    <li
+      className="transferRow"
+      style={{
+        padding: "0.5rem 0",
+        borderBottom: "1px solid var(--borderSoft)",
+      }}
+    >
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "baseline", flexWrap: "wrap" }}>
         <span style={{ fontWeight: 700 }}>{who}</span>
 
@@ -38,7 +46,7 @@ function TransferRow({ t }: { t: TransferItem }) {
           <span style={{ color: "var(--muted)" }}>({summaryBits.join(" • ")})</span>
         ) : null}
 
-        {pillLabel ? <SourcePill label={pillLabel} href={t.link} title={t.notes} /> : null}
+        {pillLabel ? <SourcePill label={pillLabel} href={t.link} title={pillTitle} /> : null}
       </div>
 
       {t.notes ? (
@@ -59,14 +67,13 @@ export default async function ClubPage({ params }: { params: { club: string } })
 
   const clubPlayers = players.filter((p) => p.clubSlug === clubSlug);
 
-// Transfers for this club (direction inferred by slug)
-const transfersIn = transfers
-  .filter((t) => (t.toClubSlug ?? "").trim() === clubSlug)
-  .sort((a, b) => a.playerName.localeCompare(b.playerName));
+  const transfersIn = transfers
+    .filter((t) => (t.toClubSlug ?? "").trim() === clubSlug)
+    .sort((a, b) => a.playerName.localeCompare(b.playerName, undefined, { sensitivity: "base" }));
 
-const transfersOut = transfers
-  .filter((t) => (t.fromClubSlug ?? "").trim() === clubSlug)
-  .sort((a, b) => a.playerName.localeCompare(b.playerName));
+  const transfersOut = transfers
+    .filter((t) => (t.fromClubSlug ?? "").trim() === clubSlug)
+    .sort((a, b) => a.playerName.localeCompare(b.playerName, undefined, { sensitivity: "base" }));
 
   const accent = `#${club.colors.primary}`;
 
@@ -84,12 +91,10 @@ const transfersOut = transfers
         }}
       >
         <div className="clubHeaderInner">
-          {/* Badge */}
           <div className="clubBadgeWrap">
             <img src={`/clubs/${club.logoFile}`} alt={`${club.name} logo`} className="clubBadge" />
           </div>
 
-          {/* Name + info */}
           <div className="clubInfo">
             <h1 className="clubName">{club.name}</h1>
 
@@ -177,7 +182,6 @@ const transfersOut = transfers
             grid-column: 1 / -1;
           }
 
-          /* Mobile: stack badge above name/info */
           @media (max-width: 720px) {
             .clubHeaderInner {
               flex-direction: column;
@@ -220,20 +224,11 @@ const transfersOut = transfers
       <h2 style={{ marginTop: "2rem" }}>Roster</h2>
       <PlayersTable players={clubPlayers} hideClub />
 
-      {/* Transfers (under roster) */}
+      {/* Transfers */}
       <h2 style={{ marginTop: "2rem" }}>Transfers</h2>
 
       <div className="transfersGrid">
-        <div
-          style={{
-            border: "1px solid var(--borderSoft)",
-            borderRadius: 14,
-            background: "var(--card)",
-            padding: "1rem",
-            minWidth: 0,
-          }}
-        >
-          <h3 style={{ marginTop: 0, marginBottom: "0.75rem" }}>Transfers In</h3>
+        <Card title="Transfers In">
           {transfersIn.length ? (
             <ul style={{ margin: 0, paddingLeft: "1.1rem" }}>
               {transfersIn.map((t) => (
@@ -243,18 +238,9 @@ const transfersOut = transfers
           ) : (
             <div style={{ color: "var(--muted)" }}>No transfers in yet.</div>
           )}
-        </div>
+        </Card>
 
-        <div
-          style={{
-            border: "1px solid var(--borderSoft)",
-            borderRadius: 14,
-            background: "var(--card)",
-            padding: "1rem",
-            minWidth: 0,
-          }}
-        >
-          <h3 style={{ marginTop: 0, marginBottom: "0.75rem" }}>Transfers Out</h3>
+        <Card title="Transfers Out">
           {transfersOut.length ? (
             <ul style={{ margin: 0, paddingLeft: "1.1rem" }}>
               {transfersOut.map((t) => (
@@ -264,7 +250,7 @@ const transfersOut = transfers
           ) : (
             <div style={{ color: "var(--muted)" }}>No transfers out yet.</div>
           )}
-        </div>
+        </Card>
       </div>
 
       <style>{`
@@ -280,6 +266,11 @@ const transfersOut = transfers
           .transfersGrid {
             grid-template-columns: 1fr;
           }
+        }
+
+        /* Remove divider under the last transfer row in each card */
+        .transferRow:last-child {
+          border-bottom: none !important;
         }
       `}</style>
     </div>

@@ -73,9 +73,22 @@ export default function RecentDevelopments({
         background: "var(--card)",
       }}
     >
-      <h2 style={{ marginTop: 0, marginBottom: "0.85rem", textAlign: "center" }}>
+      
+      <h2 style={{ marginTop: 0, marginBottom: "0.25rem", textAlign: "center" }}>
         Recent developments
       </h2>
+
+      <div
+        style={{
+          textAlign: "center",
+          color: "var(--muted)",
+          fontSize: "0.98rem",
+          lineHeight: 1.5,
+          marginBottom: "1.1rem",
+        }}
+      >
+        The latest signings, departures, and extensions from public reporting.
+      </div>
 
       <div
         className="recentDevelopmentsGrid"
