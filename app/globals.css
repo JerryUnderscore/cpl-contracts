@@ -1,0 +1,153 @@
+/* =========================
+   Global variables & base
+   ========================= */
+
+:root {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #666666;
+  --muted2: #777777;
+
+  --border: #dddddd;
+  --borderSoft: #eeeeee;
+
+  --card: #ffffff;
+
+  --okBg: #f4fff6;
+  --okBorder: #cfe9d4;
+
+  --badBg: #fff4f4;
+  --badBorder: #f0c9c9;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* =========================
+   Header responsiveness
+   ========================= */
+
+.clubNavDesktop {
+  display: flex;
+}
+
+.clubNavMobile {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .clubNavDesktop {
+    display: none !important;
+  }
+  .clubNavMobile {
+    display: flex !important;
+  }
+}
+
+/* =========================
+   Header (iOS Safari-safe)
+   ========================= */
+
+.siteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--border);
+
+  /* Critical: allow dropdown/panel to escape header bounds */
+  overflow: visible;
+
+  /* Create stacking context without transform/filter */
+  isolation: isolate;
+  background: transparent;
+
+  /* Needed so ::before positions correctly */
+  position: relative;
+}
+
+/* Blur + tint layer (NOT on the sticky element itself) */
+.siteHeader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* =========================
+   Header layout
+   ========================= */
+
+.siteHeaderNav {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0.95rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.siteHeaderLogo {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.siteHeaderLogoImg {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+
+.siteHeaderClubs {
+  margin-left: auto;
+  display: flex;
+  gap: 1.05rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+  max-width: 100%;
+  padding: 0.15rem 0;
+}
+
+.siteHeaderClubLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  padding: 0.25rem 0.25rem;
+  border-radius: 10px;
+}
+
+.siteHeaderClubLogo {
+  height: 18px;
+  width: 18px;
+  object-fit: contain;
+  display: block;
+}
+
+.siteHeaderMobile {
+  margin-left: auto;
+}
