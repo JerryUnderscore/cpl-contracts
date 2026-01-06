@@ -16,6 +16,9 @@ export type Player = {
   source?: string;
   notes?: string;
 
+  // NEW: roster status (e.g., "active", "free agent", "loaned out", "retired")
+  status?: string;
+
   // Dynamic contract columns (e.g., "2026", "2027", "2028", ...)
   seasons: Record<string, string>;
 };
@@ -99,6 +102,12 @@ function toBirthDateMaybe(v: string): string | undefined {
   return s;
 }
 
+function normalizeStatus(v: string | undefined): string {
+  const s = (v ?? "").trim().toLowerCase();
+  if (!s) return "active"; // default for legacy rows
+  return s;
+}
+
 export async function getPlayers(): Promise<Player[]> {
   if (!SHEET_CSV_URL) {
     throw new Error(
@@ -135,13 +144,17 @@ export async function getPlayers(): Promise<Player[]> {
         name: r.name ?? "",
         position: r.position || undefined,
 
-        // New birthDate column
         birthDate: toBirthDateMaybe(r.birthDate),
 
         nationality: r.nationality || undefined,
         number: toNumberMaybe(r.number),
+
         source: r.source || undefined,
         notes: r.notes || undefined,
+
+        // NEW
+        status: normalizeStatus(r.status),
+
         seasons,
       };
 

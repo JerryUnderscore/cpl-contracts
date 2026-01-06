@@ -1,7 +1,7 @@
 // app/clubs/[club]/page.tsx
 import * as React from "react";
 import { notFound } from "next/navigation";
-import { getPlayers } from "../../lib/players";
+import { getPlayers, type Player } from "../../lib/players";
 import PlayersTable from "../../players/PlayersTable";
 import { CLUB_BY_SLUG } from "../../lib/clubs";
 import { getTransfers, type TransferItem } from "../../lib/transfers";
@@ -12,6 +12,11 @@ export const revalidate = 300;
 
 function fmtNumber(n: number) {
   return new Intl.NumberFormat("en-CA").format(n);
+}
+
+function isActivePlayer(p: Player) {
+  // default to active if missing
+  return (p.status ?? "active").trim().toLowerCase() === "active";
 }
 
 function TransferRow({ t }: { t: TransferItem }) {
@@ -65,7 +70,8 @@ export default async function ClubPage({ params }: { params: { club: string } })
 
   const [players, transfers] = await Promise.all([getPlayers(), getTransfers()]);
 
-  const clubPlayers = players.filter((p) => p.clubSlug === clubSlug);
+  // Only show ACTIVE players on club pages
+  const clubPlayers = players.filter((p) => p.clubSlug === clubSlug && isActivePlayer(p));
 
   const transfersIn = transfers
     .filter((t) => (t.toClubSlug ?? "").trim() === clubSlug)
@@ -269,7 +275,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
         }
 
         /* Remove divider under the last transfer row in each card */
-        .transferRow:last-child {
+        ul > li.transferRow:last-child {
           border-bottom: none !important;
         }
       `}</style>
