@@ -137,6 +137,8 @@ export async function getPlayers(): Promise<Player[]> {
         if (val) seasons[y] = val;
       }
 
+      const status = normalizeStatus(r.status);
+
       const player: Player = {
         id: r.id ?? "",
         clubSlug: r.clubSlug ?? "",
@@ -152,16 +154,22 @@ export async function getPlayers(): Promise<Player[]> {
         source: r.source || undefined,
         notes: r.notes || undefined,
 
-        // NEW
-        status: normalizeStatus(r.status),
-
+        status,
         seasons,
       };
 
       return player;
     })
     // Basic sanity filters
-    .filter((p) => p.id && p.name && p.clubSlug);
+    .filter((p) => {
+      if (!p.id || !p.name) return false;
 
+      // Only "active" players must have a clubSlug (so club pages remain stable)
+      if ((p.status ?? "active") === "active") return Boolean(p.clubSlug);
+
+      // Everyone else can have blank clubSlug
+      return true;
+    });
+    
   return players;
 }

@@ -1,5 +1,4 @@
 // app/lib/clubs.ts
-
 export type ClubInfo = {
   slug: string;
 

@@ -29,9 +29,15 @@ export default function Footer() {
             <a href="/players" style={{ textDecoration: "none", color: "#1d4ed8" }}>
               Players
             </a>
+
+            <a href="/free-agents" style={{ textDecoration: "none", color: "#1d4ed8" }}>
+              Free Agents
+            </a>
+
             <a href="/clubs" style={{ textDecoration: "none", color: "#1d4ed8" }}>
               Clubs
             </a>
+
             <a href="/about" style={{ textDecoration: "none", color: "#1d4ed8" }}>
               About
             </a>
