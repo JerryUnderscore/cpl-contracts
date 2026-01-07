@@ -96,7 +96,7 @@ html[data-theme="dark"] {
      ========================= */
 
   /* Dark-mode pills use soft translucent fills + darker text for contrast */
-  --pillText: #0b0f14;
+  --pillText: #e7eaf0;
   --pillBorder: rgba(231, 234, 240, 0.18);
   --pillBg: rgba(231, 234, 240, 0.10);
 
@@ -347,4 +347,53 @@ table tr:hover {
 .themeToggleText {
   font-size: 0.9rem;
   line-height: 1;
+}
+
+/* =========================
+   Contract pills
+   ========================= */
+
+.contractPill {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  color: var(--pillText);
+  background: var(--pillBg);
+  border: 1px solid var(--pillBorder);
+}
+
+.contractPill--domestic {
+  background: var(--pillDomBg);
+  border-color: var(--pillDomBorder);
+}
+
+.contractPill--international {
+  background: var(--pillIntlBg);
+  border-color: var(--pillIntlBorder);
+}
+
+.contractPill--club_option {
+  background: var(--pillClubOptBg);
+  border-color: var(--pillClubOptBorder);
+}
+
+.contractPill--option_pending {
+  background: var(--pillOptPendingBg);
+  border-color: var(--pillOptPendingBorder);
+}
+
+.contractPill--in_discussion {
+  background: var(--pillDiscussionBg);
+  border-color: var(--pillDiscussionBorder);
+}
+
+.contractPill--eyt,
+.contractPill--u_sports,
+.contractPill--development {
+  background: var(--pillDevBg);
+  border-color: var(--pillDevBorder);
 }

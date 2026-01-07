@@ -1,7 +1,8 @@
 // app/page.tsx
 import * as React from "react";
+import Link from "next/link";
 import { getPlayers, type Player } from "./lib/players";
-import { normalizeContractValue } from "./lib/contracts";
+import { normalizeContractValue, hasContractValue } from "./lib/contracts";
 import { getUpdates } from "./lib/updates";
 import { CLUB_BY_SLUG } from "./lib/clubs";
 import RecentDevelopments from "./components/recent-developments";
@@ -126,49 +127,54 @@ export default async function HomePage() {
     byClub.set(key, arr);
   }
 
-  const clubRows = Array.from(byClub.entries())
-    .map(([key, ps]) => {
-      const [clubSlug, club] = key.split("|||");
+const clubRows = Array.from(byClub.entries())
+  .map(([key, ps]) => {
+    const [clubSlug, club] = key.split("|||");
 
-      const seasonVals = ps.map((p) => ({
-        p,
-        v: normalizeContractValue(p.seasons?.[season]),
-      }));
+    const seasonVals = ps.map((p) => ({
+      p,
+      v: normalizeContractValue(p.seasons?.[season]),
+    }));
 
-      const primary = seasonVals.filter(({ v }) => isPrimaryRosterValue(v));
-      const internationals = seasonVals.filter(({ v }) => isInternationalValue(v));
-      const developmental = seasonVals.filter(({ v }) => isDevelopmentalValue(v));
+    // ✅ NEW: if nobody at the club has a real value for this season, drop the row
+    const anyContract = seasonVals.some(({ v }) => hasContractValue(v));
+    if (!anyContract) return null;
 
-      const domesticU21 = seasonVals.filter(({ p, v }) => {
-        if (!isDomesticValue(v)) return false;
-        const age = ageOnJan1(p.birthDate, seasonYearNum);
-        return age != null && age < 21;
-      });
+    const primary = seasonVals.filter(({ v }) => isPrimaryRosterValue(v));
+    const internationals = seasonVals.filter(({ v }) => isInternationalValue(v));
+    const developmental = seasonVals.filter(({ v }) => isDevelopmentalValue(v));
 
-      const okSize = primary.length >= 20 && primary.length <= 23;
-      const okIntl = internationals.length <= 7;
-      const okU21 = domesticU21.length >= 3;
+    const domesticU21 = seasonVals.filter(({ p, v }) => {
+      if (!isDomesticValue(v)) return false;
+      const age = ageOnJan1(p.birthDate, seasonYearNum);
+      return age != null && age < 21;
+    });
 
-      const compliant = okSize && okIntl && okU21;
+    const okSize = primary.length >= 20 && primary.length <= 23;
+    const okIntl = internationals.length <= 7;
+    const okU21 = domesticU21.length >= 3;
 
-      return {
-        clubSlug,
-        club,
-        logoSrc: clubLogoForSlug(clubSlug),
+    const compliant = okSize && okIntl && okU21;
 
-        primaryCount: primary.length,
-        intlCount: internationals.length,
-        domU21Count: domesticU21.length,
-        devCount: developmental.length,
+    return {
+      clubSlug,
+      club,
+      logoSrc: clubLogoForSlug(clubSlug),
 
-        okSize,
-        okIntl,
-        okU21,
-        compliant,
-      };
-    })
-    .sort((a, b) => a.club.localeCompare(b.club, undefined, { sensitivity: "base" }));
+      primaryCount: primary.length,
+      intlCount: internationals.length,
+      domU21Count: domesticU21.length,
+      devCount: developmental.length,
 
+      okSize,
+      okIntl,
+      okU21,
+      compliant,
+    };
+  })
+  .filter(Boolean)
+  .sort((a, b) => a!.club.localeCompare(b!.club, undefined, { sensitivity: "base" }));
+  
   const thStyle: React.CSSProperties = {
     textAlign: "left",
     borderBottom: `2px solid var(--border)`,
@@ -270,7 +276,10 @@ export default async function HomePage() {
               return (
                 <tr key={r.clubSlug}>
                   <td style={tdStyle}>
-                    <a href={`/clubs/${r.clubSlug}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+                    <Link
+                      href={`/clubs/${r.clubSlug}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}
+                    >
                       {r.logoSrc ? (
                         <img
                           src={r.logoSrc}
@@ -279,7 +288,7 @@ export default async function HomePage() {
                         />
                       ) : null}
                       <span>{r.club}</span>
-                    </a>
+                    </Link>
                   </td>
 
                   <td style={tdCenter}>

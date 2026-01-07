@@ -1,5 +1,6 @@
 // app/components/footer.tsx
 import * as React from "react";
+import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Footer() {
@@ -27,21 +28,21 @@ export default function Footer() {
           }}
         >
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <a href="/players" style={{ textDecoration: "none", color: "var(--link)" }}>
+            <Link href="/players" style={{ textDecoration: "none", color: "var(--link)" }}>
               Players
-            </a>
+            </Link>
 
-            <a href="/free-agents" style={{ textDecoration: "none", color: "var(--link)" }}>
+            <Link href="/free-agents" style={{ textDecoration: "none", color: "var(--link)" }}>
               Free Agents
-            </a>
+            </Link>
 
-            <a href="/clubs" style={{ textDecoration: "none", color: "var(--link)" }}>
+            <Link href="/clubs" style={{ textDecoration: "none", color: "var(--link)" }}>
               Clubs
-            </a>
+            </Link>
 
-            <a href="/about" style={{ textDecoration: "none", color: "var(--link)" }}>
+            <Link href="/about" style={{ textDecoration: "none", color: "var(--link)" }}>
               About
-            </a>
+            </Link>
 
             {correctionsUrl ? (
               <a

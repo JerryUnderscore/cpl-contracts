@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import type { Player as BasePlayer } from "../lib/players";
 import TagPill from "../components/TagPill";
 import { FlagsFromCell } from "../lib/Flag";
@@ -473,9 +474,9 @@ export default function PlayersTable({
         ) : null}
 
         {linkable ? (
-          <a href={`/clubs/${slug}`} style={{ color: "var(--link)", fontWeight: 650 }}>
+          <Link href={`/clubs/${slug}`} style={{ color: "var(--link)", fontWeight: 650 }}>
             {p.club}
-          </a>
+          </Link>
         ) : (
           <span style={{ fontWeight: 550 }}>{p.club}</span>
         )}
