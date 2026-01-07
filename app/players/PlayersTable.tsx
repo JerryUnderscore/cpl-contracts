@@ -2,14 +2,26 @@
 "use client";
 
 import * as React from "react";
-import type { Player } from "../lib/players";
+import type { Player as BasePlayer } from "../lib/players";
 import TagPill from "../components/TagPill";
 import { FlagsFromCell } from "../lib/Flag";
 import { normalizeContractValue, hasContractValue, contractKindFromValue } from "../lib/contracts";
 import { getClubBadgeFile, isLinkableClubSlug } from "../lib/club-badges";
 
+type Player = BasePlayer & {
+  // Allows positionDetail to exist even if the shared Player type hasn’t been updated yet
+  positionDetail?: string;
+};
+
 type SortDir = "asc" | "desc";
-type SortKey = "name" | "club" | "position" | "number" | "age" | "nationality" | `season:${string}`;
+type SortKey =
+  | "name"
+  | "club"
+  | "position"
+  | "number"
+  | "age"
+  | "nationality"
+  | `season:${string}`;
 
 function compareStrings(a: string, b: string) {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
@@ -81,6 +93,7 @@ function ContractPill({ value }: { value: string }) {
   return <span style={pillStyle(kind)}>{value}</span>;
 }
 
+// --- Country code -> display name ---
 const COUNTRY_NAME_BY_CODE: Record<string, string> = {
   AL: "Albania",
   AR: "Argentina",
@@ -188,12 +201,15 @@ export default function PlayersTable({
   entityLabel = "players",
   searchPlaceholder = "Search player, club, position, nationality…",
 }: {
-  players: Player[];
+  players: BasePlayer[]; // keep the public API compatible
   hideClub?: boolean;
   hideContracts?: boolean;
   entityLabel?: string;
   searchPlaceholder?: string;
 }) {
+  // Cast once so the rest of the file can safely read positionDetail
+  const typedPlayers = players as Player[];
+
   const [sortKey, setSortKey] = React.useState<SortKey>("name");
   const [sortDir, setSortDir] = React.useState<SortDir>("asc");
   const [hoverId, setHoverId] = React.useState<string | null>(null);
@@ -209,13 +225,13 @@ export default function PlayersTable({
   const years = React.useMemo(() => {
     if (hideContracts) return [];
     const set = new Set<string>();
-    for (const p of players) {
+    for (const p of typedPlayers) {
       for (const y of Object.keys(p.seasons ?? {})) {
         if (isYearHeader(y)) set.add(y);
       }
     }
     return Array.from(set).sort();
-  }, [players, hideContracts]);
+  }, [typedPlayers, hideContracts]);
 
   const firstYear = years[0];
 
@@ -229,36 +245,36 @@ export default function PlayersTable({
 
   const positionOptions = React.useMemo(() => {
     const set = new Set<string>();
-    for (const p of players) {
+    for (const p of typedPlayers) {
       const v = (p.position ?? "").trim();
       if (v) set.add(v);
     }
     return Array.from(set).sort(compareStrings);
-  }, [players]);
+  }, [typedPlayers]);
 
   const clubOptions = React.useMemo(() => {
     const set = new Set<string>();
-    for (const p of players) {
+    for (const p of typedPlayers) {
       const v = (p.club ?? "").trim();
       if (v) set.add(v);
     }
     return Array.from(set).sort(compareStrings);
-  }, [players]);
+  }, [typedPlayers]);
 
   const nationalityOptions = React.useMemo(() => {
     const set = new Set<string>();
-    for (const p of players) {
+    for (const p of typedPlayers) {
       for (const c of parseNationalityCodes(p.nationality)) set.add(c);
     }
     return Array.from(set).sort((a, b) => compareStrings(displayCountry(a), displayCountry(b)));
-  }, [players]);
+  }, [typedPlayers]);
 
   const statusOptions = React.useMemo(() => {
     if (hideContracts) return [];
     const set = new Set<string>();
     const y = firstYear;
     if (!y) return [];
-    for (const p of players) {
+    for (const p of typedPlayers) {
       const raw = normalizeContractValue(p.seasons?.[y]);
       if (hasContractValue(raw)) set.add(raw);
     }
@@ -276,7 +292,7 @@ export default function PlayersTable({
       .filter((x) => !preferred.includes(x))
       .sort(compareStrings);
     return [...preferred.filter((x) => set.has(x)), ...rest];
-  }, [players, firstYear, hideContracts]);
+  }, [typedPlayers, firstYear, hideContracts]);
 
   function resetFilters() {
     setQ("");
@@ -314,11 +330,18 @@ export default function PlayersTable({
   const filtered = React.useMemo(() => {
     const query = q.trim().toLowerCase();
 
-    return players.filter((p) => {
+    return typedPlayers.filter((p) => {
       const age = ageOf(p);
 
       if (query) {
-        const hay = [p.name ?? "", p.club ?? "", p.position ?? "", p.nationality ?? "", String(p.number ?? "")]
+        const hay = [
+          p.name ?? "",
+          p.club ?? "",
+          p.position ?? "",
+          p.positionDetail ?? "",
+          p.nationality ?? "",
+          String(p.number ?? ""),
+        ]
           .join(" ")
           .toLowerCase();
         if (!hay.includes(query)) return false;
@@ -348,7 +371,7 @@ export default function PlayersTable({
       return true;
     });
   }, [
-    players,
+    typedPlayers,
     q,
     posFilter,
     ageFilter,
@@ -380,7 +403,7 @@ export default function PlayersTable({
     }
   }
 
-  function Header({ keyName, label }: { keyName: SortKey; label: string }) {
+  function HeaderCell({ keyName, label }: { keyName: SortKey; label: string }) {
     const active = sortKey === keyName;
     const arrow = active ? (sortDir === "asc" ? " ▲" : " ▼") : "";
     return (
@@ -468,7 +491,12 @@ export default function PlayersTable({
       <div style={controlWrap}>
         <div style={{ ...controlBlock, minWidth: 260, flex: "1 1 260px" }}>
           <div style={labelStyle}>Search</div>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} style={inputStyle} />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={searchPlaceholder}
+            style={inputStyle}
+          />
         </div>
 
         <div style={controlBlock}>
@@ -562,7 +590,7 @@ export default function PlayersTable({
         </div>
 
         <div style={{ width: "100%", color: "#666", fontSize: "0.95rem" }}>
-          Showing <b>{sorted.length}</b> of <b>{players.length}</b> {entityLabel}
+          Showing <b>{sorted.length}</b> of <b>{typedPlayers.length}</b> {entityLabel}
         </div>
       </div>
 
@@ -570,12 +598,12 @@ export default function PlayersTable({
         <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem", minWidth: 980 }}>
           <thead>
             <tr>
-              <Header keyName="number" label="No." />
-              <Header keyName="name" label="Player" />
-              <Header keyName="position" label="Pos" />
-              <Header keyName="age" label="Age" />
-              <Header keyName="nationality" label="Nat." />
-              {!hideClub && <Header keyName="club" label="Club" />}
+              <HeaderCell keyName="number" label="No." />
+              <HeaderCell keyName="name" label="Player" />
+              <HeaderCell keyName="position" label="Pos" />
+              <HeaderCell keyName="age" label="Age" />
+              <HeaderCell keyName="nationality" label="Nat." />
+              {!hideClub && <HeaderCell keyName="club" label="Club" />}
 
               {!hideContracts
                 ? years.map((y) => {
@@ -625,9 +653,27 @@ export default function PlayersTable({
                   style={{ background: rowBg }}
                 >
                   <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.number ?? "—"}</td>
+
                   <td style={{ padding: "0.5rem", fontWeight: 600 }}>{p.name}</td>
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.position ?? "—"}</td>
+
+                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
+                    <div style={{ fontWeight: 500 }}>{p.position ?? "—"}</div>
+                   {p.positionDetail ? (
+  <div
+    style={{
+      fontSize: "0.8rem",
+      fontStyle: "italic",
+      color: "var(--muted)",
+      lineHeight: 1.3,
+    }}
+  >
+    {p.positionDetail}
+  </div>
+) : null}
+                  </td>
+
                   <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{age ?? "—"}</td>
+
                   <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{FlagsFromCell(p.nationality)}</td>
 
                   {!hideClub ? (

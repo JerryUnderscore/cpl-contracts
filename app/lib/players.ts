@@ -5,9 +5,12 @@ export type Player = {
   clubSlug: string;
   club: string;
   name: string;
-  position?: string;
 
-  // New: full birth date (YYYY-MM-DD)
+  // Basic + detailed positions
+  position?: string;
+  positionDetail?: string;
+
+  // Full birth date (YYYY-MM-DD)
   birthDate?: string;
 
   nationality?: string; // ISO-2 codes like "CA" or "CA;JM"
@@ -16,7 +19,7 @@ export type Player = {
   source?: string;
   notes?: string;
 
-  // NEW: roster status (e.g., "active", "free agent", "loaned out", "retired")
+  // roster status (e.g., "active", "free agent", "loaned out", "retired")
   status?: string;
 
   // Dynamic contract columns (e.g., "2026", "2027", "2028", ...)
@@ -125,9 +128,7 @@ export async function getPlayers(): Promise<Player[]> {
   const rawRows = parseCSV(csv);
 
   // Discover year columns from the sheet headers dynamically
-  const yearColumns = rawRows.length
-    ? Object.keys(rawRows[0]).filter(isYearHeader).sort()
-    : [];
+  const yearColumns = rawRows.length ? Object.keys(rawRows[0]).filter(isYearHeader).sort() : [];
 
   const players: Player[] = rawRows
     .map((r) => {
@@ -144,7 +145,9 @@ export async function getPlayers(): Promise<Player[]> {
         clubSlug: r.clubSlug ?? "",
         club: r.club ?? "",
         name: r.name ?? "",
+
         position: r.position || undefined,
+        positionDetail: r.positionDetail || undefined,
 
         birthDate: toBirthDateMaybe(r.birthDate),
 
@@ -160,7 +163,6 @@ export async function getPlayers(): Promise<Player[]> {
 
       return player;
     })
-    // Basic sanity filters
     .filter((p) => {
       if (!p.id || !p.name) return false;
 
@@ -170,6 +172,6 @@ export async function getPlayers(): Promise<Player[]> {
       // Everyone else can have blank clubSlug
       return true;
     });
-    
+
   return players;
 }
