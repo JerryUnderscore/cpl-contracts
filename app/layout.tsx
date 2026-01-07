@@ -1,6 +1,7 @@
 // app/layout.tsx
 import * as React from "react";
 import "./globals.css";
+import ThemeInit from "./components/ThemeInit";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import { CLUB_ORDER_WEST_EAST, CLUB_BY_SLUG } from "./lib/clubs";
@@ -19,8 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const clubs = orderedClubs();
 
   return (
-    <html lang="en" data-theme="light" style={{ colorScheme: "light" }}>
+    <html lang="en">
+      <head />
       <body>
+        <ThemeInit />
         <Header clubs={clubs} />
 
         <main style={{ maxWidth: 1300, margin: "0 auto", padding: "1rem" }}>

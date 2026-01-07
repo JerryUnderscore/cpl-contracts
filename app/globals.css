@@ -1,5 +1,5 @@
 /* =========================
-   Global variables & base
+   Theme variables
    ========================= */
 
 :root {
@@ -14,13 +14,114 @@
   --borderSoft: #eeeeee;
 
   --card: #ffffff;
+  --link: #1d4ed8;
+
+  --rowAlt: #fafafa;
+  --rowHover: #f1f7ff;
+
+  /* Full-bleed header tint (light) */
+  --headerTint: rgba(255, 255, 255, 0.88);
+
+  --btnBg: #ffffff;
+  --btnText: #111111;
+  --btnBorder: #dddddd;
 
   --okBg: #f4fff6;
   --okBorder: #cfe9d4;
 
   --badBg: #fff4f4;
   --badBorder: #f0c9c9;
+
+  /* =========================
+     Contract pill colors (light)
+     ========================= */
+
+  --pillText: #111111;
+  --pillBorder: #dddddd;
+  --pillBg: #f7f7f7;
+
+  --pillIntlBg: #fff4f4;
+  --pillIntlBorder: #f0c9c9;
+
+  --pillDomBg: #f4fff6;
+  --pillDomBorder: #cfe9d4;
+
+  --pillClubOptBg: #fffaf0;
+  --pillClubOptBorder: #f0e1bf;
+
+  --pillOptPendingBg: #f4f7ff;
+  --pillOptPendingBorder: #cfd8f0;
+
+  --pillDiscussionBg: #f8f8f8;
+  --pillDiscussionBorder: #e0e0e0;
+
+  --pillDevBg: #f5f0ff;
+  --pillDevBorder: #dccdf0;
 }
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Site-wide dark blue background */
+  --bg: #0e1524;
+
+  --text: #e7eaf0;
+  --muted: #a6adbb;
+  --muted2: #8e97a8;
+
+  --border: #263042;
+  --borderSoft: #1b2331;
+
+  --card: #111826;
+  --link: #60a5fa;
+
+  --rowAlt: #0f1623;
+  --rowHover: #162238;
+
+  /* Full-bleed header tint (dark) */
+  --headerTint: rgba(11, 15, 20, 0.72);
+
+  --btnBg: #111826;
+  --btnText: #e7eaf0;
+  --btnBorder: #263042;
+
+  --okBg: rgba(34, 197, 94, 0.12);
+  --okBorder: rgba(34, 197, 94, 0.28);
+
+  --badBg: rgba(239, 68, 68, 0.12);
+  --badBorder: rgba(239, 68, 68, 0.28);
+
+  /* =========================
+     Contract pill colors (dark)
+     ========================= */
+
+  /* Dark-mode pills use soft translucent fills + darker text for contrast */
+  --pillText: #0b0f14;
+  --pillBorder: rgba(231, 234, 240, 0.18);
+  --pillBg: rgba(231, 234, 240, 0.10);
+
+  --pillIntlBg: rgba(239, 68, 68, 0.18);
+  --pillIntlBorder: rgba(239, 68, 68, 0.35);
+
+  --pillDomBg: rgba(34, 197, 94, 0.18);
+  --pillDomBorder: rgba(34, 197, 94, 0.35);
+
+  --pillClubOptBg: rgba(245, 158, 11, 0.20);
+  --pillClubOptBorder: rgba(245, 158, 11, 0.40);
+
+  --pillOptPendingBg: rgba(96, 165, 250, 0.18);
+  --pillOptPendingBorder: rgba(96, 165, 250, 0.38);
+
+  --pillDiscussionBg: rgba(231, 234, 240, 0.10);
+  --pillDiscussionBorder: rgba(231, 234, 240, 0.18);
+
+  --pillDevBg: rgba(168, 85, 247, 0.18);
+  --pillDevBorder: rgba(168, 85, 247, 0.38);
+}
+
+/* =========================
+   Base styles
+   ========================= */
 
 html,
 body {
@@ -32,8 +133,18 @@ body {
 }
 
 a {
-  color: inherit;
+  color: var(--link);
   text-decoration: none;
+}
+
+button {
+  background: var(--btnBg);
+  color: var(--btnText);
+  border: 1px solid var(--btnBorder);
+}
+
+button:hover {
+  background: var(--rowHover);
 }
 
 /* =========================
@@ -52,13 +163,14 @@ a {
   .clubNavDesktop {
     display: none !important;
   }
+
   .clubNavMobile {
     display: flex !important;
   }
 }
 
 /* =========================
-   Header (iOS Safari-safe)
+   Header (sticky + blur) - FULL BLEED FIX
    ========================= */
 
 .siteHeader {
@@ -66,34 +178,31 @@ a {
   top: 0;
   z-index: 20;
   border-bottom: 1px solid var(--border);
-
-  /* Critical: allow dropdown/panel to escape header bounds */
-  overflow: visible;
-
-  /* Create stacking context without transform/filter */
-  isolation: isolate;
   background: transparent;
 
-  /* Needed so ::before positions correctly */
-  position: relative;
+  /* allow menus/panels to escape header bounds */
+  overflow: visible;
+
+  /* stacking context without transform/filter */
+  isolation: isolate;
 }
 
-/* Blur + tint layer (NOT on the sticky element itself) */
 .siteHeader::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.88);
+
+  /* covers full browser width */
+  background: var(--headerTint);
+
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+
   pointer-events: none;
   z-index: -1;
 }
 
-/* =========================
-   Header layout
-   ========================= */
-
+/* Keep nav centered, but DO NOT put tint here */
 .siteHeaderNav {
   max-width: 1300px;
   margin: 0 auto;
@@ -102,6 +211,10 @@ a {
   align-items: center;
   gap: 1.1rem;
 }
+
+/* =========================
+   Header layout
+   ========================= */
 
 .siteHeaderLogo {
   display: inline-flex;
@@ -119,14 +232,8 @@ a {
   margin-left: auto;
   display: flex;
   gap: 1.05rem;
-  flex-wrap: nowrap;
   align-items: center;
-  justify-content: flex-end;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   white-space: nowrap;
-  max-width: 100%;
-  padding: 0.15rem 0;
 }
 
 .siteHeaderClubLink {
@@ -134,11 +241,13 @@ a {
   align-items: center;
   gap: 0.45rem;
   font-weight: 600;
-  color: #1d4ed8;
-  white-space: nowrap;
-  flex: 0 0 auto;
-  padding: 0.25rem 0.25rem;
+  color: var(--link);
+  padding: 0.25rem;
   border-radius: 10px;
+}
+
+.siteHeaderClubLink:hover {
+  background: var(--rowHover);
 }
 
 .siteHeaderClubLogo {
@@ -150,4 +259,92 @@ a {
 
 .siteHeaderMobile {
   margin-left: auto;
+}
+
+/* =========================
+   Brand logo swapping
+   ========================= */
+
+.siteLogoLight,
+.siteLogoDark {
+  display: block;
+}
+
+.siteLogoDark {
+  display: none;
+}
+
+html[data-theme="dark"] .siteLogoLight {
+  display: none;
+}
+
+html[data-theme="dark"] .siteLogoDark {
+  display: block;
+}
+
+.heroLogoDark {
+  display: none;
+}
+
+html[data-theme="dark"] .heroLogoLight {
+  display: none;
+}
+
+html[data-theme="dark"] .heroLogoDark {
+  display: block;
+}
+
+/* =========================
+   Tables / rows
+   ========================= */
+
+table tr:nth-child(even) {
+  background: var(--rowAlt);
+}
+
+table tr:hover {
+  background: var(--rowHover);
+}
+
+/* =========================
+   Cards
+   ========================= */
+
+.card,
+[data-card] {
+  background: var(--card);
+  border: 1px solid var(--borderSoft);
+  border-radius: 14px;
+}
+
+/* =========================
+   Theme toggle button
+   ========================= */
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 34px;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.themeToggle:hover {
+  background: var(--rowHover);
+}
+
+.themeToggleIcon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.themeToggleText {
+  font-size: 0.9rem;
+  line-height: 1;
 }

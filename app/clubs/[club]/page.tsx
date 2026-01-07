@@ -90,10 +90,10 @@ export default async function ClubPage({ params }: { params: { club: string } })
         style={{
           marginTop: "0.5rem",
           padding: "1.25rem 1rem",
-          border: "1px solid #eee",
+          border: "1px solid var(--borderSoft)",
           borderRadius: 14,
-          borderTop: `6px solid ${accent}`,
-          background: "white",
+          boxShadow: `inset 0 6px 0 0 ${accent}, 0 10px 30px rgba(0,0,0,0.18)`,
+          background: "var(--card)",
         }}
       >
         <div className="clubHeaderInner">
@@ -156,6 +156,11 @@ export default async function ClubPage({ params }: { params: { club: string } })
             display: block;
           }
 
+          /* Optional polish: make the badge pop a bit in dark mode */
+          html[data-theme="dark"] .clubBadge {
+            filter: drop-shadow(0 1px 6px rgba(0,0,0,0.35));
+          }
+
           .clubInfo {
             flex: 1 1 auto;
             min-width: 0;
@@ -165,6 +170,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
             margin: 0;
             font-size: 2.25rem;
             line-height: 1.1;
+            color: var(--text);
           }
 
           .clubMetaGrid {
@@ -172,12 +178,12 @@ export default async function ClubPage({ params }: { params: { club: string } })
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem 1.25rem;
-            color: #222;
+            color: var(--text);
           }
 
           .clubMetaLabel {
             font-size: 0.85rem;
-            color: #666;
+            color: var(--muted);
           }
 
           .clubMetaValue {

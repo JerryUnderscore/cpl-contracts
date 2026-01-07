@@ -201,25 +201,35 @@ export default async function HomePage() {
           padding: "1.25rem 0 0.25rem",
         }}
       >
-        <div style={{ maxWidth: 920, margin: "0 auto", textAlign: "center" }}>
-          <img
-            src="/logo_nb.png"
-            alt="CPL Contracts"
-            style={{ width: "100%", maxWidth: 500, height: "auto", display: "block", margin: "0 auto" }}
-          />
+       <div style={{ maxWidth: 920, margin: "0 auto", textAlign: "center" }}>
+  {/* Light-mode hero logo */}
+  <img
+    src="/brand/logo-light.png"
+    alt="CPL Contracts"
+    className="heroLogo heroLogoLight"
+    style={{ width: "100%", maxWidth: 500, height: "auto", margin: "0 auto" }}
+  />
 
-          <p
-            style={{
-              margin: "0.9rem auto 0",
-              maxWidth: 760,
-              color: "var(--muted)",
-              fontSize: "1.05rem",
-              lineHeight: 1.6,
-            }}
-          >
-            An independent tracker of contracts, rosters, and transfers across the Canadian Premier League.
-          </p>
-        </div>
+  {/* Dark-mode hero logo */}
+  <img
+    src="/brand/logo-dark.png"
+    alt="CPL Contracts"
+    className="heroLogo heroLogoDark"
+    style={{ width: "100%", maxWidth: 500, height: "auto", margin: "0 auto" }}
+  />
+
+  <p
+    style={{
+      margin: "0.9rem auto 0",
+      maxWidth: 760,
+      color: "var(--muted)",
+      fontSize: "1.05rem",
+      lineHeight: 1.6,
+    }}
+  >
+    An independent tracker of contracts, rosters, and transfers across the Canadian Premier League.
+  </p>
+</div>
       </section>
 
       {/* Recent developments */}

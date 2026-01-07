@@ -9,7 +9,6 @@ import { normalizeContractValue, hasContractValue, contractKindFromValue } from 
 import { getClubBadgeFile, isLinkableClubSlug } from "../lib/club-badges";
 
 type Player = BasePlayer & {
-  // Allows positionDetail to exist even if the shared Player type hasn’t been updated yet
   positionDetail?: string;
 };
 
@@ -51,7 +50,6 @@ function ageOnJan1(birthDate: string | undefined, seasonYear: number) {
   if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return undefined;
 
   let age = seasonYear - y;
-  // Jan 1 counts as already had birthday; anything after Jan 1 => subtract 1
   if (!(mo === 1 && d === 1)) age -= 1;
   return age;
 }
@@ -71,19 +69,29 @@ function pillStyle(kind: string): React.CSSProperties {
     borderRadius: "999px",
     fontSize: "0.85rem",
     lineHeight: 1.4,
-    border: "1px solid #ddd",
-    background: "#f7f7f7",
     whiteSpace: "nowrap",
+    border: "1px solid var(--pillBorder)",
+    background: "var(--pillBg)",
+    color: "var(--pillText)",
   };
 
-  if (kind === "international") return { ...base, background: "#fff4f4", borderColor: "#f0c9c9" };
-  if (kind === "domestic") return { ...base, background: "#f4fff6", borderColor: "#cfe9d4" };
-  if (kind === "club_option") return { ...base, background: "#fffaf0", borderColor: "#f0e1bf" };
-  if (kind === "option_pending") return { ...base, background: "#f4f7ff", borderColor: "#cfd8f0" };
-  if (kind === "in_discussion") return { ...base, background: "#f8f8f8", borderColor: "#e0e0e0" };
-  if (kind === "eyt") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
-  if (kind === "u_sports") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
-  if (kind === "development") return { ...base, background: "#f5f0ff", borderColor: "#dccdf0" };
+  if (kind === "international")
+    return { ...base, background: "var(--pillIntlBg)", borderColor: "var(--pillIntlBorder)" };
+
+  if (kind === "domestic")
+    return { ...base, background: "var(--pillDomBg)", borderColor: "var(--pillDomBorder)" };
+
+  if (kind === "club_option")
+    return { ...base, background: "var(--pillClubOptBg)", borderColor: "var(--pillClubOptBorder)" };
+
+  if (kind === "option_pending")
+    return { ...base, background: "var(--pillOptPendingBg)", borderColor: "var(--pillOptPendingBorder)" };
+
+  if (kind === "in_discussion")
+    return { ...base, background: "var(--pillDiscussionBg)", borderColor: "var(--pillDiscussionBorder)" };
+
+  if (kind === "eyt" || kind === "u_sports" || kind === "development")
+    return { ...base, background: "var(--pillDevBg)", borderColor: "var(--pillDevBorder)" };
 
   return base;
 }
@@ -201,24 +209,22 @@ export default function PlayersTable({
   entityLabel = "players",
   searchPlaceholder = "Search player, club, position, nationality…",
 }: {
-  players: BasePlayer[]; // keep the public API compatible
+  players: BasePlayer[];
   hideClub?: boolean;
   hideContracts?: boolean;
   entityLabel?: string;
   searchPlaceholder?: string;
 }) {
-  // Cast once so the rest of the file can safely read positionDetail
   const typedPlayers = players as Player[];
 
   const [sortKey, setSortKey] = React.useState<SortKey>("name");
   const [sortDir, setSortDir] = React.useState<SortDir>("asc");
-  const [hoverId, setHoverId] = React.useState<string | null>(null);
 
   // Filters
   const [q, setQ] = React.useState("");
   const [posFilter, setPosFilter] = React.useState<string>("all");
   const [ageFilter, setAgeFilter] = React.useState<AgeBucket>("all");
-  const [natFilter, setNatFilter] = React.useState<string>("all"); // stores CODE
+  const [natFilter, setNatFilter] = React.useState<string>("all");
   const [clubFilter, setClubFilter] = React.useState<string>("all");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
@@ -370,19 +376,7 @@ export default function PlayersTable({
 
       return true;
     });
-  }, [
-    typedPlayers,
-    q,
-    posFilter,
-    ageFilter,
-    natFilter,
-    clubFilter,
-    statusFilter,
-    ageSeason,
-    firstYear,
-    hideClub,
-    hideContracts,
-  ]);
+  }, [typedPlayers, q, posFilter, ageFilter, natFilter, clubFilter, statusFilter, firstYear, hideClub, hideContracts, ageSeason]);
 
   const sorted = React.useMemo(() => {
     const copy = [...filtered];
@@ -403,21 +397,22 @@ export default function PlayersTable({
     }
   }
 
-  function HeaderCell({ keyName, label }: { keyName: SortKey; label: string }) {
+  function HeaderCell({ keyName, label, center }: { keyName: SortKey; label: string; center?: boolean }) {
     const active = sortKey === keyName;
     const arrow = active ? (sortDir === "asc" ? " ▲" : " ▼") : "";
     return (
       <th
         onClick={() => onHeaderClick(keyName)}
         style={{
-          textAlign: "left",
-          borderBottom: "1px solid #ddd",
-          padding: "0.5rem",
+          textAlign: center ? "center" : "left",
+          borderBottom: "1px solid var(--borderSoft)",
+          padding: "0.75rem 0.6rem",
           cursor: "pointer",
           userSelect: "none",
           whiteSpace: "nowrap",
           color: "var(--muted)",
-          fontWeight: 700,
+          fontWeight: 800,
+          letterSpacing: "0.01em",
         }}
         title="Click to sort"
       >
@@ -433,9 +428,9 @@ export default function PlayersTable({
     gap: "0.9rem",
     alignItems: "end",
     padding: "0.9rem",
-    border: "1px solid #eee",
+    border: "1px solid var(--borderSoft)",
     borderRadius: 14,
-    background: "#fff",
+    background: "var(--card)",
     marginTop: "0.75rem",
   };
 
@@ -447,17 +442,19 @@ export default function PlayersTable({
   };
 
   const labelStyle: React.CSSProperties = {
-    fontWeight: 650,
-    color: "#444",
+    fontWeight: 700,
+    color: "var(--muted)",
   };
 
   const inputStyle: React.CSSProperties = {
     height: 42,
     borderRadius: 12,
-    border: "1px solid #ddd",
+    border: "1px solid var(--borderSoft)",
     padding: "0 0.75rem",
     fontSize: "1rem",
-    background: "white",
+    background: "var(--bg)",
+    color: "var(--text)",
+    outline: "none",
   };
 
   function ClubCell({ p }: { p: Player }) {
@@ -476,15 +473,41 @@ export default function PlayersTable({
         ) : null}
 
         {linkable ? (
-          <a href={`/clubs/${slug}`} style={{ color: "#1d4ed8", fontWeight: 600 }}>
+          <a href={`/clubs/${slug}`} style={{ color: "var(--link)", fontWeight: 650 }}>
             {p.club}
           </a>
         ) : (
-          <span style={{ fontWeight: 500 }}>{p.club}</span>
+          <span style={{ fontWeight: 550 }}>{p.club}</span>
         )}
       </div>
     );
   }
+
+  const tableWrap: React.CSSProperties = {
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+    width: "100%",
+    borderRadius: 14,
+  };
+
+  const tableStyle: React.CSSProperties = {
+    borderCollapse: "separate",
+    borderSpacing: 0,
+    width: "100%",
+    marginTop: "1rem",
+    minWidth: 980,
+    background: "var(--card)",
+    border: "1px solid var(--borderSoft)",
+    borderRadius: 14,
+  };
+
+  const tdBase: React.CSSProperties = {
+    padding: "0.75rem 0.6rem",
+    whiteSpace: "nowrap",
+    borderBottom: "1px solid var(--borderSoft)",
+    color: "var(--text)",
+    verticalAlign: "middle",
+  };
 
   return (
     <div>
@@ -513,11 +536,7 @@ export default function PlayersTable({
 
         <div style={controlBlock}>
           <div style={labelStyle}>Age</div>
-          <select
-            value={ageFilter}
-            onChange={(e) => setAgeFilter(e.target.value as AgeBucket)}
-            style={inputStyle}
-          >
+          <select value={ageFilter} onChange={(e) => setAgeFilter(e.target.value as AgeBucket)} style={inputStyle}>
             <option value="all">{ageBucketLabel("all")}</option>
             <option value="u18">{ageBucketLabel("u18")}</option>
             <option value="u21">{ageBucketLabel("u21")}</option>
@@ -578,24 +597,26 @@ export default function PlayersTable({
             style={{
               height: 42,
               borderRadius: 12,
-              border: "1px solid #ddd",
               padding: "0 1rem",
-              background: "white",
-              fontWeight: 650,
+              fontWeight: 700,
               cursor: "pointer",
+              background: "var(--btnBg)",
+              color: "var(--btnText)",
+              border: "1px solid var(--btnBorder)",
             }}
           >
             Reset
           </button>
         </div>
 
-        <div style={{ width: "100%", color: "#666", fontSize: "0.95rem" }}>
-          Showing <b>{sorted.length}</b> of <b>{typedPlayers.length}</b> {entityLabel}
+        <div style={{ width: "100%", color: "var(--muted)", fontSize: "0.95rem" }}>
+          Showing <b style={{ color: "var(--text)" }}>{sorted.length}</b> of{" "}
+          <b style={{ color: "var(--text)" }}>{typedPlayers.length}</b> {entityLabel}
         </div>
       </div>
 
-      <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
-        <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "1rem", minWidth: 980 }}>
+      <div style={tableWrap}>
+        <table style={tableStyle}>
           <thead>
             <tr>
               <HeaderCell keyName="number" label="No." />
@@ -617,14 +638,15 @@ export default function PlayersTable({
                         onClick={() => onHeaderClick(`season:${y}`)}
                         style={{
                           textAlign: "center",
-                          borderBottom: "1px solid #ddd",
-                          padding: "0.5rem",
+                          borderBottom: "1px solid var(--borderSoft)",
+                          padding: "0.75rem 0.6rem",
                           cursor: "pointer",
                           userSelect: "none",
                           whiteSpace: "nowrap",
-                          borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
+                          borderLeft: leftDivider ? "2px solid var(--border)" : undefined,
                           color: "var(--muted)",
-                          fontWeight: 700,
+                          fontWeight: 800,
+                          letterSpacing: "0.01em",
                         }}
                         title="Click to sort"
                       >
@@ -640,47 +662,34 @@ export default function PlayersTable({
           <tbody>
             {sorted.map((p, idx) => {
               const age = ageOf(p);
-              const isHover = hoverId === p.id;
-
-              const baseBg = idx % 2 === 0 ? "white" : "#fafafa";
-              const rowBg = isHover ? "#f1f7ff" : baseBg;
 
               return (
-                <tr
-                  key={p.id}
-                  onMouseEnter={() => setHoverId(p.id)}
-                  onMouseLeave={() => setHoverId(null)}
-                  style={{ background: rowBg }}
-                >
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{p.number ?? "—"}</td>
+                <tr key={p.id} style={{ background: idx % 2 === 0 ? "transparent" : "var(--rowAlt)" }}>
+                  <td style={tdBase}>{p.number ?? "—"}</td>
 
-                  <td style={{ padding: "0.5rem", fontWeight: 600 }}>{p.name}</td>
+                  <td style={{ ...tdBase, fontWeight: 650 }}>{p.name}</td>
 
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                    <div style={{ fontWeight: 500 }}>{p.position ?? "—"}</div>
-                   {p.positionDetail ? (
-  <div
-    style={{
-      fontSize: "0.8rem",
-      fontStyle: "italic",
-      color: "var(--muted)",
-      lineHeight: 1.3,
-    }}
-  >
-    {p.positionDetail}
-  </div>
-) : null}
+                  <td style={{ ...tdBase, whiteSpace: "nowrap" }}>
+                    <div style={{ fontWeight: 550 }}>{p.position ?? "—"}</div>
+                    {p.positionDetail ? (
+                      <div
+                        style={{
+                          fontSize: "0.8rem",
+                          fontStyle: "italic",
+                          color: "var(--muted)",
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {p.positionDetail}
+                      </div>
+                    ) : null}
                   </td>
 
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{age ?? "—"}</td>
+                  <td style={tdBase}>{age ?? "—"}</td>
 
-                  <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>{FlagsFromCell(p.nationality)}</td>
+                  <td style={tdBase}>{FlagsFromCell(p.nationality)}</td>
 
-                  {!hideClub ? (
-                    <td style={{ padding: "0.5rem", whiteSpace: "nowrap" }}>
-                      <ClubCell p={p} />
-                    </td>
-                  ) : null}
+                  {!hideClub ? <td style={tdBase}><ClubCell p={p} /></td> : null}
 
                   {!hideContracts
                     ? years.map((y, yearIdx) => {
@@ -698,11 +707,9 @@ export default function PlayersTable({
                             key={y}
                             title={cellTitle}
                             style={{
-                              padding: "0.5rem",
-                              whiteSpace: "nowrap",
-                              borderLeft: leftDivider ? "2px solid #e5e5e5" : undefined,
+                              ...tdBase,
                               textAlign: "center",
-                              verticalAlign: "middle",
+                              borderLeft: leftDivider ? "2px solid var(--border)" : undefined,
                             }}
                           >
                             {underContract ? <ContractPill value={raw} /> : "—"}
@@ -722,6 +729,20 @@ export default function PlayersTable({
           </tbody>
         </table>
       </div>
+
+      <style>{`
+        table tr:hover td {
+          background: var(--rowHover);
+        }
+        table tr:hover td:first-child {
+          border-top-left-radius: 12px;
+          border-bottom-left-radius: 12px;
+        }
+        table tr:hover td:last-child {
+          border-top-right-radius: 12px;
+          border-bottom-right-radius: 12px;
+        }
+      `}</style>
     </div>
   );
 }

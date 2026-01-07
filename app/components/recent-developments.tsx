@@ -124,19 +124,21 @@ export default function RecentDevelopments({
       {hasMore ? (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
           <button
+            className="rdMoreBtn"
             onClick={() => setCount((c) => c + step)}
             style={{
               height: 40,
               borderRadius: 12,
-              border: "1px solid var(--borderSoft)",
+              border: "1px solid var(--border)",
               padding: "0 1rem",
-              background: "white",
+              background: "var(--card)",
+              color: "var(--text)",
               fontWeight: 700,
               cursor: "pointer",
-            }}
-          >
-            More
-          </button>
+  }}
+>
+  More
+</button>
         </div>
       ) : null}
 
@@ -147,6 +149,9 @@ export default function RecentDevelopments({
             grid-template-columns: 1fr !important;
           }
         }
+        .rdMoreBtn:hover {
+          background: var(--rowHover);
+  }
       `}</style>
     </div>
   );
