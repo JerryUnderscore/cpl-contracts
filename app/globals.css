@@ -416,3 +416,20 @@ table tr:hover {
   background: var(--pillDevBg);
   border-color: var(--pillDevBorder);
 }
+
+/* A fixed-size slot for a club logo that doesn't change layout */
+.clubLogoSwap {
+  position: relative;
+  width: 20px;   /* set to your desired size */
+  height: 20px;
+  flex: 0 0 20px; /* prevents flex layouts from stretching it */
+}
+
+.clubLogoSwap img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

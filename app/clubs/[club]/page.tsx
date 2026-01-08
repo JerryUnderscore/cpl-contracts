@@ -99,10 +99,12 @@ export default async function ClubPage({ params }: { params: { club: string } })
         <div className="clubHeaderInner">
           <div className="clubBadgeWrap">
             {club.slug === "vancouver" ? (
-              <>
-                <img src="/clubs/vancouver.png" alt={`${club.name} logo`} className="clubBadge siteLogoLight" />
-                <img src="/clubs/Vancouver-dark.png" alt={`${club.name} logo`} className="clubBadge siteLogoDark" />
-              </>
+              // IMPORTANT: keep a single layout slot and absolutely stack the two images,
+              // so the hidden one can't push the layout around.
+              <span className="clubBadgeSwap" aria-hidden="true">
+                <img src="/clubs/vancouver.png" alt="" className="clubBadge siteLogoLight" />
+                <img src="/clubs/Vancouver-dark.png" alt="" className="clubBadge siteLogoDark" />
+              </span>
             ) : (
               <img src={`/clubs/${club.logoFile}`} alt={`${club.name} logo`} className="clubBadge" />
             )}
@@ -155,6 +157,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
             padding: 0.25rem;
           }
 
+          /* Base badge styling (non-Vancouver path uses this directly) */
           .clubBadge {
             width: 100%;
             height: auto;
@@ -162,6 +165,31 @@ export default async function ClubPage({ params }: { params: { club: string } })
             object-fit: contain;
             display: block;
           }
+
+          /* Vancouver swap container: one slot, two absolutely stacked images */
+          .clubBadgeSwap {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    max-height: 140px;
+    display: block;
+  }
+
+  .clubBadgeSwap .clubBadge {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* IMPORTANT: do NOT set display here */
+  }
+
+  /* Re-assert theme swapping locally (wins over any other clubBadge rules) */
+  .clubBadgeSwap .siteLogoLight { display: block; }
+  .clubBadgeSwap .siteLogoDark { display: none; }
+
+  html[data-theme="dark"] .clubBadgeSwap .siteLogoLight { display: none; }
+  html[data-theme="dark"] .clubBadgeSwap .siteLogoDark { display: block; }
 
           /* Optional polish: make the badge pop a bit in dark mode */
           html[data-theme="dark"] .clubBadge {
@@ -213,9 +241,18 @@ export default async function ClubPage({ params }: { params: { club: string } })
               width: 100%;
             }
 
+            /* Non-Vancouver */
             .clubBadge {
               max-height: 120px;
               width: 140px;
+            }
+
+            /* Vancouver */
+            .clubBadgeSwap {
+              width: 140px;
+              height: 120px;
+              max-height: 120px;
+              margin: 0 auto;
             }
 
             .clubName {
