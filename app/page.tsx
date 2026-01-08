@@ -280,13 +280,30 @@ const clubRows = Array.from(byClub.entries())
                       href={`/clubs/${r.clubSlug}`}
                       style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}
                     >
-                      {r.logoSrc ? (
+                    {r.logoSrc ? (
+                      r.clubSlug === "vancouver" ? (
+                        <>
+                          <img
+  src="/clubs/Vancouver.png"
+  alt={`${r.club} logo`}
+  className="siteLogoLight"
+  style={{ width: 20, height: 20, objectFit: "contain" }}
+/>
+<img
+  src="/clubs/Vancouver-dark.png"
+  alt={`${r.club} logo`}
+  className="siteLogoDark"
+  style={{ width: 20, height: 20, objectFit: "contain" }}
+/>
+                        </>
+                      ) : (
                         <img
                           src={r.logoSrc}
                           alt={`${r.club} logo`}
                           style={{ width: 20, height: 20, objectFit: "contain", display: "block" }}
                         />
-                      ) : null}
+                      )
+                    ) : null}
                       <span>{r.club}</span>
                     </Link>
                   </td>

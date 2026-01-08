@@ -40,12 +40,29 @@ export default function Header({ clubs }: { clubs: ClubNavItem[] }) {
               title={c.name}
               className="siteHeaderClubLink"
             >
-              <img
-                src={`/clubs/${c.logoFile}`}
-                alt={`${c.name} logo`}
-                className="siteHeaderClubLogo"
-                loading="lazy"
-              />
+              {c.slug === "vancouver" ? (
+                <>
+                  <img
+                    src="/clubs/Vancouver.png"
+                    alt={`${c.name} logo`}
+                    className="siteHeaderClubLogo siteLogoLight"
+                    loading="lazy"
+                  />
+                  <img
+                    src="/clubs/Vancouver-dark.png"
+                    alt={`${c.name} logo`}
+                    className="siteHeaderClubLogo siteLogoDark"
+                    loading="lazy"
+                  />
+                </>
+              ) : (
+                <img
+                  src={`/clubs/${c.logoFile}`}
+                  alt={`${c.name} logo`}
+                  className="siteHeaderClubLogo"
+                  loading="lazy"
+                />
+              )}
               <span>{c.navLabel}</span>
             </Link>
           ))}

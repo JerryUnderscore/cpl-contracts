@@ -293,6 +293,25 @@ html[data-theme="dark"] .heroLogoLight {
 html[data-theme="dark"] .heroLogoDark {
   display: block;
 }
+/* =========================
+   Club logo swapping
+   ========================= */
+
+.clubLogoLight {
+  display: block;
+}
+
+.clubLogoDark {
+  display: none;
+}
+
+html[data-theme="dark"] .clubLogoLight {
+  display: none;
+}
+
+html[data-theme="dark"] .clubLogoDark {
+  display: block;
+}
 
 /* =========================
    Tables / rows

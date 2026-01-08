@@ -466,11 +466,28 @@ export default function PlayersTable({
     return (
       <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
         {badgeFile ? (
-          <img
-            src={`/clubs/${badgeFile}`}
-            alt={`${p.club} badge`}
-            style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
-          />
+          slug === "vancouver" ? (
+            <>
+              <img
+  src="/clubs/Vancouver.png"
+  alt={`${p.club} badge`}
+  className="siteLogoLight"
+  style={{ width: 18, height: 18, objectFit: "contain" }}
+/>
+<img
+  src="/clubs/Vancouver-dark.png"
+  alt={`${p.club} badge`}
+  className="siteLogoDark"
+  style={{ width: 18, height: 18, objectFit: "contain" }}
+/>
+            </>
+          ) : (
+            <img
+              src={`/clubs/${badgeFile}`}
+              alt={`${p.club} badge`}
+              style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
+            />
+          )
         ) : null}
 
         {linkable ? (
