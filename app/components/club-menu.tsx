@@ -135,30 +135,30 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
                   onClick={() => setOpen(false)}
                 >
                   {c.slug === "vancouver" ? (
-                    <>
-                      <img
-                        src="/clubs/vancouver.png"
-                        alt=""
-                        className="siteLogoLight"
-                        style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
-                        loading="lazy"
-                      />
-                      <img
-                        src="/clubs/Vancouver-dark.png"
-                        alt=""
-                        className="siteLogoDark"
-                        style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
-                        loading="lazy"
-                      />
-                    </>
-                  ) : (
-                    <img
-                      src={`/clubs/${c.logoFile}`}
-                      alt=""
-                      style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
-                      loading="lazy"
-                    />
-                  )}
+  <>
+    <img
+      src="/clubs/vancouver.png"
+      alt=""
+      className="siteLogoLight"
+      style={{ width: 18, height: 18, objectFit: "contain", verticalAlign: "middle" }}
+      loading="lazy"
+    />
+    <img
+      src="/clubs/Vancouver-dark.png"
+      alt=""
+      className="siteLogoDark"
+      style={{ width: 18, height: 18, objectFit: "contain", verticalAlign: "middle" }}
+      loading="lazy"
+    />
+  </>
+) : (
+  <img
+    src={`/clubs/${c.logoFile}`}
+    alt=""
+    style={{ width: 18, height: 18, objectFit: "contain", verticalAlign: "middle" }}
+    loading="lazy"
+  />
+)}
                   <span>{c.navLabel}</span>
                 </Link>
               ))}
