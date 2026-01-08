@@ -43,7 +43,7 @@ export default function Header({ clubs }: { clubs: ClubNavItem[] }) {
               {c.slug === "vancouver" ? (
                 <>
                   <img
-                    src="/clubs/Vancouver.png"
+                    src="/clubs/vancouver.png"
                     alt={`${c.name} logo`}
                     className="siteHeaderClubLogo siteLogoLight"
                     loading="lazy"

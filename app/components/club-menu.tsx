@@ -137,7 +137,7 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
                   {c.slug === "vancouver" ? (
                     <>
                       <img
-                        src="/clubs/Vancouver.png"
+                        src="/clubs/vancouver.png"
                         alt=""
                         className="siteLogoLight"
                         style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}

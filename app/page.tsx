@@ -284,7 +284,7 @@ const clubRows = Array.from(byClub.entries())
                       r.clubSlug === "vancouver" ? (
                         <>
                           <img
-  src="/clubs/Vancouver.png"
+  src="/clubs/vancouver.png"
   alt={`${r.club} logo`}
   className="siteLogoLight"
   style={{ width: 20, height: 20, objectFit: "contain" }}

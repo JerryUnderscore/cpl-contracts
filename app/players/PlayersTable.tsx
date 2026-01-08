@@ -469,7 +469,7 @@ export default function PlayersTable({
           slug === "vancouver" ? (
             <>
               <img
-  src="/clubs/Vancouver.png"
+  src="/clubs/vancouver.png"
   alt={`${p.club} badge`}
   className="siteLogoLight"
   style={{ width: 18, height: 18, objectFit: "contain" }}

@@ -100,7 +100,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
           <div className="clubBadgeWrap">
             {club.slug === "vancouver" ? (
               <>
-                <img src="/clubs/Vancouver.png" alt={`${club.name} logo`} className="clubBadge siteLogoLight" />
+                <img src="/clubs/vancouver.png" alt={`${club.name} logo`} className="clubBadge siteLogoLight" />
                 <img src="/clubs/Vancouver-dark.png" alt={`${club.name} logo`} className="clubBadge siteLogoDark" />
               </>
             ) : (
