@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 type ClubNavItem = {
   slug: string;
@@ -22,7 +23,6 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
   }, [open]);
 
   React.useEffect(() => {
-    // prevent background scroll when drawer is open
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -38,7 +38,8 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
     padding: "0.45rem 0.7rem",
     borderRadius: 10,
     border: "1px solid var(--border)",
-    background: "#ffffff",
+    background: "var(--card)",
+    color: "var(--text)",
     fontWeight: 650,
     cursor: "pointer",
     userSelect: "none",
@@ -47,7 +48,7 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
   const overlayStyle: React.CSSProperties = {
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.35)",
+    background: "rgba(0,0,0,0.45)",
     zIndex: 9999,
     display: "flex",
     justifyContent: "flex-end",
@@ -56,7 +57,7 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
   const drawerStyle: React.CSSProperties = {
     width: "min(360px, 88vw)",
     height: "100%",
-    background: "#ffffff",
+    background: "var(--bg)",
     borderLeft: "1px solid var(--border)",
     padding: "0.9rem",
     display: "flex",
@@ -72,20 +73,33 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
     paddingRight: "0.25rem",
   };
 
-  const linkStyle: React.CSSProperties = {
+  const itemStyle: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
     gap: "0.55rem",
     padding: "0.55rem 0.6rem",
-    borderRadius: 10,
+    borderRadius: 12,
     border: "1px solid var(--borderSoft)",
-    background: "#ffffff",
+    background: "var(--card)",
+    color: "var(--link)",
     fontWeight: 650,
+  };
+
+  const closeButtonStyle: React.CSSProperties = {
+    marginLeft: "auto",
+    border: "1px solid var(--border)",
+    background: "var(--card)",
+    color: "var(--text)",
+    borderRadius: 10,
+    padding: "0.35rem 0.55rem",
+    cursor: "pointer",
+    fontWeight: 750,
+    lineHeight: 1,
   };
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} style={buttonStyle} aria-label="Open menu">
+      <button type="button" onClick={() => setOpen(true)} style={buttonStyle} aria-label="Open club menu">
         <span aria-hidden="true" style={{ fontSize: "1.1rem", lineHeight: 1 }}>
           ☰
         </span>
@@ -99,53 +113,53 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
           aria-modal="true"
           aria-label="Club menu"
           onMouseDown={(e) => {
-            // click outside drawer closes
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
           <div style={drawerStyle}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ fontWeight: 800, fontSize: "1.05rem" }}>Clubs</div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                style={{
-                  marginLeft: "auto",
-                  border: "1px solid var(--border)",
-                  background: "#ffffff",
-                  borderRadius: 10,
-                  padding: "0.35rem 0.55rem",
-                  cursor: "pointer",
-                  fontWeight: 650,
-                }}
-                aria-label="Close menu"
-              >
+              <div style={{ fontWeight: 800, fontSize: "1.05rem", color: "var(--text)" }}>Clubs</div>
+
+              <button type="button" onClick={() => setOpen(false)} style={closeButtonStyle} aria-label="Close menu">
                 ✕
               </button>
             </div>
 
             <div style={listStyle}>
               {clubs.map((c) => (
-                <a
+                <Link
                   key={c.slug}
                   href={`/clubs/${c.slug}`}
                   title={c.name}
-                  style={linkStyle}
+                  style={itemStyle}
                   onClick={() => setOpen(false)}
                 >
                   <img
                     src={`/clubs/${c.logoFile}`}
                     alt=""
                     style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
+                    loading="lazy"
                   />
                   <span>{c.navLabel}</span>
-                </a>
+                </Link>
               ))}
             </div>
 
             <div style={{ marginTop: "auto", color: "var(--muted)", fontSize: "0.9rem" }}>
               Tip: tap outside the panel or press Esc to close.
             </div>
+
+            {/* Tiny hover/focus polish without needing global CSS */}
+            <style>{`
+              a[title]:hover {
+                background: var(--rowHover) !important;
+              }
+              a[title]:focus-visible,
+              button:focus-visible {
+                outline: 2px solid var(--link);
+                outline-offset: 2px;
+              }
+            `}</style>
           </div>
         </div>
       ) : null}
