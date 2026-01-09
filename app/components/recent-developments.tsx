@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import SourcePill from "./SourcePill";
+import styles from "./recent-developments.module.css";
 
 type UpdateItem = {
   id: string;
@@ -91,7 +92,7 @@ export default function RecentDevelopments({
       </div>
 
       <div
-        className="recentDevelopmentsGrid"
+        className={styles.recentDevelopmentsGrid}
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
@@ -124,7 +125,7 @@ export default function RecentDevelopments({
       {hasMore ? (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
           <button
-            className="rdMoreBtn"
+            className={styles.moreButton}
             onClick={() => setCount((c) => c + step)}
             style={{
               height: 40,
@@ -135,24 +136,12 @@ export default function RecentDevelopments({
               color: "var(--text)",
               fontWeight: 700,
               cursor: "pointer",
-  }}
->
-  More
-</button>
+            }}
+          >
+            More
+          </button>
         </div>
       ) : null}
-
-      <style>{`
-        @media (max-width: 720px) {
-          /* stack the 3 columns on mobile */
-          .recentDevelopmentsGrid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-        .rdMoreBtn:hover {
-          background: var(--rowHover);
-  }
-      `}</style>
     </div>
   );
 }

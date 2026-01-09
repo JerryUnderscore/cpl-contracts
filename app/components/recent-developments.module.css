@@ -1,0 +1,9 @@
+.moreButton:hover {
+  background: var(--rowHover);
+}
+
+@media (max-width: 720px) {
+  .recentDevelopmentsGrid {
+    grid-template-columns: 1fr !important;
+  }
+}

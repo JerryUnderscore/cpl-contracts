@@ -1,10 +1,12 @@
 // app/players/PlayersTable.tsx
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import * as React from "react";
 import Link from "next/link";
 import type { Player as BasePlayer } from "../lib/players";
 import TagPill from "../components/TagPill";
+import styles from "./PlayersTable.module.css";
 import { FlagsFromCell } from "../lib/Flag";
 import { normalizeContractValue, hasContractValue, contractKindFromValue } from "../lib/contracts";
 import { getClubBadgeFile, isLinkableClubSlug } from "../lib/club-badges";
@@ -246,9 +248,9 @@ export default function PlayersTable({
     return firstYear && isYearHeader(firstYear) ? Number(firstYear) : new Date().getFullYear();
   }, [firstYear]);
 
-  function ageOf(p: Player) {
+  const ageOf = React.useCallback((p: Player) => {
     return ageOnJan1(p.birthDate, ageSeason);
-  }
+  }, [ageSeason]);
 
   const positionOptions = React.useMemo(() => {
     const set = new Set<string>();
@@ -310,7 +312,7 @@ export default function PlayersTable({
     setStatusFilter("all");
   }
 
-  function sortValue(p: Player, key: SortKey): string | number {
+  const sortValue = React.useCallback((p: Player, key: SortKey): string | number => {
     if (key.startsWith("season:")) {
       const y = key.slice("season:".length);
       return normalizeContractValue(p.seasons?.[y]);
@@ -332,7 +334,7 @@ export default function PlayersTable({
       default:
         return "";
     }
-  }
+  }, [ageOf]);
 
   const filtered = React.useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -377,7 +379,7 @@ export default function PlayersTable({
 
       return true;
     });
-  }, [typedPlayers, q, posFilter, ageFilter, natFilter, clubFilter, statusFilter, firstYear, hideClub, hideContracts, ageSeason]);
+  }, [typedPlayers, q, posFilter, ageFilter, natFilter, clubFilter, statusFilter, firstYear, hideClub, hideContracts, ageOf]);
 
   const sorted = React.useMemo(() => {
     const copy = [...filtered];
@@ -388,7 +390,7 @@ export default function PlayersTable({
       return sortDir === "asc" ? c : -c;
     });
     return copy;
-  }, [filtered, sortKey, sortDir, ageSeason]);
+  }, [filtered, sortKey, sortDir, sortValue]);
 
   function onHeaderClick(key: SortKey) {
     if (key === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -471,21 +473,20 @@ export default function PlayersTable({
               <img
   src="/clubs/vancouver.png"
   alt={`${p.club} badge`}
-  className="siteLogoLight"
-  style={{ width: 18, height: 18, objectFit: "contain" }}
+  className="siteLogoLight clubBadgeSmall"
 />
 <img
   src="/clubs/Vancouver-dark.png"
   alt={`${p.club} badge`}
-  className="siteLogoDark"
-  style={{ width: 18, height: 18, objectFit: "contain" }}
+  className="siteLogoDark clubBadgeSmall"
 />
             </>
           ) : (
             <img
               src={`/clubs/${badgeFile}`}
               alt={`${p.club} badge`}
-              style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
+              className="clubBadgeSmall"
+              style={{ display: "block" }}
             />
           )
         ) : null}
@@ -634,7 +635,7 @@ export default function PlayersTable({
       </div>
 
       <div style={tableWrap}>
-        <table style={tableStyle}>
+        <table style={tableStyle} className={styles.playersTable}>
           <thead>
             <tr>
               <HeaderCell keyName="number" label="No." />
@@ -748,19 +749,6 @@ export default function PlayersTable({
         </table>
       </div>
 
-      <style>{`
-        table tr:hover td {
-          background: var(--rowHover);
-        }
-        table tr:hover td:first-child {
-          border-top-left-radius: 12px;
-          border-bottom-left-radius: 12px;
-        }
-        table tr:hover td:last-child {
-          border-top-right-radius: 12px;
-          border-bottom-right-radius: 12px;
-        }
-      `}</style>
     </div>
   );
 }

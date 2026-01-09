@@ -1,0 +1,149 @@
+.clubHeaderInner {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.clubBadgeWrap {
+  flex: 0 0 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.25rem;
+}
+
+.clubBadge {
+  width: 100%;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+  display: block;
+}
+
+.clubBadgeSwap {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  max-height: 140px;
+  display: block;
+}
+
+.clubBadgeSwap .clubBadge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.clubBadgeSwap :global(.siteLogoLight) {
+  display: block;
+}
+
+.clubBadgeSwap :global(.siteLogoDark) {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .clubBadgeSwap :global(.siteLogoLight) {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .clubBadgeSwap :global(.siteLogoDark) {
+  display: block;
+}
+
+:global(html[data-theme="dark"]) .clubBadge {
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.35));
+}
+
+.clubInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.clubName {
+  margin: 0;
+  font-size: 2.25rem;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.clubMetaGrid {
+  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.25rem;
+  color: var(--text);
+}
+
+.clubMetaLabel {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.clubMetaValue {
+  font-weight: 600;
+}
+
+.clubMetaFull {
+  grid-column: 1 / -1;
+}
+
+.transfersGrid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.transferRow:last-child {
+  border-bottom: none !important;
+}
+
+@media (max-width: 720px) {
+  .clubHeaderInner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .clubBadgeWrap {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .clubBadge {
+    max-height: 120px;
+    width: 140px;
+  }
+
+  .clubBadgeSwap {
+    width: 140px;
+    height: 120px;
+    max-height: 120px;
+    margin: 0 auto;
+  }
+
+  .clubName {
+    font-size: 1.8rem;
+    line-height: 1.1;
+  }
+
+  .clubMetaGrid {
+    grid-template-columns: 1fr;
+    text-align: left;
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .clubMetaFull {
+    grid-column: auto;
+  }
+
+  .transfersGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,7 @@
 // app/page.tsx
+/* eslint-disable @next/next/no-img-element */
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { getPlayers, type Player } from "./lib/players";
 import { normalizeContractValue, hasContractValue } from "./lib/contracts";
@@ -209,18 +211,26 @@ const clubRows = Array.from(byClub.entries())
       >
        <div style={{ maxWidth: 920, margin: "0 auto", textAlign: "center" }}>
   {/* Light-mode hero logo */}
-  <img
+  <Image
     src="/brand/logo-light.png"
     alt="CPL Contracts"
     className="heroLogo heroLogoLight"
+    width={1400}
+    height={400}
+    priority
+    sizes="(max-width: 600px) 90vw, 500px"
     style={{ width: "100%", maxWidth: 500, height: "auto", margin: "0 auto" }}
   />
 
   {/* Dark-mode hero logo */}
-  <img
+  <Image
     src="/brand/logo-dark.png"
     alt="CPL Contracts"
     className="heroLogo heroLogoDark"
+    width={1124}
+    height={320}
+    priority
+    sizes="(max-width: 600px) 90vw, 500px"
     style={{ width: "100%", maxWidth: 500, height: "auto", margin: "0 auto" }}
   />
 

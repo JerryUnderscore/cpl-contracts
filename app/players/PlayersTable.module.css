@@ -1,0 +1,13 @@
+.playersTable tr:hover td {
+  background: var(--rowHover);
+}
+
+.playersTable tr:hover td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.playersTable tr:hover td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}

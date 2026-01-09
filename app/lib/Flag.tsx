@@ -1,4 +1,5 @@
 // app/lib/Flag.tsx
+/* eslint-disable @next/next/no-img-element */
 import * as React from "react";
 
 /**

@@ -1,4 +1,5 @@
 // app/clubs/[club]/page.tsx
+/* eslint-disable @next/next/no-img-element */
 import * as React from "react";
 import { notFound } from "next/navigation";
 import { getPlayers, type Player } from "../../lib/players";
@@ -7,6 +8,7 @@ import { CLUB_BY_SLUG } from "../../lib/clubs";
 import { getTransfers, type TransferItem } from "../../lib/transfers";
 import SourcePill from "../../components/SourcePill";
 import Card from "../../components/Card";
+import styles from "./club-page.module.css";
 
 export const revalidate = 300;
 
@@ -34,7 +36,7 @@ function TransferRow({ t }: { t: TransferItem }) {
 
   return (
     <li
-      className="transferRow"
+      className={styles.transferRow}
       style={{
         padding: "0.5rem 0",
         borderBottom: "1px solid var(--borderSoft)",
@@ -96,184 +98,51 @@ export default async function ClubPage({ params }: { params: { club: string } })
           background: "var(--card)",
         }}
       >
-        <div className="clubHeaderInner">
-          <div className="clubBadgeWrap">
+        <div className={styles.clubHeaderInner}>
+          <div className={styles.clubBadgeWrap}>
             {club.slug === "vancouver" ? (
               // IMPORTANT: keep a single layout slot and absolutely stack the two images,
               // so the hidden one can't push the layout around.
-              <span className="clubBadgeSwap" aria-hidden="true">
-                <img src="/clubs/vancouver.png" alt="" className="clubBadge siteLogoLight" />
-                <img src="/clubs/Vancouver-dark.png" alt="" className="clubBadge siteLogoDark" />
+              <span className={styles.clubBadgeSwap} aria-hidden="true">
+                <img src="/clubs/vancouver.png" alt="" className={`${styles.clubBadge} siteLogoLight`} />
+                <img src="/clubs/Vancouver-dark.png" alt="" className={`${styles.clubBadge} siteLogoDark`} />
               </span>
             ) : (
-              <img src={`/clubs/${club.logoFile}`} alt={`${club.name} logo`} className="clubBadge" />
+              <img src={`/clubs/${club.logoFile}`} alt={`${club.name} logo`} className={styles.clubBadge} />
             )}
           </div>
 
-          <div className="clubInfo">
-            <h1 className="clubName">{club.name}</h1>
+          <div className={styles.clubInfo}>
+            <h1 className={styles.clubName}>{club.name}</h1>
 
-            <div className="clubMetaGrid">
+            <div className={styles.clubMetaGrid}>
               <div className="clubMetaItem">
-                <div className="clubMetaLabel">Location</div>
-                <div className="clubMetaValue">{club.location}</div>
+                <div className={styles.clubMetaLabel}>Location</div>
+                <div className={styles.clubMetaValue}>{club.location}</div>
               </div>
 
               <div className="clubMetaItem">
-                <div className="clubMetaLabel">Stadium</div>
-                <div className="clubMetaValue">{club.stadium}</div>
+                <div className={styles.clubMetaLabel}>Stadium</div>
+                <div className={styles.clubMetaValue}>{club.stadium}</div>
               </div>
 
               <div className="clubMetaItem">
-                <div className="clubMetaLabel">Capacity</div>
-                <div className="clubMetaValue">{fmtNumber(club.capacity)}</div>
+                <div className={styles.clubMetaLabel}>Capacity</div>
+                <div className={styles.clubMetaValue}>{fmtNumber(club.capacity)}</div>
               </div>
 
               <div className="clubMetaItem">
-                <div className="clubMetaLabel">Joined</div>
-                <div className="clubMetaValue">{club.joined}</div>
+                <div className={styles.clubMetaLabel}>Joined</div>
+                <div className={styles.clubMetaValue}>{club.joined}</div>
               </div>
 
-              <div className="clubMetaItem clubMetaFull">
-                <div className="clubMetaLabel">Head coach</div>
-                <div className="clubMetaValue">{club.headCoach}</div>
+              <div className={`clubMetaItem ${styles.clubMetaFull}`}>
+                <div className={styles.clubMetaLabel}>Head coach</div>
+                <div className={styles.clubMetaValue}>{club.headCoach}</div>
               </div>
             </div>
           </div>
         </div>
-
-        <style>{`
-          .clubHeaderInner {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-          }
-
-          .clubBadgeWrap {
-            flex: 0 0 180px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0.25rem;
-          }
-
-          /* Base badge styling (non-Vancouver path uses this directly) */
-          .clubBadge {
-            width: 100%;
-            height: auto;
-            max-height: 140px;
-            object-fit: contain;
-            display: block;
-          }
-
-          /* Vancouver swap container: one slot, two absolutely stacked images */
-          .clubBadgeSwap {
-    position: relative;
-    width: 100%;
-    height: 140px;
-    max-height: 140px;
-    display: block;
-  }
-
-  .clubBadgeSwap .clubBadge {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    /* IMPORTANT: do NOT set display here */
-  }
-
-  /* Re-assert theme swapping locally (wins over any other clubBadge rules) */
-  .clubBadgeSwap .siteLogoLight { display: block; }
-  .clubBadgeSwap .siteLogoDark { display: none; }
-
-  html[data-theme="dark"] .clubBadgeSwap .siteLogoLight { display: none; }
-  html[data-theme="dark"] .clubBadgeSwap .siteLogoDark { display: block; }
-
-          /* Optional polish: make the badge pop a bit in dark mode */
-          html[data-theme="dark"] .clubBadge {
-            filter: drop-shadow(0 1px 6px rgba(0,0,0,0.35));
-          }
-
-          .clubInfo {
-            flex: 1 1 auto;
-            min-width: 0;
-          }
-
-          .clubName {
-            margin: 0;
-            font-size: 2.25rem;
-            line-height: 1.1;
-            color: var(--text);
-          }
-
-          .clubMetaGrid {
-            margin-top: 0.85rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem 1.25rem;
-            color: var(--text);
-          }
-
-          .clubMetaLabel {
-            font-size: 0.85rem;
-            color: var(--muted);
-          }
-
-          .clubMetaValue {
-            font-weight: 600;
-          }
-
-          .clubMetaFull {
-            grid-column: 1 / -1;
-          }
-
-          @media (max-width: 720px) {
-            .clubHeaderInner {
-              flex-direction: column;
-              align-items: center;
-              text-align: center;
-            }
-
-            .clubBadgeWrap {
-              flex: 0 0 auto;
-              width: 100%;
-            }
-
-            /* Non-Vancouver */
-            .clubBadge {
-              max-height: 120px;
-              width: 140px;
-            }
-
-            /* Vancouver */
-            .clubBadgeSwap {
-              width: 140px;
-              height: 120px;
-              max-height: 120px;
-              margin: 0 auto;
-            }
-
-            .clubName {
-              font-size: 1.8rem;
-              line-height: 1.1;
-            }
-
-            .clubMetaGrid {
-              grid-template-columns: 1fr;
-              text-align: left;
-              width: 100%;
-              max-width: 420px;
-              margin-left: auto;
-              margin-right: auto;
-            }
-
-            .clubMetaFull {
-              grid-column: auto;
-            }
-          }
-        `}</style>
       </div>
 
       {/* Roster */}
@@ -283,7 +152,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
       {/* Transfers */}
       <h2 style={{ marginTop: "2rem" }}>Transfers</h2>
 
-      <div className="transfersGrid">
+      <div className={styles.transfersGrid}>
         <Card title="Transfers In">
           {transfersIn.length ? (
             <ul style={{ margin: 0, paddingLeft: "1.1rem" }}>
@@ -308,27 +177,6 @@ export default async function ClubPage({ params }: { params: { club: string } })
           )}
         </Card>
       </div>
-
-      <style>{`
-        .transfersGrid {
-          margin-top: 1rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-          align-items: start;
-        }
-
-        @media (max-width: 720px) {
-          .transfersGrid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        /* Remove divider under the last transfer row in each card */
-        ul > li.transferRow:last-child {
-          border-bottom: none !important;
-        }
-      `}</style>
     </div>
   );
 }
