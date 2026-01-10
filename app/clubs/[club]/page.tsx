@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getPlayers, type Player } from "../../lib/players";
 import PlayersTable from "../../players/PlayersTable";
 import { CLUB_BY_SLUG } from "../../lib/clubs";
+import { getClubMetaBySlug } from "../../lib/clubs-meta";
 import { getTransfers, type TransferItem } from "../../lib/transfers";
 import SourcePill from "../../components/SourcePill";
 import Card from "../../components/Card";
@@ -70,7 +71,20 @@ export default async function ClubPage({ params }: { params: { club: string } })
   const club = CLUB_BY_SLUG[clubSlug];
   if (!club) return notFound();
 
-  const [players, transfers] = await Promise.all([getPlayers(), getTransfers()]);
+  const [players, transfers, clubMetaBySlug] = await Promise.all([
+    getPlayers(),
+    getTransfers(),
+    getClubMetaBySlug(),
+  ]);
+  const meta = clubMetaBySlug[clubSlug];
+  const merged = {
+    displayName: meta?.displayName ?? club.name,
+    location: meta?.location ?? club.location,
+    stadium: meta?.stadium ?? club.stadium,
+    capacity: meta?.capacity ?? club.capacity,
+    manager: meta?.manager ?? club.headCoach,
+    joinedYear: club.joined,
+  };
 
   // Only show ACTIVE players on club pages
   const clubPlayers = players.filter((p) => p.clubSlug === clubSlug && isActivePlayer(p));
@@ -108,37 +122,37 @@ export default async function ClubPage({ params }: { params: { club: string } })
                 <img src="/clubs/Vancouver-dark.png" alt="" className={`${styles.clubBadge} siteLogoDark`} />
               </span>
             ) : (
-              <img src={`/clubs/${club.logoFile}`} alt={`${club.name} logo`} className={styles.clubBadge} />
+              <img src={`/clubs/${club.logoFile}`} alt={`${merged.displayName} logo`} className={styles.clubBadge} />
             )}
           </div>
 
           <div className={styles.clubInfo}>
-            <h1 className={styles.clubName}>{club.name}</h1>
+            <h1 className={styles.clubName}>{merged.displayName}</h1>
 
             <div className={styles.clubMetaGrid}>
               <div className="clubMetaItem">
                 <div className={styles.clubMetaLabel}>Location</div>
-                <div className={styles.clubMetaValue}>{club.location}</div>
+                <div className={styles.clubMetaValue}>{merged.location}</div>
               </div>
 
               <div className="clubMetaItem">
                 <div className={styles.clubMetaLabel}>Stadium</div>
-                <div className={styles.clubMetaValue}>{club.stadium}</div>
+                <div className={styles.clubMetaValue}>{merged.stadium}</div>
               </div>
 
               <div className="clubMetaItem">
                 <div className={styles.clubMetaLabel}>Capacity</div>
-                <div className={styles.clubMetaValue}>{fmtNumber(club.capacity)}</div>
+                <div className={styles.clubMetaValue}>{fmtNumber(merged.capacity)}</div>
               </div>
 
               <div className="clubMetaItem">
                 <div className={styles.clubMetaLabel}>Joined</div>
-                <div className={styles.clubMetaValue}>{club.joined}</div>
+                <div className={styles.clubMetaValue}>{merged.joinedYear}</div>
               </div>
 
               <div className={`clubMetaItem ${styles.clubMetaFull}`}>
                 <div className={styles.clubMetaLabel}>Head coach</div>
-                <div className={styles.clubMetaValue}>{club.headCoach}</div>
+                <div className={styles.clubMetaValue}>{merged.manager}</div>
               </div>
             </div>
           </div>
