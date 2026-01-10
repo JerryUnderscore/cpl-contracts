@@ -10,9 +10,12 @@ import styles from "./PlayersTable.module.css";
 import { FlagsFromCell } from "../lib/Flag";
 import { normalizeContractValue, hasContractValue, contractKindFromValue } from "../lib/contracts";
 import { getClubBadgeFile, isLinkableClubSlug } from "../lib/club-badges";
+import CaptainArmband from "../components/CaptainArmband";
+
 
 type Player = BasePlayer & {
   positionDetail?: string;
+  captain?: boolean;
 };
 
 type SortDir = "asc" | "desc";
@@ -686,7 +689,12 @@ export default function PlayersTable({
                 <tr key={p.id} style={{ background: idx % 2 === 0 ? "transparent" : "var(--rowAlt)" }}>
                   <td style={tdBase}>{p.number ?? "—"}</td>
 
-                  <td style={{ ...tdBase, fontWeight: 650 }}>{p.name}</td>
+                  <td style={{ ...tdBase, fontWeight: 650 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                      {p.name}
+                      {p.captain ? <CaptainArmband clubSlug={p.clubSlug ?? ""} /> : null}
+                    </span>
+                  </td>
 
                   <td style={{ ...tdBase, whiteSpace: "nowrap" }}>
                     <div style={{ fontWeight: 550 }}>{p.position ?? "—"}</div>

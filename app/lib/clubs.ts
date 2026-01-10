@@ -60,7 +60,7 @@ export const CLUBS: ClubInfo[] = [
     capacity: 6560,
     joined: 2023,
     headCoach: "Martin Nash",
-    colors: { primary: "FA2B2B", secondary: "1E1E1E" },
+    colors: { primary: "505256", secondary: "FA2B2B" },
   },
   {
     slug: "cavalry",
@@ -96,7 +96,7 @@ export const CLUBS: ClubInfo[] = [
     capacity: 4000,
     joined: 2019,
     headCoach: "Mauro Eustáquio",
-    colors: { primary: "FCBF0D", secondary: "0E3353" },
+    colors: { primary: "FCBF0D", secondary: "91999D" },
   },
   {
     slug: "atletico-ottawa",
@@ -108,7 +108,7 @@ export const CLUBS: ClubInfo[] = [
     capacity: 6419,
     joined: 2020,
     headCoach: "Diego Mejía",
-    colors: { primary: "E41C2E", secondary: "102F51" },
+    colors: { primary: "E41C2E", secondary: "FFFFFF" },
   },
   {
     slug: "supra",
@@ -132,7 +132,7 @@ export const CLUBS: ClubInfo[] = [
     capacity: 7500,
     joined: 2019,
     headCoach: "Vanni Sartini",
-    colors: { primary: "00E2FE", secondary: "05204A" },
+    colors: { primary: "00E2FE", secondary: "F4D258" },
   },
 ];
 

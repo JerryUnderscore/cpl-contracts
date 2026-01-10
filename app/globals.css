@@ -320,6 +320,10 @@ html[data-theme="dark"] .clubLogoDark {
   display: block;
 }
 
+html[data-theme="dark"] .armbandWrap {
+  --armband-outline: rgba(255, 255, 255, 0.65);
+}
+
 /* =========================
    Tables / rows
    ========================= */
