@@ -13,7 +13,8 @@ import styles from "./club-page.module.css";
 
 export const revalidate = 300;
 
-function fmtNumber(n: number) {
+function fmtNumber(n: number | undefined) {
+  if (n == null) return "—";
   return new Intl.NumberFormat("en-CA").format(n);
 }
 
@@ -50,17 +51,13 @@ function TransferRow({ t }: { t: TransferItem }) {
           {left} → {right}
         </span>
 
-        {summaryBits.length ? (
-          <span style={{ color: "var(--muted)" }}>({summaryBits.join(" • ")})</span>
-        ) : null}
+        {summaryBits.length ? <span style={{ color: "var(--muted)" }}>({summaryBits.join(" • ")})</span> : null}
 
         {pillLabel ? <SourcePill label={pillLabel} href={t.link} title={pillTitle} /> : null}
       </div>
 
       {t.notes ? (
-        <div style={{ marginTop: "0.25rem", color: "var(--muted)", fontSize: "0.95rem" }}>
-          {t.notes}
-        </div>
+        <div style={{ marginTop: "0.25rem", color: "var(--muted)", fontSize: "0.95rem" }}>{t.notes}</div>
       ) : null}
     </li>
   );
@@ -68,25 +65,22 @@ function TransferRow({ t }: { t: TransferItem }) {
 
 export default async function ClubPage({ params }: { params: { club: string } }) {
   const clubSlug = params.club;
+
   const brand = CLUB_BY_SLUG[clubSlug];
   if (!brand) return notFound();
 
-const [players, transfers, clubMetaBySlug] = await Promise.all([
-  getPlayers(),
-  getTransfers(),
-  getClubMetaBySlug(),
-]);
+  const [players, transfers, clubMetaBySlug] = await Promise.all([getPlayers(), getTransfers(), getClubMetaBySlug()]);
 
-const meta = clubMetaBySlug[clubSlug];
+  const meta = clubMetaBySlug[clubSlug];
 
-const merged = {
-  displayName: meta?.displayName ?? brand.navLabel ?? clubSlug,
-  location: meta?.location ?? "—",
-  stadium: meta?.stadium ?? "—",
-  capacity: meta?.capacity, // keep as number | undefined for fmtNumber
-  manager: meta?.manager ?? "—",
-  joinedYear: meta?.joined ?? "—",
-};
+  const merged = {
+    displayName: meta?.displayName ?? brand.navLabel ?? clubSlug,
+    location: meta?.location ?? "—",
+    stadium: meta?.stadium ?? "—",
+    capacity: meta?.capacity,
+    manager: meta?.manager ?? "—",
+    joinedYear: meta?.joined ?? "—",
+  };
 
   // Only show ACTIVE players on club pages
   const clubPlayers = players.filter((p) => p.clubSlug === clubSlug && isActivePlayer(p));
@@ -99,7 +93,34 @@ const merged = {
     .filter((t) => (t.fromClubSlug ?? "").trim() === clubSlug)
     .sort((a, b) => a.playerName.localeCompare(b.playerName, undefined, { sensitivity: "base" }));
 
-  const accent = `#${brand.colors.primary}`;
+  const accent = brand?.colors?.primary ? `#${brand.colors.primary}` : "var(--border)";
+
+  const badge = (
+    <div className={styles.clubBadgeWrap}>
+      {brand.logoSwap ? (
+        // IMPORTANT: keep a single layout slot and absolutely stack the two images,
+        // so the hidden one can't push the layout around.
+        <span className={styles.clubBadgeSwap} aria-hidden="true">
+          <img
+            src={`/clubs/${brand.logoSwap.light}`}
+            alt=""
+            className={`${styles.clubBadge} siteLogoLight`}
+          />
+          <img
+            src={`/clubs/${brand.logoSwap.dark}`}
+            alt=""
+            className={`${styles.clubBadge} siteLogoDark`}
+          />
+        </span>
+      ) : (
+        <img
+          src={`/clubs/${brand.logoFile}`}
+          alt={`${merged.displayName} logo`}
+          className={styles.clubBadge}
+        />
+      )}
+    </div>
+  );
 
   return (
     <div>
@@ -115,18 +136,7 @@ const merged = {
         }}
       >
         <div className={styles.clubHeaderInner}>
-          <div className={styles.clubBadgeWrap}>
-            {brand.slug === "vancouver" ? (
-              // IMPORTANT: keep a single layout slot and absolutely stack the two images,
-              // so the hidden one can't push the layout around.
-              <span className={styles.clubBadgeSwap} aria-hidden="true">
-                <img src="/clubs/vancouver.png" alt="" className={`${styles.clubBadge} siteLogoLight`} />
-                <img src="/clubs/vancouver-dark.png" alt="" className={`${styles.clubBadge} siteLogoDark`} />
-              </span>
-            ) : (
-              <img src={`/clubs/${brand.logoFile}`} alt={`${merged.displayName} logo`} className={styles.clubBadge} />
-            )}
-          </div>
+          {badge}
 
           <div className={styles.clubInfo}>
             <h1 className={styles.clubName}>{merged.displayName}</h1>
