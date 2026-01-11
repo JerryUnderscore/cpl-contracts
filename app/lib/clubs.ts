@@ -1,31 +1,30 @@
 // app/lib/clubs.ts
-export type ClubInfo = {
+// Branding + navigation only. All factual club metadata lives in clubs_meta.
+
+export type ClubBrand = {
   slug: string;
 
-  // Full name used on pages
-  name: string;
-
-  // Shorter label used in header nav
+  // Short label used in header/nav (curated)
   navLabel: string;
 
-  // Logo file inside /public/clubs (svg or png both fine)
+  // Logo file inside /public/clubs
   logoFile: string;
 
-  // Club header info
-  location: string;
-  stadium: string;
-  capacity: number;
-  joined: number;
-  headCoach: string;
-
-  // Brand colours
+  // Brand colours (hex without '#')
   colors: {
-    primary: string;   // hex without '#', e.g. "582B83"
-    secondary: string; // stored for later
+    primary: string;
+    secondary: string;
+  };
+
+  // Optional: some clubs need light/dark swap behavior for their badge
+  // (e.g., Vancouver has different assets in light vs dark mode)
+  logoSwap?: {
+    light: string;
+    dark: string;
   };
 };
 
-// West → East order (as requested)
+// West → East order (active CPL clubs only, as requested)
 export const CLUB_ORDER_WEST_EAST: string[] = [
   "pacific",
   "vancouver",
@@ -37,106 +36,72 @@ export const CLUB_ORDER_WEST_EAST: string[] = [
   "hfx-wanderers",
 ];
 
-export const CLUBS: ClubInfo[] = [
+// Active clubs only (defunct clubs like valour/edmonton are NOT in nav/order)
+export const CLUB_BRANDS: ClubBrand[] = [
   {
     slug: "pacific",
-    name: "Pacific FC",
     navLabel: "Pacific",
     logoFile: "pacific.svg",
-    location: "Langford, British Columbia",
-    stadium: "Starlight Stadium",
-    capacity: 6000,
-    joined: 2019,
-    headCoach: "James Merriman",
     colors: { primary: "582B83", secondary: "00B7BD" },
   },
   {
     slug: "vancouver",
-    name: "Vancouver FC",
     navLabel: "Vancouver",
     logoFile: "vancouver.png",
-    location: "Langley, British Columbia",
-    stadium: "Willoughby Community Park Stadium",
-    capacity: 6560,
-    joined: 2023,
-    headCoach: "Martin Nash",
+    logoSwap: { light: "vancouver.png", dark: "vancouver-dark.png" },
     colors: { primary: "505256", secondary: "FA2B2B" },
   },
   {
     slug: "cavalry",
-    name: "Cavalry FC",
     navLabel: "Cavalry",
     logoFile: "cavalry.svg",
-    location: "Foothills County, Alberta",
-    stadium: "ATCO Field",
-    capacity: 6000,
-    joined: 2019,
-    headCoach: "Tommy Wheeldon Jr.",
     colors: { primary: "335526", secondary: "DA291C" },
   },
   {
     slug: "forge",
-    name: "Forge FC",
     navLabel: "Forge",
     logoFile: "forge.svg",
-    location: "Hamilton, Ontario",
-    stadium: "Hamilton Stadium",
-    capacity: 23218,
-    joined: 2019,
-    headCoach: "Bobby Smyrniotis",
     colors: { primary: "DC4505", secondary: "53565A" },
   },
   {
     slug: "inter-toronto",
-    name: "Inter Toronto FC",
     navLabel: "Inter Toronto",
     logoFile: "toronto.png",
-    location: "Toronto, Ontario",
-    stadium: "York Lions Stadium",
-    capacity: 4000,
-    joined: 2019,
-    headCoach: "Mauro Eustáquio",
     colors: { primary: "FCBF0D", secondary: "91999D" },
   },
   {
     slug: "atletico-ottawa",
-    name: "Atlético Ottawa",
     navLabel: "Atlético Ottawa",
     logoFile: "ottawa.svg",
-    location: "Ottawa, Ontario",
-    stadium: "TD Place Stadium",
-    capacity: 6419,
-    joined: 2020,
-    headCoach: "Diego Mejía",
     colors: { primary: "E41C2E", secondary: "FFFFFF" },
   },
   {
     slug: "supra",
-    name: "FC Supra du Québec",
     navLabel: "Supra du Quebec",
     logoFile: "supra.png",
-    location: "Laval, Quebec",
-    stadium: "Stade Boréale",
-    capacity: 5581,
-    joined: 2026,
-    headCoach: "Nicholas Razzaghi",
     colors: { primary: "E53431", secondary: "041747" },
   },
   {
     slug: "hfx-wanderers",
-    name: "HFX Wanderers FC",
     navLabel: "HFX Wanderers",
     logoFile: "wanderers.svg",
-    location: "Halifax, Nova Scotia",
-    stadium: "Wanderers Grounds",
-    capacity: 7500,
-    joined: 2019,
-    headCoach: "Vanni Sartini",
     colors: { primary: "00E2FE", secondary: "F4D258" },
+  },
+  {
+    slug: "edmonton",
+    navLabel: "FC Edmonton",
+    logoFile: "edmonton.svg",
+    colors: { primary: "004C97", secondary: "0C2340" },
+  },
+  {
+    slug: "valour",
+    navLabel: "Valour FC",
+    logoFile: "valour.svg",
+    colors: { primary: "B9975C", secondary: "7C2529" },
   },
 ];
 
 // Handy lookup
-export const CLUB_BY_SLUG: Record<string, ClubInfo> = Object.fromEntries(
-  CLUBS.map((c) => [c.slug, c] as const)
+export const CLUB_BY_SLUG: Record<string, ClubBrand> = Object.fromEntries(
+  CLUB_BRANDS.map((c) => [c.slug, c] as const)
 );

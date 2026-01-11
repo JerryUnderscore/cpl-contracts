@@ -300,7 +300,7 @@ const clubRows = Array.from(byClub.entries())
   style={{ width: 20, height: 20, objectFit: "contain" }}
 />
 <img
-  src="/clubs/Vancouver-dark.png"
+  src="/clubs/vancouver-dark.png"
   alt={`${r.club} logo`}
   className="siteLogoDark"
   style={{ width: 20, height: 20, objectFit: "contain" }}

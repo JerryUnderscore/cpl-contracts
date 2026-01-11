@@ -479,7 +479,7 @@ export default function PlayersTable({
   className="siteLogoLight clubBadgeSmall"
 />
 <img
-  src="/clubs/Vancouver-dark.png"
+  src="/clubs/vancouver-dark.png"
   alt={`${p.club} badge`}
   className="siteLogoDark clubBadgeSmall"
 />

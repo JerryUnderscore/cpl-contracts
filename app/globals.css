@@ -320,6 +320,7 @@ html[data-theme="dark"] .clubLogoDark {
   display: block;
 }
 
+/* Armband module */
 html[data-theme="dark"] .armbandWrap {
   --armband-outline: rgba(255, 255, 255, 0.65);
 }
@@ -444,3 +445,10 @@ table tr:hover {
   object-fit: contain;
   display: block;
 }
+
+/* Ensure logo swapping still works inside .clubLogoSwap */
+.clubLogoSwap .siteLogoLight { display: block; }
+.clubLogoSwap .siteLogoDark { display: none; }
+
+html[data-theme="dark"] .clubLogoSwap .siteLogoLight { display: none; }
+html[data-theme="dark"] .clubLogoSwap .siteLogoDark { display: block; }

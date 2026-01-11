@@ -83,7 +83,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
     stadium: meta?.stadium ?? club.stadium,
     capacity: meta?.capacity ?? club.capacity,
     manager: meta?.manager ?? club.headCoach,
-    joinedYear: club.joined,
+    joinedYear: meta?.joined ?? club.joined,
   };
 
   // Only show ACTIVE players on club pages
@@ -119,7 +119,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
               // so the hidden one can't push the layout around.
               <span className={styles.clubBadgeSwap} aria-hidden="true">
                 <img src="/clubs/vancouver.png" alt="" className={`${styles.clubBadge} siteLogoLight`} />
-                <img src="/clubs/Vancouver-dark.png" alt="" className={`${styles.clubBadge} siteLogoDark`} />
+                <img src="/clubs/vancouver-dark.png" alt="" className={`${styles.clubBadge} siteLogoDark`} />
               </span>
             ) : (
               <img src={`/clubs/${club.logoFile}`} alt={`${merged.displayName} logo`} className={styles.clubBadge} />

@@ -3,7 +3,7 @@
 export type ClubMeta = {
   clubSlug: string;
   displayName: string;
-  founded?: number;
+  joined?: number;
   location?: string;
   stadium?: string;
   capacity?: number;
@@ -130,7 +130,7 @@ export async function getClubsMeta(): Promise<ClubMeta[]> {
         clubSlug,
         displayName,
 
-        founded: toNumberMaybe(r.founded),
+        joined: toNumberMaybe(r.joined),
         location: (r.location ?? "").trim() || undefined,
         stadium: (r.stadium ?? "").trim() || undefined,
         capacity: toNumberMaybe(r.capacity),
