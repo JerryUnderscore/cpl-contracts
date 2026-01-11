@@ -1,4 +1,5 @@
 // app/clubs/page.tsx
+import Image from "next/image";
 import Link from "next/link";
 import { getClubsMeta } from "../lib/clubs-meta";
 import { getClubsHonoursSummary } from "../lib/clubs-honours";
@@ -70,15 +71,28 @@ export default async function ClubsIndexPage() {
                   {brand?.logoFile ? (
                     c.clubSlug === "vancouver" ? (
                       <span className="clubLogoSwap" aria-hidden="true">
-                        <img src="/clubs/vancouver.png" alt="" className="siteLogoLight" />
-                        <img src="/clubs/vancouver_dark.png" alt="" className="siteLogoDark" />
+                        <Image
+                          src="/clubs/vancouver.png"
+                          alt=""
+                          className="siteLogoLight"
+                          width={66}
+                          height={66}
+                        />
+                        <Image
+                          src="/clubs/vancouver_dark.png"
+                          alt=""
+                          className="siteLogoDark"
+                          width={66}
+                          height={66}
+                        />
                       </span>
                     ) : (
-                      <img
+                      <Image
                         src={`/clubs/${brand.logoFile}`}
                         alt={`${c.displayName} logo`}
                         className="clubBadge"
-                        loading="lazy"
+                        width={66}
+                        height={66}
                       />
                     )
                   ) : (
@@ -151,25 +165,53 @@ export default async function ClubsIndexPage() {
 
               <div className="honoursRow" aria-label="Honours">
                 <div className="honourBlock" title={`North Star Cup years: ${yearsLabel(northStarYears)}`}>
-                  <img src={HONOUR_ICONS.northStarCup.src} alt="" aria-hidden="true" className="honourIcon" />
+                  <Image
+                    src={HONOUR_ICONS.northStarCup.src}
+                    alt=""
+                    aria-hidden="true"
+                    className="honourIcon"
+                    width={60}
+                    height={60}
+                  />
                   <div className="honourLabel">North Star Cup</div>
                   <div className="honourValue">{northStarCount}</div>
                 </div>
 
                 <div className="honourBlock" title={`CPL Shield years: ${yearsLabel(shieldYears)}`}>
-                  <img src={HONOUR_ICONS.cplShield.src} alt="" aria-hidden="true" className="honourIcon" />
+                  <Image
+                    src={HONOUR_ICONS.cplShield.src}
+                    alt=""
+                    aria-hidden="true"
+                    className="honourIcon"
+                    width={60}
+                    height={60}
+                  />
                   <div className="honourLabel">CPL Shield</div>
                   <div className="honourValue">{shieldCount}</div>
                 </div>
 
                 <div className="honourBlock" title={`Playoff seasons: ${yearsLabel(playoffYears)}`}>
-                  <img src={HONOUR_ICONS.playoffs.src} alt="" aria-hidden="true" className="honourIcon" />
+                  <Image
+                    src={HONOUR_ICONS.playoffs.src}
+                    alt=""
+                    aria-hidden="true"
+                    className="honourIcon"
+                    width={60}
+                    height={60}
+                  />
                   <div className="honourLabel">Playoffs</div>
                   <div className="honourValue">{playoffCount}</div>
                 </div>
 
                 <div className="honourBlock" title={`Wooden Spoon years: ${yearsLabel(woodenSpoonYears)}`}>
-                  <img src={HONOUR_ICONS.woodenSpoon.src} alt="" aria-hidden="true" className="honourIcon" />
+                  <Image
+                    src={HONOUR_ICONS.woodenSpoon.src}
+                    alt=""
+                    aria-hidden="true"
+                    className="honourIcon"
+                    width={60}
+                    height={60}
+                  />
                   <div className="honourLabel">Wooden Spoon</div>
                   <div className="honourValue">{woodenSpoonCount}</div>
                 </div>
@@ -380,7 +422,7 @@ export default async function ClubsIndexPage() {
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
         }
 
-        html[data-theme="dark"] .honourBlock {
+        html[data-theme=dark] .honourBlock {
           background: rgba(96, 165, 250, 0.14);
           box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
         }
