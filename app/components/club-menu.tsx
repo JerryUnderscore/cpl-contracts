@@ -158,7 +158,7 @@ export default function ClubMenu({ clubs }: { clubs: ClubNavItem[] }) {
       loading="lazy"
     />
     <img
-      src="/clubs/vancouver-dark.png"
+      src="/clubs/vancouver_dark.png"
       alt=""
       className="siteLogoDark clubBadgeSmall"
       loading="lazy"

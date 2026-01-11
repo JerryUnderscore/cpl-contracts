@@ -69,7 +69,7 @@ export default async function ClubsIndexPage() {
                     c.clubSlug === "vancouver" ? (
                       <span className="clubLogoSwap" aria-hidden="true">
                         <img src="/clubs/vancouver.png" alt="" className="siteLogoLight" />
-                        <img src="/clubs/vancouver-dark.png" alt="" className="siteLogoDark" />
+                        <img src="/clubs/vancouver_dark.png" alt="" className="siteLogoDark" />
                       </span>
                     ) : (
                       <img

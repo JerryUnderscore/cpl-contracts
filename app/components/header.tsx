@@ -50,7 +50,7 @@ export default function Header({ clubs }: { clubs: ClubNavItem[] }) {
                     loading="lazy"
                   />
                   <img
-                    src="/clubs/vancouver-dark.png"
+                    src="/clubs/vancouver_dark.png"
                     alt={`${c.name} logo`}
                     className="siteHeaderClubLogo siteLogoDark"
                     loading="lazy"

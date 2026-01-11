@@ -54,7 +54,7 @@ export const CLUB_BRANDS: ClubBrand[] = [
     name: "Vancouver FC",
     navLabel: "Vancouver",
     logoFile: "vancouver.png",
-    logoSwap: { light: "vancouver.png", dark: "vancouver-dark.png" },
+    logoSwap: { light: "vancouver.png", dark: "vancouver_dark.png" },
     colors: { primary: "505256", secondary: "FA2B2B" },
   },
   {
