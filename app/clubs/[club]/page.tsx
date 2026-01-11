@@ -68,23 +68,25 @@ function TransferRow({ t }: { t: TransferItem }) {
 
 export default async function ClubPage({ params }: { params: { club: string } }) {
   const clubSlug = params.club;
-  const club = CLUB_BY_SLUG[clubSlug];
-  if (!club) return notFound();
+  const brand = CLUB_BY_SLUG[clubSlug];
+  if (!brand) return notFound();
 
-  const [players, transfers, clubMetaBySlug] = await Promise.all([
-    getPlayers(),
-    getTransfers(),
-    getClubMetaBySlug(),
-  ]);
-  const meta = clubMetaBySlug[clubSlug];
-  const merged = {
-    displayName: meta?.displayName ?? club.name,
-    location: meta?.location ?? club.location,
-    stadium: meta?.stadium ?? club.stadium,
-    capacity: meta?.capacity ?? club.capacity,
-    manager: meta?.manager ?? club.headCoach,
-    joinedYear: meta?.joined ?? club.joined,
-  };
+const [players, transfers, clubMetaBySlug] = await Promise.all([
+  getPlayers(),
+  getTransfers(),
+  getClubMetaBySlug(),
+]);
+
+const meta = clubMetaBySlug[clubSlug];
+
+const merged = {
+  displayName: meta?.displayName ?? brand.navLabel ?? clubSlug,
+  location: meta?.location ?? "—",
+  stadium: meta?.stadium ?? "—",
+  capacity: meta?.capacity, // keep as number | undefined for fmtNumber
+  manager: meta?.manager ?? "—",
+  joinedYear: meta?.joined ?? "—",
+};
 
   // Only show ACTIVE players on club pages
   const clubPlayers = players.filter((p) => p.clubSlug === clubSlug && isActivePlayer(p));
@@ -97,7 +99,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
     .filter((t) => (t.fromClubSlug ?? "").trim() === clubSlug)
     .sort((a, b) => a.playerName.localeCompare(b.playerName, undefined, { sensitivity: "base" }));
 
-  const accent = `#${club.colors.primary}`;
+  const accent = `#${brand.colors.primary}`;
 
   return (
     <div>
@@ -114,7 +116,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
       >
         <div className={styles.clubHeaderInner}>
           <div className={styles.clubBadgeWrap}>
-            {club.slug === "vancouver" ? (
+            {brand.slug === "vancouver" ? (
               // IMPORTANT: keep a single layout slot and absolutely stack the two images,
               // so the hidden one can't push the layout around.
               <span className={styles.clubBadgeSwap} aria-hidden="true">
@@ -122,7 +124,7 @@ export default async function ClubPage({ params }: { params: { club: string } })
                 <img src="/clubs/vancouver-dark.png" alt="" className={`${styles.clubBadge} siteLogoDark`} />
               </span>
             ) : (
-              <img src={`/clubs/${club.logoFile}`} alt={`${merged.displayName} logo`} className={styles.clubBadge} />
+              <img src={`/clubs/${brand.logoFile}`} alt={`${merged.displayName} logo`} className={styles.clubBadge} />
             )}
           </div>
 
