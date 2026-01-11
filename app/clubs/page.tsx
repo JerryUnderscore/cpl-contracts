@@ -52,10 +52,12 @@ export default async function ClubsIndexPage() {
           const northStarCount = honours?.northStarCupTitles ?? 0;
           const shieldCount = honours?.cplShieldTitles ?? 0;
           const playoffCount = honours?.playoffSeasons?.length ?? 0;
+          const woodenSpoonCount = honours?.woodenSpoonTitles ?? 0;
 
           const northStarYears = honours?.northStarCupYears ?? [];
           const shieldYears = honours?.cplShieldYears ?? [];
           const playoffYears = honours?.playoffSeasons ?? [];
+          const woodenSpoonYears = honours?.woodenSpoonYears ?? [];
 
           return (
             <article
@@ -164,6 +166,12 @@ export default async function ClubsIndexPage() {
                   <img src={HONOUR_ICONS.playoffs.src} alt="" aria-hidden="true" className="honourIcon" />
                   <div className="honourLabel">Playoffs</div>
                   <div className="honourValue">{playoffCount}</div>
+                </div>
+
+                <div className="honourBlock" title={`Wooden Spoon years: ${yearsLabel(woodenSpoonYears)}`}>
+                  <img src={HONOUR_ICONS.woodenSpoon.src} alt="" aria-hidden="true" className="honourIcon" />
+                  <div className="honourLabel">Wooden Spoon</div>
+                  <div className="honourValue">{woodenSpoonCount}</div>
                 </div>
               </div>
 
@@ -334,13 +342,25 @@ export default async function ClubsIndexPage() {
           white-space: nowrap;
         }
 
-        /* ===== Honours as mini award cards (your mock) ===== */
+        /* ===== Honours as mini award cards ===== */
 
         .honoursRow {
           margin-top: 0.9rem;
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 0.75rem;
+        }
+
+        @media (max-width: 900px) {
+          .honoursRow {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 520px) {
+          .honoursRow {
+            grid-template-columns: 1fr;
+          }
         }
 
         .honourBlock {
@@ -357,19 +377,17 @@ export default async function ClubsIndexPage() {
 
           gap: 0.4rem;
 
-          /* optional raised feel */
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
         }
 
         html[data-theme="dark"] .honourBlock {
           background: rgba(96, 165, 250, 0.14);
-          /* optional raised feel (dark) */
           box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
         }
 
         .honourIcon {
-          width: 80px;
-          height: 80px;
+          width: 60px;
+          height: 60px;
           object-fit: contain;
           display: block;
           filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
@@ -421,16 +439,20 @@ export default async function ClubsIndexPage() {
           font-size: 0.95rem;
         }
 
-        /* Make sure the global swap slot looks good at 66px too */
+        /* Vancouver swap slot */
         .clubLogoSwap {
           width: 66px;
           height: 66px;
           flex: 0 0 66px;
+          position: relative;
+          display: block;
         }
 
         .clubLogoSwap img {
           width: 100%;
           height: 100%;
+          object-fit: contain;
+          display: block;
         }
       `}</style>
     </main>

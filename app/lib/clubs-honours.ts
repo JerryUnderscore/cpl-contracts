@@ -7,9 +7,9 @@ export type ClubHonoursRow = {
   northStarCup: boolean;
   cplShield: boolean;
 
-  // You said you'll fill this in manually afterwards,
-  // but we parse it now so the code doesn't need to change later.
+  // Optional flags (can be blank in the sheet)
   playoffs?: boolean;
+  woodenSpoon?: boolean;
 };
 
 export type ClubHonoursSummary = {
@@ -20,6 +20,9 @@ export type ClubHonoursSummary = {
 
   cplShieldTitles: number;
   cplShieldYears: number[];
+
+  woodenSpoonTitles: number;
+  woodenSpoonYears: number[];
 
   playoffSeasons: number[]; // seasons where playoffs === true (if present)
 };
@@ -98,7 +101,7 @@ export async function getClubsHonoursRows(): Promise<ClubHonoursRow[]> {
     );
   }
 
-  const res = await fetch(SHEET_CSV_URL);
+  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Failed to fetch clubs_honours CSV: ${res.status} ${res.statusText}`);
   }
@@ -119,7 +122,9 @@ export async function getClubsHonoursRows(): Promise<ClubHonoursRow[]> {
 
         northStarCup: toBooleanMaybe(r.northStarCup) ?? false,
         cplShield: toBooleanMaybe(r.cplShield) ?? false,
+
         playoffs: toBooleanMaybe(r.playoffs),
+        woodenSpoon: toBooleanMaybe(r.woodenSpoon),
       };
 
       return row;
@@ -138,7 +143,7 @@ export async function getClubsHonoursRows(): Promise<ClubHonoursRow[]> {
 
 /**
  * Aggregate per-club totals + years lists.
- * This is what you'll probably render on the Clubs page.
+ * This is what you'll render on the Clubs page.
  */
 export async function getClubsHonoursSummary(): Promise<Record<string, ClubHonoursSummary>> {
   const rows = await getClubsHonoursRows();
@@ -156,6 +161,9 @@ export async function getClubsHonoursSummary(): Promise<Record<string, ClubHonou
         cplShieldTitles: 0,
         cplShieldYears: [],
 
+        woodenSpoonTitles: 0,
+        woodenSpoonYears: [],
+
         playoffSeasons: [],
       };
     }
@@ -172,6 +180,11 @@ export async function getClubsHonoursSummary(): Promise<Record<string, ClubHonou
       s.cplShieldYears.push(r.season);
     }
 
+    if (r.woodenSpoon) {
+      s.woodenSpoonTitles += 1;
+      s.woodenSpoonYears.push(r.season);
+    }
+
     if (r.playoffs) {
       s.playoffSeasons.push(r.season);
     }
@@ -181,6 +194,7 @@ export async function getClubsHonoursSummary(): Promise<Record<string, ClubHonou
   for (const k of Object.keys(out)) {
     out[k].northStarCupYears.sort((a, b) => a - b);
     out[k].cplShieldYears.sort((a, b) => a - b);
+    out[k].woodenSpoonYears.sort((a, b) => a - b);
     out[k].playoffSeasons.sort((a, b) => a - b);
   }
 

@@ -12,7 +12,6 @@ import { normalizeContractValue, hasContractValue, contractKindFromValue } from 
 import { getClubBadgeFile, isLinkableClubSlug } from "../lib/club-badges";
 import CaptainArmband from "../components/CaptainArmband";
 
-
 type Player = BasePlayer & {
   positionDetail?: string;
   captain?: boolean;
@@ -27,6 +26,45 @@ type SortKey =
   | "age"
   | "nationality"
   | `season:${string}`;
+
+type PositionFilter = "all" | `pos:${string}` | `detail:${string}`;
+
+// Put this near the top of the file (helpers)
+
+const POSITION_ORDER = ["Forward", "Midfielder", "Defender", "Goalkeeper"] as const;
+
+function normalizeBroadPosition(v: string) {
+  return (v ?? "").trim();
+}
+
+function normalizeDetailPosition(v: string) {
+  return (v ?? "").trim();
+}
+
+function isDetailAllowedForBroad(broad: string, detail: string) {
+  // Prevent obviously-wrong combos from polluting the UI.
+  // (This also guards against sheet typos.)
+  const b = broad.toLowerCase();
+  const d = detail.toLowerCase();
+
+  if (!d) return false;
+
+  if (b === "goalkeeper") return false; // you said you don't store GK details (and even if you did, keep it clean)
+
+  if (b === "forward") {
+    return d.includes("forward") || d.includes("wing");
+  }
+
+  if (b === "midfielder") {
+    return d.includes("midfielder");
+  }
+
+  if (b === "defender") {
+    return d.includes("back") || d.includes("centre-back") || d.includes("center-back");
+  }
+
+  return true;
+}
 
 function compareStrings(a: string, b: string) {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
@@ -228,7 +266,7 @@ export default function PlayersTable({
 
   // Filters
   const [q, setQ] = React.useState("");
-  const [posFilter, setPosFilter] = React.useState<string>("all");
+  const [posFilter, setPosFilter] = React.useState<PositionFilter>("all");
   const [ageFilter, setAgeFilter] = React.useState<AgeBucket>("all");
   const [natFilter, setNatFilter] = React.useState<string>("all");
   const [clubFilter, setClubFilter] = React.useState<string>("all");
@@ -251,20 +289,50 @@ export default function PlayersTable({
     return firstYear && isYearHeader(firstYear) ? Number(firstYear) : new Date().getFullYear();
   }, [firstYear]);
 
-  const ageOf = React.useCallback((p: Player) => {
-    return ageOnJan1(p.birthDate, ageSeason);
-  }, [ageSeason]);
+  const ageOf = React.useCallback(
+    (p: Player) => {
+      return ageOnJan1(p.birthDate, ageSeason);
+    },
+    [ageSeason]
+  );
 
-  const positionOptions = React.useMemo(() => {
-    const set = new Set<string>();
-    for (const p of typedPlayers) {
-      const v = (p.position ?? "").trim();
-      if (v) set.add(v);
-    }
-    return Array.from(set).sort(compareStrings);
-  }, [typedPlayers]);
+// Replace your positionGroups useMemo with this:
 
-  const clubOptions = React.useMemo(() => {
+const positionGroups = React.useMemo(() => {
+  const map = new Map<string, Set<string>>();
+
+  for (const p of typedPlayers) {
+    const broad = normalizeBroadPosition(p.position ?? "");
+    if (!broad) continue;
+
+    if (!map.has(broad)) map.set(broad, new Set<string>());
+
+    const detail = normalizeDetailPosition(p.positionDetail ?? "");
+    if (!detail) continue;
+
+    // Only include sensible details under each broad bucket
+    if (!isDetailAllowedForBroad(broad, detail)) continue;
+
+    map.get(broad)!.add(detail);
+  }
+
+  // Order: Forwards, Midfielders, Defenders, Goalkeepers, then anything else
+  const broadSorted = Array.from(map.keys()).sort((a, b) => {
+    const ia = POSITION_ORDER.indexOf(a as any);
+    const ib = POSITION_ORDER.indexOf(b as any);
+    const ra = ia === -1 ? 999 : ia;
+    const rb = ib === -1 ? 999 : ib;
+    if (ra !== rb) return ra - rb;
+    return compareStrings(a, b);
+  });
+
+  return broadSorted.map((broad) => ({
+    broad,
+    details: Array.from(map.get(broad) ?? []).sort(compareStrings),
+  }));
+}, [typedPlayers]);
+
+const clubOptions = React.useMemo(() => {
     const set = new Set<string>();
     for (const p of typedPlayers) {
       const v = (p.club ?? "").trim();
@@ -315,29 +383,32 @@ export default function PlayersTable({
     setStatusFilter("all");
   }
 
-  const sortValue = React.useCallback((p: Player, key: SortKey): string | number => {
-    if (key.startsWith("season:")) {
-      const y = key.slice("season:".length);
-      return normalizeContractValue(p.seasons?.[y]);
-    }
+  const sortValue = React.useCallback(
+    (p: Player, key: SortKey): string | number => {
+      if (key.startsWith("season:")) {
+        const y = key.slice("season:".length);
+        return normalizeContractValue(p.seasons?.[y]);
+      }
 
-    switch (key) {
-      case "name":
-        return p.name ?? "";
-      case "club":
-        return p.club ?? "";
-      case "position":
-        return p.position ?? "";
-      case "nationality":
-        return p.nationality ?? "";
-      case "number":
-        return p.number ?? Number.POSITIVE_INFINITY;
-      case "age":
-        return ageOf(p) ?? Number.POSITIVE_INFINITY;
-      default:
-        return "";
-    }
-  }, [ageOf]);
+      switch (key) {
+        case "name":
+          return p.name ?? "";
+        case "club":
+          return p.club ?? "";
+        case "position":
+          return p.position ?? "";
+        case "nationality":
+          return p.nationality ?? "";
+        case "number":
+          return p.number ?? Number.POSITIVE_INFINITY;
+        case "age":
+          return ageOf(p) ?? Number.POSITIVE_INFINITY;
+        default:
+          return "";
+      }
+    },
+    [ageOf]
+  );
 
   const filtered = React.useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -360,7 +431,13 @@ export default function PlayersTable({
       }
 
       if (posFilter !== "all") {
-        if ((p.position ?? "").trim() !== posFilter) return false;
+        const [kind, ...rest] = posFilter.split(":");
+        const value = rest.join(":"); // just in case
+        if (kind === "pos") {
+          if ((p.position ?? "").trim() !== value) return false;
+        } else if (kind === "detail") {
+          if ((p.positionDetail ?? "").trim() !== value) return false;
+        }
       }
 
       if (!ageMatchesBucket(age, ageFilter)) return false;
@@ -382,7 +459,19 @@ export default function PlayersTable({
 
       return true;
     });
-  }, [typedPlayers, q, posFilter, ageFilter, natFilter, clubFilter, statusFilter, firstYear, hideClub, hideContracts, ageOf]);
+  }, [
+    typedPlayers,
+    q,
+    posFilter,
+    ageFilter,
+    natFilter,
+    clubFilter,
+    statusFilter,
+    firstYear,
+    hideClub,
+    hideContracts,
+    ageOf,
+  ]);
 
   const sorted = React.useMemo(() => {
     const copy = [...filtered];
@@ -473,16 +562,8 @@ export default function PlayersTable({
         {badgeFile ? (
           slug === "vancouver" ? (
             <>
-              <img
-  src="/clubs/vancouver.png"
-  alt={`${p.club} badge`}
-  className="siteLogoLight clubBadgeSmall"
-/>
-<img
-  src="/clubs/vancouver_dark.png"
-  alt={`${p.club} badge`}
-  className="siteLogoDark clubBadgeSmall"
-/>
+              <img src="/clubs/vancouver.png" alt={`${p.club} badge`} className="siteLogoLight clubBadgeSmall" />
+              <img src="/clubs/vancouver_dark.png" alt={`${p.club} badge`} className="siteLogoDark clubBadgeSmall" />
             </>
           ) : (
             <img
@@ -531,6 +612,14 @@ export default function PlayersTable({
     verticalAlign: "middle",
   };
 
+  // Tiny polish: label broad options as “All Defenders/Midfielders…”
+  function broadLabel(broad: string) {
+    const b = broad.trim();
+    if (!b) return broad;
+    if (b.toLowerCase() === "goalkeeper") return "All Goalkeepers";
+    return `All ${b}s`;
+  }
+
   return (
     <div>
       <div style={controlWrap}>
@@ -546,14 +635,23 @@ export default function PlayersTable({
 
         <div style={controlBlock}>
           <div style={labelStyle}>Position</div>
-          <select value={posFilter} onChange={(e) => setPosFilter(e.target.value)} style={inputStyle}>
-            <option value="all">All</option>
-            {positionOptions.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+            <select value={posFilter} onChange={(e) => setPosFilter(e.target.value as PositionFilter)} style={inputStyle}>
+              <option value="all">All</option>
+
+  {positionGroups.map(({ broad, details }) => (
+    <optgroup key={broad} label={broad}>
+      {/* Broad position itself is selectable */}
+      <option value={`pos:${broad}`}>{broad}</option>
+
+      {/* Detail positions */}
+      {details.map((d) => (
+        <option key={d} value={`detail:${d}`}>
+          {d}
+        </option>
+      ))}
+    </optgroup>
+  ))}
+</select>
         </div>
 
         <div style={controlBlock}>
@@ -716,7 +814,11 @@ export default function PlayersTable({
 
                   <td style={tdBase}>{FlagsFromCell(p.nationality)}</td>
 
-                  {!hideClub ? <td style={tdBase}><ClubCell p={p} /></td> : null}
+                  {!hideClub ? (
+                    <td style={tdBase}>
+                      <ClubCell p={p} />
+                    </td>
+                  ) : null}
 
                   {!hideContracts
                     ? years.map((y, yearIdx) => {
@@ -756,7 +858,6 @@ export default function PlayersTable({
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
