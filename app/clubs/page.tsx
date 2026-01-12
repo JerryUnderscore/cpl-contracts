@@ -173,7 +173,7 @@ export default async function ClubsIndexPage() {
                     width={60}
                     height={60}
                   />
-                  <div className="honourLabel">North Star Cup (League Championship)</div>
+                  <div className="honourLabel">North Star Cup <small>(League Championship)</small></div>
                   <div className="honourValue">{northStarCount}</div>
                 </div>
 
@@ -186,7 +186,7 @@ export default async function ClubsIndexPage() {
                     width={60}
                     height={60}
                   />
-                  <div className="honourLabel">CPL Shield (Regular season)</div>
+                  <div className="honourLabel">CPL Shield <small>(Regular season)</small></div>
                   <div className="honourValue">{shieldCount}</div>
                 </div>
 
@@ -437,9 +437,17 @@ export default async function ClubsIndexPage() {
 
         .honourLabel {
           color: var(--text);
-          font-size: 1.05rem;
-          font-weight: 900;
-          line-height: 1.1;
+          font-size: 0.95rem;
+          font-weight: 800;
+          line-height: 1.25;
+          text-align: center;
+        } 
+
+        .honourLabel small {
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 650;
+          opacity: 0.9;
         }
 
         .honourValue {
